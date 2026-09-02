@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-soft text-ink-900;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-150;
+  }
+  .btn-primary {
+    @apply btn text-white shadow-float;
+    background: linear-gradient(135deg, #3AAFE3 0%, #3157D5 100%);
+  }
+  .btn-primary:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  .btn-ghost {
+    @apply btn bg-white text-navy border border-line hover:border-sky-deep hover:text-cobalt;
+  }
+  .btn-dark { @apply btn bg-navy text-white hover:bg-charcoal; }
+
+  .card { @apply bg-white border border-line rounded-card p-6 shadow-float; }
+  .card-flat { @apply bg-white border border-line rounded-card p-6; }
+  .surface-navy {
+    @apply rounded-card p-6 text-white;
+    background: linear-gradient(160deg, #10243E 0%, #18212B 100%);
+  }
+
+  .badge { @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold; }
+  .badge-verified { @apply badge bg-teal/10 text-teal; }
+  .badge-pending  { @apply badge text-champagne; background: rgba(217,195,154,0.22); }
+  .badge-info     { @apply badge bg-sky/15 text-cobalt; }
+  .badge-neutral  { @apply badge bg-ink-600/10 text-ink-600; }
+
+  .sidebar-link {
+    @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white transition-colors;
+  }
+  .sidebar-link-active {
+    @apply sidebar-link text-white;
+    background: rgba(103,199,242,0.16);
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-line px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-deep/50 focus:border-sky-deep;
+  }
+
+  .skeleton { @apply animate-pulse bg-line/70 rounded-lg; }
+}

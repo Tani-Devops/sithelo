@@ -1,0 +1,61 @@
+import { createClient } from "@/lib/supabase/server";
+import { requireEntrepreneur } from "@/lib/auth/guards";
+import { SitheloButton, SitheloLogo } from "@/components/ui/sithelo";
+
+// ====================================================================
+// /entrepreneur/onboarding/complete — the "WE SEE YOU" screen (§39).
+//
+// Reads the persona that /api/onboarding/complete already computed
+// and persisted in the same request as the wizard submission — this
+// page never computes anything itself, only reflects real stored data
+// back. If a persona genuinely isn't there yet (e.g. this URL was hit
+// directly), it says so honestly rather than fabricating one.
+// ====================================================================
+
+export default async function OnboardingCompletePage() {
+  const { userId, profile } = await requireEntrepreneur();
+  const supabase = await createClient();
+
+  const { data: entrepreneurProfile } = await supabase
+    .from("entrepreneur_profiles")
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  const { data: persona } = entrepreneurProfile
+    ? await supabase
+        .from("entrepreneur_persona_state")
+        .select("persona_name, explanation, recommended_focus")
+        .eq("entrepreneur_profile_id", entrepreneurProfile.id)
+        .maybeSingle()
+    : { data: null };
+
+  const firstName = profile.full_name?.split(" ")[0] ?? "there";
+
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-navy px-6 py-16">
+      <div className="max-w-lg w-full text-center">
+        <div className="mb-10 brightness-0 invert opacity-90 flex justify-center"><SitheloLogo height={26} /></div>
+        <p className="text-white/50 text-sm mb-2">You&apos;re in, {firstName}.</p>
+        <h1 className="text-4xl font-display font-bold text-white tracking-tight mb-8">We see you.</h1>
+
+        {persona ? (
+          <div className="space-y-4">
+            <p className="text-white/80 text-lg">You&apos;re currently a <span className="font-semibold text-white">{persona.persona_name}</span>.</p>
+            <p className="text-white/60 leading-relaxed">{persona.explanation}</p>
+            <div className="bg-white/5 rounded-xl p-5 mt-6 text-left">
+              <div className="text-white/40 text-xs uppercase tracking-wide mb-1">Your next best step</div>
+              <p className="text-white text-sm">{persona.recommended_focus}</p>
+            </div>
+          </div>
+        ) : (
+          <p className="text-white/60">Sithelo is still putting your picture together. Head to your dashboard and it&apos;ll be ready shortly.</p>
+        )}
+
+        <div className="mt-10">
+          <SitheloButton href="/entrepreneur/dashboard" className="px-8 py-3">Start</SitheloButton>
+        </div>
+      </div>
+    </main>
+  );
+}

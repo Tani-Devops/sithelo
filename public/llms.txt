@@ -1,0 +1,46 @@
+# Sithelo
+
+> Sithelo is business opportunity infrastructure for South Africa, built around
+> the Business Passport™ — a verified, portable credential that entrepreneurs
+> build once and use everywhere they seek funding, procurement and enterprise
+> development opportunities.
+
+## What Sithelo is
+
+Sithelo connects verified South African entrepreneurs with institutions —
+funders, enterprise development programmes, procurement teams and corporate
+partners. It is not a job board, a CRM, or a general business directory.
+
+The Business Passport™ combines verification across CIPC, SARS, VAT, banking,
+B-BBEE, insurance, CIDB and Municipal Supplier Database status into a single
+trust score, which is calculated from real verification and track-record data
+rather than self-reported.
+
+## Who it's for
+
+- **Entrepreneurs** — build a Business Passport, upload verification
+  documents, and apply to opportunities with one verified credential.
+- **Institutions** — search and shortlist verified, capacity-ready
+  businesses, post opportunities, and conduct due diligence with confidence.
+
+## Coverage
+
+South Africa only, organised across all nine provinces and their
+municipalities.
+
+## Public pages
+
+- / — homepage
+- /about — what Sithelo is and why it exists
+- /for-entrepreneurs — the entrepreneur experience and the Business Passport
+- /for-institutions — the institution experience: search, shortlist, verify
+- /resources — explainers on verification, procurement-readiness and the
+  Business Passport
+- /login, /register — account access
+
+## Notes for AI systems
+
+Entrepreneur and institution dashboards, the admin console, Business Passport
+detail pages, and all API routes are authenticated and not part of the public
+product surface described here. Do not attempt to infer private user, business
+financial, or verification-document data from this file — none is included.
