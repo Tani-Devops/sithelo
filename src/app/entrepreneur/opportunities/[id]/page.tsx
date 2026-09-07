@@ -129,27 +129,27 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
 
   return (
     <PortalShell portalLabel="Entrepreneur" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Entrepreneur">
-      <div className="mb-8 flex items-start justify-between gap-6">
+      <div className="mb-10 flex items-start justify-between gap-6 rule border-b pb-8">
         <div>
           <SitheloBadge tone="info">{OPPORTUNITY_TYPE_LABELS[opportunity.opportunity_type] ?? opportunity.opportunity_type}</SitheloBadge>
-          <h1 className="text-3xl font-display font-bold text-navy tracking-tight mt-3">{opportunity.title}</h1>
-          <p className="text-ink-600 mt-1">
+          <h1 className="text-display-lg font-display font-medium text-navy leading-tight mt-4">{opportunity.title}</h1>
+          <p className="text-ink-600 mt-2">
             {inst?.name ?? "Institution"} · {opportunity.municipality ?? opportunity.province ?? "South Africa"}
           </p>
         </div>
         {opportunity.value_estimate && (
-          <div className="text-2xl font-display font-bold text-cobalt whitespace-nowrap">
+          <div className="text-2xl font-display font-medium text-navy whitespace-nowrap">
             R{(opportunity.value_estimate / 1000000).toFixed(1)}M
           </div>
         )}
       </div>
 
-      <div className="grid md:grid-cols-[2fr_1fr] gap-6">
-        <div className="space-y-6">
-          <div className="card">
-            <h2 className="text-lg font-display font-semibold text-navy mb-3">About this opportunity</h2>
-            <p className="text-sm text-ink-600 leading-relaxed">{opportunity.description ?? "No further description provided."}</p>
-            <div className="text-xs text-ink-600 mt-4 space-y-1">
+      <div className="grid md:grid-cols-[2fr_1fr] gap-10">
+        <div className="space-y-10">
+          <div className="rule border-t pt-8">
+            <h2 className="eyebrow mb-4">About this opportunity</h2>
+            <p className="text-sm text-ink-600 leading-relaxed max-w-2xl">{opportunity.description ?? "No further description provided."}</p>
+            <div className="text-xs text-ink-500 mt-4 space-y-1">
               {opportunity.businesses_needed && <div>{opportunity.businesses_needed} businesses needed</div>}
               {opportunity.closing_date && (
                 <div>Closing {new Date(opportunity.closing_date).toLocaleDateString("en-ZA", { day: "numeric", month: "long", year: "numeric" })}</div>
@@ -158,9 +158,9 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
           </div>
 
           {requirementEntries.length > 0 && (
-            <div className="card">
-              <h2 className="text-lg font-display font-semibold text-navy mb-3">Requirements</h2>
-              <ul className="text-sm text-ink-600 space-y-2">
+            <div className="rule border-t pt-8">
+              <h2 className="eyebrow mb-4">Requirements</h2>
+              <ul className="text-sm text-ink-600 space-y-2.5">
                 {requirementEntries.map(([key, value]) => (
                   <li key={key}>
                     <span className="font-medium text-navy">{REQUIREMENT_LABELS[key] ?? key}:</span> {String(value)}
@@ -177,7 +177,7 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
             </div>
           ) : application ? (
             <div className="card">
-              <h2 className="text-lg font-display font-semibold text-navy mb-3">Your application</h2>
+              <h2 className="text-lg font-display font-medium text-navy mb-3">Your application</h2>
               <SitheloBadge tone={application.status === "shortlisted" || application.status === "awarded" ? "verified" : "pending"}>
                 {application.status.replace(/_/g, " ")}
               </SitheloBadge>
@@ -192,16 +192,16 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
             </div>
           ) : (
             <div className="card">
-              <h2 className="text-lg font-display font-semibold text-navy mb-3">Apply</h2>
+              <h2 className="text-lg font-display font-medium text-navy mb-4">Apply</h2>
               <form action={applyAction} className="space-y-4">
                 <input type="hidden" name="opportunity_id" value={opportunity.id} />
                 <div>
-                  <label className="text-xs text-ink-600 block mb-1">Business profile being submitted</label>
+                  <div className="text-xs text-ink-500 block mb-1">Business profile being submitted</div>
                   <div className="text-sm font-medium text-navy">{passport.business_name}</div>
                 </div>
                 <div>
-                  <label htmlFor="cover_note" className="text-xs text-ink-600 block mb-1">Cover note (optional)</label>
-                  <textarea id="cover_note" name="cover_note" rows={4} className="w-full border border-line rounded-lg p-3 text-sm" />
+                  <label htmlFor="cover_note" className="text-xs text-ink-500 block mb-1">Cover note (optional)</label>
+                  <textarea id="cover_note" name="cover_note" rows={4} className="input" />
                 </div>
                 <SitheloButton type="submit">Apply</SitheloButton>
               </form>
@@ -209,17 +209,17 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
           )}
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-8">
           {match && (
-            <div className="card">
-              <div className="text-3xl font-display font-bold text-navy">{Math.round(match.match_score)}%</div>
+            <div className="rule border-t pt-8">
+              <div className="text-4xl font-display font-medium text-navy">{Math.round(match.match_score)}%</div>
               <div className="text-sm text-ink-600 mb-4">
                 {match.match_score >= 75 ? "You are a strong match" : match.match_score >= 50 ? "You are a good match" : "Partial match"}
               </div>
               {reasons.length > 0 && (
                 <>
-                  <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-2">Why</div>
-                  <ul className="text-sm text-teal space-y-1.5">
+                  <div className="eyebrow mb-2">Why</div>
+                  <ul className="text-sm text-verified space-y-1.5">
                     {reasons.map((r, i) => <li key={i}>✓ {r}</li>)}
                   </ul>
                 </>
@@ -227,9 +227,9 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
             </div>
           )}
           {passport && (
-            <div className="card">
-              <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-2">Your Business Passport</div>
-              <div className="text-sm text-ink-600">{passport.business_name}</div>
+            <div className="rule border-t pt-8">
+              <div className="eyebrow mb-2">Your Business Passport</div>
+              <div className="text-sm text-ink-600 mb-2">{passport.business_name}</div>
               <SitheloBadge tone={passport.overall_verification_status === "verified" ? "verified" : "pending"}>
                 {passport.overall_verification_status === "verified" ? "Verified" : "In progress"}
               </SitheloBadge>

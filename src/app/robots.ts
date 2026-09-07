@@ -20,7 +20,6 @@ export default function robots(): MetadataRoute.Robots {
         "/api/",
         "/auth",
         "/auth/",
-        "/register/check-email",
       ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

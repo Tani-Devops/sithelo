@@ -9,11 +9,11 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <main>
+    <main id="main-content">
       <SiteNav />
       <section className="max-w-[600px] mx-auto px-8 py-32 text-center">
         <div className="text-xs font-semibold tracking-wider uppercase text-teal mb-4">404</div>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-navy mb-3">
+        <h1 className="text-3xl font-display font-medium tracking-tight text-navy mb-3">
           We couldn&apos;t find that page.
         </h1>
         <p className="text-ink-600 text-[15px] leading-relaxed mb-8">

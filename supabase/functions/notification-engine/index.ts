@@ -56,7 +56,14 @@ Deno.serve(async (req) => {
             method: "POST",
             headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json" },
             body: JSON.stringify({
-              from: "Zenzele <notifications@zenzele.co.za>",
+              // Was hardcoded to a different Zenzele Holdings project's
+              // domain (zenzele.co.za) — copy/paste leftover. Sithelo's own
+              // domain is used everywhere else in this codebase (see
+              // NEXT_PUBLIC_SITE_URL default in .env.example / layout.tsx).
+              // Before launch: confirm notifications@sithelo.co.za is
+              // verified as a sending domain in the Resend dashboard, or
+              // emails will silently fail to deliver.
+              from: "Sithelo <notifications@sithelo.co.za>",
               to: profile.email,
               subject: title,
               html: `<p>Hi ${profile.full_name?.split(" ")[0] ?? "there"},</p><p>${body ?? ""}</p>`,

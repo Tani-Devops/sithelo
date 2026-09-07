@@ -55,26 +55,27 @@ export default async function BusinessDiscoveryPage({
 
   return (
     <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Procurement Officer">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-navy tracking-tight">Discover Businesses</h1>
-        <p className="text-ink-600 mt-1">Find the right South African business: verified, compliant, ready to work.</p>
+      <div className="mb-8 rule border-b pb-8">
+        <div className="eyebrow mb-3">Discover Businesses</div>
+        <h1 className="text-display-lg font-display font-medium text-navy leading-tight">Find the right South African business.</h1>
+        <p className="text-ink-600 mt-2">Verified, compliant, ready to work.</p>
       </div>
 
-      <form method="get" className="card mb-6 flex flex-wrap items-end gap-4">
+      <form method="get" className="flex flex-wrap items-end gap-4 mb-10">
         <div className="flex-1 min-w-[220px]">
-          <label className="block text-xs font-medium text-ink-600 mb-1.5">Search by name</label>
-          <input name="q" defaultValue={q ?? ""} placeholder="Business name" className="input" />
+          <label htmlFor="q" className="block text-xs font-medium text-ink-500 mb-1.5">Search by name</label>
+          <input id="q" name="q" defaultValue={q ?? ""} placeholder="Business name" className="input" />
         </div>
         <div className="min-w-[180px]">
-          <label className="block text-xs font-medium text-ink-600 mb-1.5">Industry</label>
-          <select name="industry" defaultValue={industry ?? ""} className="input">
+          <label htmlFor="industry" className="block text-xs font-medium text-ink-500 mb-1.5">Industry</label>
+          <select id="industry" name="industry" defaultValue={industry ?? ""} className="input">
             <option value="">All industries</option>
             {industries.map((i) => <option key={i} value={i}>{i}</option>)}
           </select>
         </div>
         <div className="min-w-[180px]">
-          <label className="block text-xs font-medium text-ink-600 mb-1.5">Province</label>
-          <select name="province" defaultValue={province ?? ""} className="input">
+          <label htmlFor="province" className="block text-xs font-medium text-ink-500 mb-1.5">Province</label>
+          <select id="province" name="province" defaultValue={province ?? ""} className="input">
             <option value="">All provinces</option>
             {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
@@ -92,16 +93,16 @@ export default async function BusinessDiscoveryPage({
       )}
 
       {!error && businesses && businesses.length > 0 && (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-0 rule border-t">
           {businesses.map((b) => (
-            <Link key={b.id} href={`/passport/${b.id}`} className="card hover:shadow-glow transition-shadow flex gap-4">
-              <SitheloRing value={b.trust_score} size={56} sublabel="" />
+            <Link key={b.id} href={`/passport/${b.id}`} className="flex gap-4 py-6 border-b border-line group">
+              <SitheloRing value={b.trust_score} size={52} sublabel="" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <h2 className="font-display font-semibold text-navy text-sm truncate">{b.business_name}</h2>
+                  <h2 className="font-display font-medium text-navy text-sm truncate group-hover:text-blue-600 transition-colors">{b.business_name}</h2>
                   {b.overall_verification_status === "verified" && <SitheloBadge tone="verified">✓</SitheloBadge>}
                 </div>
-                <div className="text-xs text-ink-600 mb-2">{b.industry ?? "—"} · {b.municipality ?? b.province ?? "—"}</div>
+                <div className="text-xs text-ink-500 mb-2">{b.industry ?? "—"} · {b.municipality ?? b.province ?? "—"}</div>
                 <p className="text-xs text-ink-600 line-clamp-2">{b.business_description ?? "No description provided."}</p>
               </div>
             </Link>

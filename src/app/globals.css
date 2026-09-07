@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-soft text-ink-900;
+    @apply bg-ivory text-ink-900 font-sans;
   }
   h1, h2, h3, h4 {
     @apply font-display;
@@ -12,43 +12,66 @@
 }
 
 @layer components {
+  /* ---------- Eyebrow / kicker label ---------- */
+  .eyebrow {
+    @apply text-eyebrow uppercase font-semibold text-blue-600;
+  }
+  .eyebrow-on-dark {
+    @apply text-eyebrow uppercase font-semibold text-white/60;
+  }
+
+  /* ---------- Buttons: flat, confident, no gradients ---------- */
   .btn {
-    @apply inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-150;
+    @apply inline-flex items-center justify-center rounded-sm px-6 py-3 text-sm font-semibold tracking-wide transition-colors duration-150;
   }
   .btn-primary {
-    @apply btn text-white shadow-float;
-    background: linear-gradient(135deg, #3AAFE3 0%, #3157D5 100%);
+    @apply btn bg-navy text-white hover:bg-navy-700;
   }
-  .btn-primary:hover { filter: brightness(1.06); transform: translateY(-1px); }
   .btn-ghost {
-    @apply btn bg-white text-navy border border-line hover:border-sky-deep hover:text-cobalt;
+    @apply btn bg-transparent text-navy border border-navy/25 hover:border-navy hover:bg-navy/[0.03];
   }
-  .btn-dark { @apply btn bg-navy text-white hover:bg-charcoal; }
-
-  .card { @apply bg-white border border-line rounded-card p-6 shadow-float; }
-  .card-flat { @apply bg-white border border-line rounded-card p-6; }
-  .surface-navy {
-    @apply rounded-card p-6 text-white;
-    background: linear-gradient(160deg, #10243E 0%, #18212B 100%);
+  .btn-on-dark {
+    @apply btn bg-white text-navy hover:bg-white/90;
+  }
+  .btn-on-dark-ghost {
+    @apply btn bg-transparent text-white border border-white/30 hover:border-white/70;
+  }
+  .btn-text {
+    @apply inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-navy transition-colors;
   }
 
-  .badge { @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold; }
-  .badge-verified { @apply badge bg-teal/10 text-teal; }
-  .badge-pending  { @apply badge text-champagne; background: rgba(217,195,154,0.22); }
-  .badge-info     { @apply badge bg-sky/15 text-cobalt; }
+  /* ---------- Surfaces. Cards used sparingly, only where they earn it. ---------- */
+  .card {
+    @apply bg-white border border-line rounded-card p-6;
+  }
+  .surface-navy { @apply bg-navy text-white rounded-card; }
+
+  /* ---------- Section rhythm ---------- */
+  .section { @apply py-20 md:py-28; }
+  .rule { @apply border-t border-line; }
+  .container-editorial { @apply max-w-[1180px] mx-auto px-6 md:px-8; }
+
+  /* ---------- Badges / status: quiet, not gamified ---------- */
+  .badge { @apply inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-xs font-semibold tracking-wide; }
+  .badge-verified { @apply badge bg-verified/10 text-verified; }
+  .badge-pending  { @apply badge bg-pending/10 text-pending; }
+  .badge-info     { @apply badge bg-blue-600/10 text-blue-600; }
   .badge-neutral  { @apply badge bg-ink-600/10 text-ink-600; }
 
   .sidebar-link {
-    @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white transition-colors;
+    @apply flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.06] hover:text-white transition-colors;
   }
   .sidebar-link-active {
-    @apply sidebar-link text-white;
-    background: rgba(103,199,242,0.16);
+    @apply sidebar-link text-white bg-white/[0.08] border-l-2 border-electric;
   }
 
   .input {
-    @apply w-full rounded-xl border border-line px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-deep/50 focus:border-sky-deep;
+    @apply w-full rounded-sm border border-line bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600;
   }
 
-  .skeleton { @apply animate-pulse bg-line/70 rounded-lg; }
+  .skeleton { @apply animate-pulse bg-grey-100 rounded-sm; }
+
+  /* ---------- Image treatment: bleed, don't box ---------- */
+  .img-fade-b { @apply absolute inset-0 bg-fade-navy-b; }
+  .img-fade-t { @apply absolute inset-0 bg-fade-navy-t; }
 }

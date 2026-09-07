@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main>
+    <main id="main-content">
       <SiteNav />
       <section className="max-w-[760px] mx-auto px-8 pt-6 pb-20">
-        <h1 className="text-3xl font-display font-bold tracking-tight text-navy mb-2">Privacy Policy</h1>
+        <h1 className="text-3xl font-display font-medium tracking-tight text-navy mb-2">Privacy Policy</h1>
         <p className="text-sm text-ink-600 mb-8">Last updated: [DATE, to be set on legal review]</p>
 
         <div className="card bg-champagne/10 border-champagne/40 mb-10">
@@ -59,14 +59,40 @@ export default function PrivacyPage() {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-display font-semibold text-navy mb-2">4. Data retention and your rights</h2>
+            <h2 className="text-lg font-display font-semibold text-navy mb-2">4. Third parties we use</h2>
+            <p className="mb-2">Sithelo relies on the following external services to operate:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><strong className="text-navy">Supabase</strong> — hosts our database, authentication and document storage. This is where account details, business information and uploaded verification documents are stored.</li>
+              <li><strong className="text-navy">Resend</strong> — delivers transactional emails (e.g. account and notification emails) on our behalf.</li>
+              <li><strong className="text-navy">Google Fonts</strong> — our pages load typefaces directly from Google&apos;s font servers, which means your browser sends a request (including your IP address) to Google when a page loads. This is standard font-delivery behaviour, not analytics or advertising tracking.</li>
+            </ul>
+            <p className="mt-2">
+              Sithelo does not currently use any analytics, advertising or behavioural-tracking
+              services, and does not sell or share personal information with third parties for
+              marketing purposes. An AI text-generation feature and WhatsApp notifications exist in
+              the codebase but are not active in the product today; this policy will be updated
+              before either is switched on for real users.
+            </p>
+          </section>
+          <section>
+            <h2 className="text-lg font-display font-semibold text-navy mb-2">5. Cookies</h2>
+            <p>
+              Sithelo only sets the strictly necessary cookies your browser needs to keep you logged
+              in (managed by Supabase Auth). We don&apos;t use analytics, advertising or
+              preference-tracking cookies, so there&apos;s currently nothing on the site that requires
+              a cookie-consent banner under South African or comparable rules. If that changes, this
+              section and the consent mechanism will be updated together.
+            </p>
+          </section>
+          <section>
+            <h2 className="text-lg font-display font-semibold text-navy mb-2">6. Data retention and your rights</h2>
             <p>
               [PLACEHOLDER: retention periods, deletion process and POPIA data-subject rights to be
               confirmed on legal review.]
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-display font-semibold text-navy mb-2">5. Contact</h2>
+            <h2 className="text-lg font-display font-semibold text-navy mb-2">7. Contact</h2>
             <p>Questions about this policy can be directed to [CONTACT EMAIL, not yet published].</p>
           </section>
         </div>

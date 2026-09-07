@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requireInstitution } from "@/lib/auth/guards";
 import { PortalShell } from "@/components/ui/PortalShell";
-import { SitheloMetric, SitheloStatus, SitheloEmptyState } from "@/components/ui/sithelo";
+import { SitheloStatus, SitheloEmptyState } from "@/components/ui/sithelo";
 
 const NAV_ITEMS = [
   { label: "Home", href: "/institution/dashboard", active: true },
@@ -49,45 +49,53 @@ export default async function InstitutionDashboard() {
 
   return (
     <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Procurement Officer">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-navy tracking-tight">Welcome back, {firstName}.</h1>
-        <p className="text-ink-600 mt-1">Here&apos;s what&apos;s happening with {institutionName}&apos;s opportunities.</p>
+      <div className="mb-10">
+        <div className="eyebrow mb-3">Welcome back</div>
+        <h1 className="text-display-lg font-display font-medium text-navy leading-tight">{firstName}.</h1>
+        <p className="text-ink-600 mt-2">Here&apos;s what&apos;s happening with {institutionName}&apos;s opportunities.</p>
       </div>
 
-      <div className="grid grid-cols-5 gap-5 mb-8">
-        <div className="card"><SitheloMetric label="Active opportunities" value={activeCount ?? 0} /></div>
-        <div className="card"><SitheloMetric label="Matches found" value={matchesCount ?? 0} /></div>
-        <div className="card"><SitheloMetric label="Shortlisted businesses" value={shortlistedCount ?? 0} /></div>
-        <div className="card"><SitheloMetric label="Contracts awarded" value={contractsCount ?? 0} /></div>
-        <div className="card"><SitheloMetric label="Total opportunities" value={opportunities?.length ?? 0} /></div>
+      <div className="grid grid-cols-2 sm:grid-cols-5 rule border-y mb-10">
+        {[
+          ["Active opportunities", activeCount ?? 0],
+          ["Matches found", matchesCount ?? 0],
+          ["Shortlisted businesses", shortlistedCount ?? 0],
+          ["Contracts awarded", contractsCount ?? 0],
+          ["Total opportunities", opportunities?.length ?? 0],
+        ].map(([label, value], i) => (
+          <div key={label as string} className={`py-6 pr-4 ${i > 0 ? "sm:border-l border-line sm:pl-6" : ""} ${i >= 2 ? "border-t sm:border-t-0 border-line" : ""}`}>
+            <div className="text-2xl font-display font-medium text-navy">{value}</div>
+            <div className="text-eyebrow text-ink-500 mt-1.5">{label}</div>
+          </div>
+        ))}
       </div>
 
-      <div className="card">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-display font-semibold text-navy">Recent opportunities</h2>
-          <Link href="/institution/opportunities" className="text-sm text-cobalt font-medium">View all</Link>
+      <div>
+        <div className="flex items-baseline justify-between mb-6">
+          <h2 className="text-lg font-display font-medium text-navy">Recent opportunities</h2>
+          <Link href="/institution/opportunities" className="btn-text">View all →</Link>
         </div>
         {opportunities && opportunities.length > 0 ? (
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs text-ink-600 uppercase tracking-wide border-b border-line">
-                <th className="pb-3 font-medium">Opportunity</th>
-                <th className="pb-3 font-medium">Category</th>
-                <th className="pb-3 font-medium">Location</th>
-                <th className="pb-3 font-medium">Businesses needed</th>
-                <th className="pb-3 font-medium">Closing date</th>
-                <th className="pb-3 font-medium">Status</th>
+              <tr className="text-left text-eyebrow text-ink-500 border-b border-line">
+                <th className="pb-3 font-semibold">Opportunity</th>
+                <th className="pb-3 font-semibold">Category</th>
+                <th className="pb-3 font-semibold">Location</th>
+                <th className="pb-3 font-semibold">Businesses needed</th>
+                <th className="pb-3 font-semibold">Closing date</th>
+                <th className="pb-3 font-semibold">Status</th>
               </tr>
             </thead>
             <tbody>
               {opportunities.map((o) => (
                 <tr key={o.id} className="border-b border-line last:border-0">
-                  <td className="py-3 font-medium text-navy">{o.title}</td>
-                  <td className="py-3 text-ink-600">{o.category ?? "—"}</td>
-                  <td className="py-3 text-ink-600">{o.province ?? "—"}</td>
-                  <td className="py-3 text-ink-600">{o.businesses_needed ?? "—"}</td>
-                  <td className="py-3 text-ink-600">{o.closing_date ? new Date(o.closing_date).toLocaleDateString("en-ZA") : "—"}</td>
-                  <td className="py-3"><SitheloStatus status={o.status} /></td>
+                  <td className="py-4 font-medium text-navy">{o.title}</td>
+                  <td className="py-4 text-ink-600">{o.category ?? "—"}</td>
+                  <td className="py-4 text-ink-600">{o.province ?? "—"}</td>
+                  <td className="py-4 text-ink-600">{o.businesses_needed ?? "—"}</td>
+                  <td className="py-4 text-ink-600">{o.closing_date ? new Date(o.closing_date).toLocaleDateString("en-ZA") : "—"}</td>
+                  <td className="py-4"><SitheloStatus status={o.status} /></td>
                 </tr>
               ))}
             </tbody>

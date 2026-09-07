@@ -66,66 +66,64 @@ export default async function JourneyPage() {
 
   return (
     <PortalShell portalLabel="Entrepreneur" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Entrepreneur">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-navy tracking-tight">Your Sithelo Journey</h1>
-        <p className="text-ink-600 mt-1">
-          {String(persona.persona_number).padStart(2, "0")}: {persona.persona_name}
-        </p>
+      <div className="mb-10">
+        <div className="eyebrow mb-3">Your Sithelo Journey</div>
+        <h1 className="text-display-lg font-display font-medium text-navy leading-tight">
+          {String(persona.persona_number).padStart(2, "0")} — {persona.persona_name}
+        </h1>
       </div>
 
-      <div className="card mb-6">
-        <p className="text-sm text-ink-600 leading-relaxed">{persona.explanation}</p>
-      </div>
+      <p className="text-sm text-ink-600 leading-relaxed max-w-2xl rule border-t pt-8 mb-10">{persona.explanation}</p>
 
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <div className="card">
-          <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Where you are</div>
+      <div className="grid md:grid-cols-2 gap-x-10 gap-y-10 rule border-t pt-10 mb-10">
+        <div>
+          <div className="eyebrow mb-3">Where you are</div>
           <div className="text-sm text-ink-600">
             {(goals ?? []).length > 0
               ? `Working toward: ${(goals ?? []).map((g) => g.goal_type.replace(/_/g, " ")).join(", ")}.`
               : "Sithelo doesn't have a stated goal on file yet."}
           </div>
         </div>
-        <div className="card">
-          <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-3">What&apos;s working</div>
-          <ul className="text-sm text-teal space-y-1">
+        <div>
+          <div className="eyebrow mb-3">What&apos;s working</div>
+          <ul className="text-sm text-verified space-y-1">
             {persona.strengths.map((s: string, i: number) => <li key={i}>✓ {s}</li>)}
           </ul>
         </div>
-        <div className="card">
-          <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-3">What&apos;s holding you back</div>
+        <div>
+          <div className="eyebrow mb-3">What&apos;s holding you back</div>
           <ul className="text-sm text-ink-600 space-y-1">
             {persona.constraints.map((c: string, i: number) => <li key={i}>⚠ {c}</li>)}
           </ul>
         </div>
-        <div className="card">
-          <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-3">What you need</div>
+        <div>
+          <div className="eyebrow mb-3">What you need</div>
           <div className="text-sm text-ink-600">
             {(needs ?? []).length > 0 ? (needs ?? []).map((n) => n.need_type.replace(/_/g, " ")).join(", ") : "Nothing on file yet."}
           </div>
         </div>
       </div>
 
-      <div className="card mb-8 border-cobalt/30">
-        <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-2">What Sithelo recommends</div>
-        <p className="text-sm text-ink-600">{persona.recommended_focus}</p>
+      <div className="border-l-2 border-blue-600 pl-5 rule border-t pt-10 mb-10">
+        <div className="eyebrow mb-2">What Sithelo recommends</div>
+        <p className="text-sm text-ink-600 max-w-xl">{persona.recommended_focus}</p>
       </div>
 
-      <div className="card">
-        <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-4">Your journey</div>
-        <div className="space-y-2">
+      <div className="rule border-t pt-10">
+        <div className="eyebrow mb-5">Your journey</div>
+        <div>
           {JOURNEY_STAGES.map((stage, i) => {
             const stageNumber = i + 1;
             const isCurrent = stageNumber === persona.persona_number;
             return (
               <div
                 key={stage}
-                className={`text-sm py-1.5 px-3 rounded-lg ${
-                  isCurrent ? "bg-cobalt text-white font-semibold" : "text-ink-600"
+                className={`text-sm py-2.5 border-b border-line last:border-0 ${
+                  isCurrent ? "text-navy font-semibold" : "text-ink-600"
                 }`}
               >
-                {String(stageNumber).padStart(2, "0")}: {stage}
-                {isCurrent && <span className="ml-2 text-xs opacity-80">← You are here</span>}
+                {String(stageNumber).padStart(2, "0")} — {stage}
+                {isCurrent && <span className="ml-2 text-xs text-blue-600 font-normal">← You are here</span>}
               </div>
             );
           })}

@@ -174,8 +174,10 @@ export function DocumentViewer({ passportId }: { passportId: string }) {
             <div className="flex items-center gap-3">
               <SitheloStatus status={doc.status} />
               <button
+                type="button"
                 onClick={() => openDocument(doc)}
                 disabled={openingId === doc.id}
+                aria-label={`View ${doc.file_name}`}
                 className="btn-ghost text-xs px-3 py-1.5 disabled:opacity-50"
               >
                 {openingId === doc.id ? "Opening…" : "View"}
@@ -184,7 +186,11 @@ export function DocumentViewer({ passportId }: { passportId: string }) {
           </div>
         ))}
       </div>
-      {openError && <p className="text-sm text-red-600 mt-3">{openError}</p>}
+      {openError && (
+        <p role="alert" aria-live="polite" className="text-sm text-red-600 mt-3">
+          {openError}
+        </p>
+      )}
     </div>
   );
 }

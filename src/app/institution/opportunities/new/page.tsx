@@ -70,28 +70,27 @@ export default async function NewOpportunityPage({ searchParams }: { searchParam
 
   return (
     <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Institution">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-navy tracking-tight">Post an opportunity</h1>
-        <p className="text-ink-600 mt-1">Sithelo will find matching businesses as soon as this is posted.</p>
+      <div className="mb-10 rule border-b pb-8">
+        <div className="eyebrow mb-3">Institution</div>
+        <h1 className="text-display-lg font-display font-medium text-navy leading-tight">Post an opportunity</h1>
+        <p className="text-ink-600 mt-2">Sithelo will find matching businesses as soon as this is posted.</p>
       </div>
 
       {error && (
-        <div className="card mb-6 border border-red-200">
-          <p className="text-sm text-red-600">We couldn&apos;t post that opportunity. Please check the required fields and try again.</p>
-        </div>
+        <p className="text-sm text-red-600 mb-6">We couldn&apos;t post that opportunity. Please check the required fields and try again.</p>
       )}
 
-      <form action={createOpportunityAction} className="card space-y-6 max-w-2xl">
+      <form action={createOpportunityAction} className="space-y-10 max-w-2xl">
         <div>
-          <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-3">What are you looking for?</div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <label htmlFor="title" className="text-xs text-ink-600 block mb-1">Title</label>
-              <input id="title" name="title" required maxLength={200} className="w-full border border-line rounded-lg p-3 text-sm" />
+          <div className="eyebrow mb-4">What are you looking for?</div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label htmlFor="title" className="text-xs text-ink-500 block mb-1.5">Title</label>
+              <input id="title" name="title" required maxLength={200} className="input" />
             </div>
             <div>
-              <label htmlFor="opportunity_type" className="text-xs text-ink-600 block mb-1">Type</label>
-              <select id="opportunity_type" name="opportunity_type" className="w-full border border-line rounded-lg p-3 text-sm">
+              <label htmlFor="opportunity_type" className="text-xs text-ink-500 block mb-1.5">Type</label>
+              <select id="opportunity_type" name="opportunity_type" className="input">
                 <option value="procurement">Procurement</option>
                 <option value="funding">Funding</option>
                 <option value="enterprise_development">Enterprise Development</option>
@@ -99,67 +98,67 @@ export default async function NewOpportunityPage({ searchParams }: { searchParam
               </select>
             </div>
             <div>
-              <label htmlFor="category" className="text-xs text-ink-600 block mb-1">Category (optional)</label>
-              <input id="category" name="category" maxLength={100} className="w-full border border-line rounded-lg p-3 text-sm" />
+              <label htmlFor="category" className="text-xs text-ink-500 block mb-1.5">Category (optional)</label>
+              <input id="category" name="category" maxLength={100} className="input" />
             </div>
-            <div className="col-span-2">
-              <label htmlFor="description" className="text-xs text-ink-600 block mb-1">Description</label>
-              <textarea id="description" name="description" required rows={4} maxLength={5000} className="w-full border border-line rounded-lg p-3 text-sm" />
+            <div className="sm:col-span-2">
+              <label htmlFor="description" className="text-xs text-ink-500 block mb-1.5">Description</label>
+              <textarea id="description" name="description" required rows={4} maxLength={5000} className="input" />
             </div>
           </div>
         </div>
 
-        <div>
-          <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Where?</div>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="rule border-t pt-8">
+          <div className="eyebrow mb-4">Where?</div>
+          <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="province" className="text-xs text-ink-600 block mb-1">Province</label>
-              <select id="province" name="province" className="w-full border border-line rounded-lg p-3 text-sm">
+              <label htmlFor="province" className="text-xs text-ink-500 block mb-1.5">Province</label>
+              <select id="province" name="province" className="input">
                 <option value="">Any</option>
                 {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
             </div>
             <div>
-              <label htmlFor="municipality" className="text-xs text-ink-600 block mb-1">Municipality (optional)</label>
-              <input id="municipality" name="municipality" maxLength={100} className="w-full border border-line rounded-lg p-3 text-sm" />
+              <label htmlFor="municipality" className="text-xs text-ink-500 block mb-1.5">Municipality (optional)</label>
+              <input id="municipality" name="municipality" maxLength={100} className="input" />
             </div>
           </div>
         </div>
 
-        <div>
-          <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-3">How many, and what value?</div>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="rule border-t pt-8">
+          <div className="eyebrow mb-4">How many, and what value?</div>
+          <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="businesses_needed" className="text-xs text-ink-600 block mb-1">Businesses needed</label>
-              <input id="businesses_needed" name="businesses_needed" type="number" min={1} className="w-full border border-line rounded-lg p-3 text-sm" />
+              <label htmlFor="businesses_needed" className="text-xs text-ink-500 block mb-1.5">Businesses needed</label>
+              <input id="businesses_needed" name="businesses_needed" type="number" min={1} className="input" />
             </div>
             <div>
-              <label htmlFor="value_estimate" className="text-xs text-ink-600 block mb-1">Estimated value (R, optional)</label>
-              <input id="value_estimate" name="value_estimate" type="number" min={0} className="w-full border border-line rounded-lg p-3 text-sm" />
+              <label htmlFor="value_estimate" className="text-xs text-ink-500 block mb-1.5">Estimated value (R, optional)</label>
+              <input id="value_estimate" name="value_estimate" type="number" min={0} className="input" />
             </div>
           </div>
         </div>
 
-        <div>
-          <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-3">When?</div>
-          <label htmlFor="closing_date" className="text-xs text-ink-600 block mb-1">Closing date</label>
-          <input id="closing_date" name="closing_date" type="date" className="w-full border border-line rounded-lg p-3 text-sm max-w-xs" />
+        <div className="rule border-t pt-8">
+          <div className="eyebrow mb-4">When?</div>
+          <label htmlFor="closing_date" className="text-xs text-ink-500 block mb-1.5">Closing date</label>
+          <input id="closing_date" name="closing_date" type="date" className="input max-w-xs" />
         </div>
 
-        <div>
-          <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-3">What must the business have?</div>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="rule border-t pt-8">
+          <div className="eyebrow mb-4">What must the business have?</div>
+          <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="req_industry" className="text-xs text-ink-600 block mb-1">Industry</label>
-              <input id="req_industry" name="req_industry" className="w-full border border-line rounded-lg p-3 text-sm" />
+              <label htmlFor="req_industry" className="text-xs text-ink-500 block mb-1.5">Industry</label>
+              <input id="req_industry" name="req_industry" className="input" />
             </div>
             <div>
-              <label htmlFor="req_min_trust" className="text-xs text-ink-600 block mb-1">Minimum trust score</label>
-              <input id="req_min_trust" name="req_min_trust" type="number" min={0} max={100} className="w-full border border-line rounded-lg p-3 text-sm" />
+              <label htmlFor="req_min_trust" className="text-xs text-ink-500 block mb-1.5">Minimum trust score</label>
+              <input id="req_min_trust" name="req_min_trust" type="number" min={0} max={100} className="input" />
             </div>
             <div>
-              <label htmlFor="req_bbbee" className="text-xs text-ink-600 block mb-1">B-BBEE level (optional)</label>
-              <input id="req_bbbee" name="req_bbbee" className="w-full border border-line rounded-lg p-3 text-sm" />
+              <label htmlFor="req_bbbee" className="text-xs text-ink-500 block mb-1.5">B-BBEE level (optional)</label>
+              <input id="req_bbbee" name="req_bbbee" className="input" />
             </div>
             <div className="flex items-center gap-2 pt-6">
               <input id="req_cipc" name="req_cipc" type="checkbox" className="h-4 w-4" />

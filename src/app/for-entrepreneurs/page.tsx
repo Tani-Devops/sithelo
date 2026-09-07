@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Metadata } from "next";
 import { SiteNav, SiteFooter } from "@/components/ui/MarketingChrome";
 import { SitheloButton } from "@/components/ui/sithelo";
@@ -20,23 +21,34 @@ const STEPS = [
 
 export default function ForEntrepreneursPage() {
   return (
-    <main>
+    <main id="main-content">
       <SiteNav />
-      <section className="max-w-[1280px] mx-auto px-8 pt-6 pb-16">
-        <div className="text-xs font-semibold tracking-wider uppercase text-teal mb-4">For Entrepreneurs</div>
-        <h1 className="text-4xl font-display font-bold tracking-tight text-navy mb-5 max-w-2xl">
-          Build your credibility once. Use it everywhere.
-        </h1>
-        <p className="text-base text-ink-600 leading-relaxed max-w-xl mb-8">
-          The Business Passport is a single, verified record of who your business is and what it can
-          do, so you stop re-proving yourself for every funder, tender or partner.
-        </p>
-        <SitheloButton href="/register?role=entrepreneur">Create your Passport</SitheloButton>
+      <section className="container-editorial pt-6 pb-16 grid md:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
+        <div>
+          <div className="eyebrow mb-4">For Entrepreneurs</div>
+          <h1 className="text-display-lg font-display font-medium text-navy leading-tight mb-5">
+            Build your credibility once. Use it everywhere.
+          </h1>
+          <p className="text-base text-ink-600 leading-relaxed max-w-xl mb-8">
+            The Business Passport is a single, verified record of who your business is and what it can
+            do, so you stop re-proving yourself for every funder, tender or partner.
+          </p>
+          <SitheloButton href="/register?role=entrepreneur">Create your Passport</SitheloButton>
+        </div>
+        <div className="relative h-[340px] md:h-[420px] rounded-card overflow-hidden">
+          <Image
+            src="https://images.unsplash.com/photo-1531483245484-5ca8c23a880b?auto=format&fit=crop&w=1200&q=80"
+            alt="Entrepreneurs collaborating"
+            fill
+            sizes="(min-width: 768px) 40vw, 100vw"
+            className="object-cover"
+          />
+        </div>
       </section>
 
       <section className="bg-ivory py-16">
-        <div className="max-w-[1280px] mx-auto px-8">
-          <h2 className="text-2xl font-display font-bold text-navy mb-8">Verification types your Passport covers</h2>
+        <div className="container-editorial">
+          <h2 className="text-2xl font-display font-medium text-navy mb-8">Verification types your Passport covers</h2>
           <div className="flex flex-wrap gap-3">
             {VERIFICATIONS.map((v) => (
               <span key={v} className="badge-info text-sm px-4 py-2">{v}</span>
@@ -45,23 +57,25 @@ export default function ForEntrepreneursPage() {
         </div>
       </section>
 
-      <section className="max-w-[1280px] mx-auto px-8 py-16">
-        <h2 className="text-2xl font-display font-bold text-navy mb-10">How it works</h2>
-        <div className="grid md:grid-cols-4 gap-5">
+      <section className="container-editorial py-16">
+        <h2 className="text-2xl font-display font-medium text-navy mb-10">How it works</h2>
+        <div className="rule border-t">
           {STEPS.map((s, i) => (
-            <div key={s.title} className="card">
-              <div className="text-xs font-semibold text-teal mb-3">{String(i + 1).padStart(2, "0")}</div>
-              <h3 className="text-[15px] font-display font-semibold text-navy mb-2">{s.title}</h3>
-              <p className="text-[13px] text-ink-600 leading-relaxed">{s.body}</p>
+            <div key={s.title} className="grid md:grid-cols-[auto_1fr] gap-x-8 gap-y-2 py-7 border-b border-line">
+              <div className="text-eyebrow text-ink-500">{String(i + 1).padStart(2, "0")}</div>
+              <div>
+                <h3 className="text-base font-display font-medium text-navy mb-1.5">{s.title}</h3>
+                <p className="text-sm text-ink-600 leading-relaxed max-w-md">{s.body}</p>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="max-w-[1280px] mx-auto px-8 pb-20">
+      <section className="container-editorial pb-20">
         <div className="surface-navy p-10 grid md:grid-cols-2 gap-8 items-center">
           <div>
-            <h2 className="text-2xl font-display font-bold mb-3">What Sithelo won&apos;t do</h2>
+            <h2 className="text-2xl font-display font-medium mb-3">What Sithelo won&apos;t do</h2>
             <p className="text-white/70 text-sm leading-relaxed">
               Sithelo doesn&apos;t rank your household or personal wealth, and it never gates
               opportunity eligibility on anything beyond your business&apos;s actual verification and
@@ -70,7 +84,7 @@ export default function ForEntrepreneursPage() {
             </p>
           </div>
           <div>
-            <SitheloButton href="/register?role=entrepreneur" variant="dark">Get started</SitheloButton>
+            <SitheloButton href="/register?role=entrepreneur" variant="on-dark">Create your business profile</SitheloButton>
           </div>
         </div>
       </section>

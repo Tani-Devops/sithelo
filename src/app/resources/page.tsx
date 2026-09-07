@@ -33,11 +33,11 @@ const TOPICS = [
 
 export default function ResourcesPage() {
   return (
-    <main>
+    <main id="main-content">
       <SiteNav />
       <section className="max-w-[820px] mx-auto px-8 pt-6 pb-20">
         <div className="text-xs font-semibold tracking-wider uppercase text-teal mb-4">Resources</div>
-        <h1 className="text-4xl font-display font-bold tracking-tight text-navy mb-10">
+        <h1 className="text-4xl font-display font-medium tracking-tight text-navy mb-10">
           Understanding verification and opportunity access
         </h1>
         <div className="space-y-10">

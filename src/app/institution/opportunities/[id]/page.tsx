@@ -60,13 +60,13 @@ export default async function InstitutionOpportunityDetail({ params }: { params:
 
   return (
     <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Institution">
-      <div className="mb-8">
+      <div className="mb-10 rule border-b pb-8">
         <SitheloBadge tone={opportunity.status === "active" ? "verified" : "pending"}>{opportunity.status}</SitheloBadge>
-        <h1 className="text-3xl font-display font-bold text-navy tracking-tight mt-3">{opportunity.title}</h1>
-        <p className="text-ink-600 mt-1">{opportunity.municipality ?? opportunity.province ?? "South Africa"}</p>
+        <h1 className="text-display-lg font-display font-medium text-navy leading-tight mt-4">{opportunity.title}</h1>
+        <p className="text-ink-600 mt-2">{opportunity.municipality ?? opportunity.province ?? "South Africa"}</p>
       </div>
 
-      <div className="card mb-8">
+      <div className="mb-8">
         <div className="text-sm text-ink-600">
           {rows.length === 0
             ? "No matching businesses yet."
@@ -75,28 +75,28 @@ export default async function InstitutionOpportunityDetail({ params }: { params:
       </div>
 
       {rows.length > 0 && (
-        <div className="space-y-4">
+        <div className="rule border-t">
           {rows.map(({ match, business }) => {
             const reasons = Array.isArray(match.match_reasons)
               ? (match.match_reasons as unknown[]).filter((r): r is string => typeof r === "string")
               : [];
             return (
-              <div key={business.id} className="card flex items-start justify-between gap-6">
+              <div key={business.id} className="flex items-start justify-between gap-6 py-6 border-b border-line">
                 <div>
-                  <div className="font-display font-semibold text-navy">{business.business_name}</div>
-                  <div className="text-xs text-ink-600 mt-1">
+                  <div className="font-display font-medium text-navy text-base">{business.business_name}</div>
+                  <div className="text-xs text-ink-500 mt-1 mb-2">
                     {business.industry ?? "—"} · {business.municipality ?? business.province ?? "—"}
                   </div>
                   <SitheloBadge tone={business.overall_verification_status === "verified" ? "verified" : "pending"}>
                     {business.overall_verification_status === "verified" ? "Verified" : "In progress"}
                   </SitheloBadge>
                   {reasons.length > 0 && (
-                    <ul className="text-sm text-teal mt-3 space-y-1">
+                    <ul className="text-sm text-verified mt-3 space-y-1">
                       {reasons.map((r, i) => <li key={i}>✓ {r}</li>)}
                     </ul>
                   )}
                 </div>
-                <div className="text-2xl font-display font-bold text-navy whitespace-nowrap">
+                <div className="text-2xl font-display font-medium text-navy whitespace-nowrap">
                   {Math.round(match.match_score)}%
                 </div>
               </div>

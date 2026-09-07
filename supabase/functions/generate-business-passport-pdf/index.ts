@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
     const forest = rgb(0x1b / 255, 0x3a / 255, 0x2b / 255);
 
     page.drawRectangle({ x: 0, y: 792, width: 595, height: 50, color: forest });
-    page.drawText("Zenzele Business Passport", { x: 24, y: 810, size: 16, font, color: rgb(1, 1, 1) });
+    page.drawText("Sithelo Business Passport", { x: 24, y: 810, size: 16, font, color: rgb(1, 1, 1) });
 
     page.drawText(passport.business_name, { x: 24, y: 750, size: 22, font });
     page.drawText(`Trust Score: ${passport.trust_score}`, { x: 24, y: 720, size: 12, font: bodyFont });

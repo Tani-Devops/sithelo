@@ -33,19 +33,19 @@ export default async function OnboardingCompletePage() {
   const firstName = profile.full_name?.split(" ")[0] ?? "there";
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-navy px-6 py-16">
+    <main id="main-content" className="min-h-screen flex items-center justify-center bg-navy-900 px-6 py-16">
       <div className="max-w-lg w-full text-center">
-        <div className="mb-10 brightness-0 invert opacity-90 flex justify-center"><SitheloLogo height={26} /></div>
-        <p className="text-white/50 text-sm mb-2">You&apos;re in, {firstName}.</p>
-        <h1 className="text-4xl font-display font-bold text-white tracking-tight mb-8">We see you.</h1>
+        <div className="mb-10 flex justify-center"><SitheloLogo height={28} variant="light" /></div>
+        <p className="text-white/50 text-sm mb-3">You&apos;re in, {firstName}.</p>
+        <h1 className="text-hero font-display font-medium text-white leading-tight mb-10">We see you.</h1>
 
         {persona ? (
-          <div className="space-y-4">
-            <p className="text-white/80 text-lg">You&apos;re currently a <span className="font-semibold text-white">{persona.persona_name}</span>.</p>
+          <div className="space-y-5">
+            <p className="text-white/80 text-lg">You&apos;re currently a <span className="font-medium text-white">{persona.persona_name}</span>.</p>
             <p className="text-white/60 leading-relaxed">{persona.explanation}</p>
-            <div className="bg-white/5 rounded-xl p-5 mt-6 text-left">
-              <div className="text-white/40 text-xs uppercase tracking-wide mb-1">Your next best step</div>
-              <p className="text-white text-sm">{persona.recommended_focus}</p>
+            <div className="border-l-2 border-electric pl-5 mt-8 text-left">
+              <div className="eyebrow-on-dark mb-2">Your next best step</div>
+              <p className="text-white text-sm leading-relaxed">{persona.recommended_focus}</p>
             </div>
           </div>
         ) : (
@@ -53,7 +53,7 @@ export default async function OnboardingCompletePage() {
         )}
 
         <div className="mt-10">
-          <SitheloButton href="/entrepreneur/dashboard" className="px-8 py-3">Start</SitheloButton>
+          <SitheloButton variant="on-dark" href="/entrepreneur/dashboard" className="px-8 py-3">Start</SitheloButton>
         </div>
       </div>
     </main>

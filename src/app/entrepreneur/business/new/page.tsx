@@ -18,8 +18,8 @@ export default async function NewBusinessPassportPage() {
   if (existing) redirect("/entrepreneur/dashboard");
 
   return (
-    <main className="min-h-screen bg-soft py-12 px-6">
-      <div className="max-w-xl mx-auto mb-8"><SitheloLogo height={26} /></div>
+    <main id="main-content" className="min-h-screen bg-soft py-12 px-6">
+      <div className="max-w-xl mx-auto mb-8"><SitheloLogo height={32} /></div>
       <OnboardingWizard />
     </main>
   );

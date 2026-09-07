@@ -31,16 +31,16 @@ export default async function InstitutionOpportunitiesPage() {
 
   return (
     <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Procurement Officer">
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-10 flex items-start justify-between gap-6 rule border-b pb-8">
         <div>
-          <h1 className="text-3xl font-display font-bold text-navy tracking-tight">Opportunities</h1>
-          <p className="text-ink-600 mt-1">Every procurement, funding or partnership opportunity you&apos;ve posted.</p>
+          <div className="eyebrow mb-3">Opportunities</div>
+          <h1 className="text-display-lg font-display font-medium text-navy leading-tight">Every opportunity you&apos;ve posted.</h1>
         </div>
-        <SitheloButton href="/institution/opportunities/new">Post an opportunity</SitheloButton>
+        <SitheloButton href="/institution/opportunities/new" className="shrink-0">Post an opportunity</SitheloButton>
       </div>
 
       {error && (
-        <div className="card text-center py-14">
+        <div className="text-center py-14">
           <p className="text-sm text-ink-600">We couldn&apos;t load your opportunities right now. Please try again.</p>
         </div>
       )}
@@ -55,36 +55,34 @@ export default async function InstitutionOpportunitiesPage() {
       )}
 
       {!error && opportunities && opportunities.length > 0 && (
-        <div className="card">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs text-ink-600 uppercase tracking-wide border-b border-line">
-                <th className="pb-3 font-medium">Opportunity</th>
-                <th className="pb-3 font-medium">Category</th>
-                <th className="pb-3 font-medium">Location</th>
-                <th className="pb-3 font-medium">Businesses needed</th>
-                <th className="pb-3 font-medium">Closing date</th>
-                <th className="pb-3 font-medium">Status</th>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-eyebrow text-ink-500 border-b border-line">
+              <th className="pb-3 font-semibold">Opportunity</th>
+              <th className="pb-3 font-semibold">Category</th>
+              <th className="pb-3 font-semibold">Location</th>
+              <th className="pb-3 font-semibold">Businesses needed</th>
+              <th className="pb-3 font-semibold">Closing date</th>
+              <th className="pb-3 font-semibold">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {opportunities.map((o) => (
+              <tr key={o.id} className="border-b border-line last:border-0">
+                <td className="py-4 font-medium text-navy">
+                  <Link href={`/institution/opportunities/${o.id}`} className="hover:text-blue-600">
+                    {o.title}
+                  </Link>
+                </td>
+                <td className="py-4 text-ink-600">{o.category ?? "—"}</td>
+                <td className="py-4 text-ink-600">{o.province ?? "—"}</td>
+                <td className="py-4 text-ink-600">{o.businesses_needed ?? "—"}</td>
+                <td className="py-4 text-ink-600">{o.closing_date ? new Date(o.closing_date).toLocaleDateString("en-ZA") : "—"}</td>
+                <td className="py-4"><SitheloStatus status={o.status} /></td>
               </tr>
-            </thead>
-            <tbody>
-              {opportunities.map((o) => (
-                <tr key={o.id} className="border-b border-line last:border-0">
-                  <td className="py-3 font-medium text-navy">
-                    <Link href={`/institution/opportunities/${o.id}`} className="hover:text-cobalt">
-                      {o.title}
-                    </Link>
-                  </td>
-                  <td className="py-3 text-ink-600">{o.category ?? "—"}</td>
-                  <td className="py-3 text-ink-600">{o.province ?? "—"}</td>
-                  <td className="py-3 text-ink-600">{o.businesses_needed ?? "—"}</td>
-                  <td className="py-3 text-ink-600">{o.closing_date ? new Date(o.closing_date).toLocaleDateString("en-ZA") : "—"}</td>
-                  <td className="py-3"><SitheloStatus status={o.status} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       )}
     </PortalShell>
   );

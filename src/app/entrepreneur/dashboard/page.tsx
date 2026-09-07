@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requireEntrepreneur } from "@/lib/auth/guards";
 import { PortalShell } from "@/components/ui/PortalShell";
-import { SitheloRing, SitheloMetric, SitheloButton, SitheloEmptyState, SitheloBadge } from "@/components/ui/sithelo";
+import { SitheloButton, SitheloEmptyState, SitheloBadge } from "@/components/ui/sithelo";
 
 const NAV_ITEMS = [
   { label: "Home", href: "/entrepreneur/dashboard", active: true },
@@ -89,35 +89,43 @@ export default async function EntrepreneurDashboard() {
 
   return (
     <PortalShell portalLabel="Entrepreneur" navItems={NAV_ITEMS} userName={profile?.full_name ?? "—"} userRole="Entrepreneur">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-navy tracking-tight">{greeting()}, {firstName}.</h1>
-        <p className="text-ink-600 mt-1">Let&apos;s turn your effort into opportunity.</p>
+      <div className="mb-10">
+        <div className="eyebrow mb-3">{greeting()}</div>
+        <h1 className="text-display-lg font-display font-medium text-navy leading-tight">
+          {firstName}, {passport ? "your business is ready for its next opportunity." : "let\u2019s get your business ready."}
+        </h1>
       </div>
 
       {persona && (
-        <div className="card mb-8">
-          <div className="text-xs font-semibold text-cobalt uppercase tracking-wide mb-1">
-            {String(persona.persona_number).padStart(2, "0")}: {persona.persona_name}
+        <div className="border-l-2 border-blue-600 pl-5 mb-10">
+          <div className="eyebrow mb-2">
+            {String(persona.persona_number).padStart(2, "0")} — {persona.persona_name}
           </div>
-          <p className="text-sm text-ink-600 leading-relaxed mb-3">{persona.explanation}</p>
-          <Link href="/entrepreneur/journey" className="text-sm text-cobalt font-medium">View my journey →</Link>
+          <p className="text-sm text-ink-600 leading-relaxed mb-2 max-w-xl">{persona.explanation}</p>
+          <Link href="/entrepreneur/journey" className="btn-text">View my journey →</Link>
         </div>
       )}
 
       {entrepreneurProfile && (snapshot?.weekly_revenue_range || needs?.[0] || goals?.[0]) && (
-        <div className="mb-8">
-          <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Your reality</div>
-          <div className="grid grid-cols-3 gap-5">
-            {snapshot?.weekly_revenue_range && (
-              <div className="card"><SitheloMetric label="Business" value={REVENUE_LABELS[snapshot.weekly_revenue_range] ?? snapshot.weekly_revenue_range} /></div>
-            )}
-            {needs?.[0] && (
-              <div className="card"><SitheloMetric label="Biggest challenge" value={needs[0].need_type.replace(/_/g, " ")} /></div>
-            )}
-            {goals?.[0] && (
-              <div className="card"><SitheloMetric label="Current goal" value={goals[0].goal_type.replace(/_/g, " ")} /></div>
-            )}
-          </div>
+        <div className="grid sm:grid-cols-3 rule border-b mb-10">
+          {snapshot?.weekly_revenue_range && (
+            <div className="py-5 sm:pr-6 sm:border-r border-line">
+              <div className="text-eyebrow text-ink-500 mb-2">Business</div>
+              <div className="text-base font-display font-medium text-navy">{REVENUE_LABELS[snapshot.weekly_revenue_range] ?? snapshot.weekly_revenue_range}</div>
+            </div>
+          )}
+          {needs?.[0] && (
+            <div className="py-5 sm:px-6 sm:border-r border-line">
+              <div className="text-eyebrow text-ink-500 mb-2">Biggest challenge</div>
+              <div className="text-base font-display font-medium text-navy capitalize">{needs[0].need_type.replace(/_/g, " ")}</div>
+            </div>
+          )}
+          {goals?.[0] && (
+            <div className="py-5 sm:pl-6">
+              <div className="text-eyebrow text-ink-500 mb-2">Current goal</div>
+              <div className="text-base font-display font-medium text-navy capitalize">{goals[0].goal_type.replace(/_/g, " ")}</div>
+            </div>
+          )}
         </div>
       )}
 
@@ -130,55 +138,62 @@ export default async function EntrepreneurDashboard() {
         />
       ) : (
         <>
-          {/* Command-centre summary — the signature treatment: a floating
-              navy panel with the verification ring, not a wall of cards. */}
-          <div className="surface-navy grid grid-cols-[auto_1fr] gap-8 items-center mb-8">
-            <SitheloRing value={passport.trust_score} label={`${passport.trust_score}`} sublabel="Trust Score" size={110} />
-            <div className="grid grid-cols-3 gap-8">
-              <div>
-                <div className="text-white/50 text-xs mb-2">Verification</div>
+          {/* Command-centre summary — typography and rules carry the
+              hierarchy here, not a wall of floating cards. */}
+          <div className="grid md:grid-cols-[auto_1fr] gap-10 md:gap-16 items-start rule border-t pt-10 mb-10">
+            <div className="flex items-baseline gap-3 md:block">
+              <div className="text-6xl font-display font-semibold text-navy leading-none">{passport.trust_score}</div>
+              <div className="text-eyebrow text-ink-500 mt-2">Trust Score</div>
+              <div className="mt-3">
                 <SitheloBadge tone={passport.overall_verification_status === "verified" ? "verified" : "pending"}>
                   {passport.overall_verification_status === "verified" ? "Verified" : "In progress"}
                 </SitheloBadge>
               </div>
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-8">
               <div>
-                <div className="text-white/50 text-xs mb-1">Opportunities matched</div>
-                <div className="text-2xl font-display font-bold text-white">{matches?.length ?? 0}</div>
+                <div className="text-eyebrow text-ink-500 mb-2">Business</div>
+                <div className="text-base font-display font-medium text-navy">{passport.business_name}</div>
+                <div className="text-sm text-ink-600 mt-0.5">{passport.municipality ?? "—"}, {passport.province ?? "—"}</div>
               </div>
               <div>
-                <div className="text-white/50 text-xs mb-1">Applications in progress</div>
-                <div className="text-2xl font-display font-bold text-white">{activeApplications}</div>
+                <div className="text-eyebrow text-ink-500 mb-2">Opportunities matched</div>
+                <div className="text-2xl font-display font-medium text-navy">{matches?.length ?? 0}</div>
+              </div>
+              <div>
+                <div className="text-eyebrow text-ink-500 mb-2">Applications in progress</div>
+                <div className="text-2xl font-display font-medium text-navy">{activeApplications}</div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-5 mb-8">
-            <div className="card"><SitheloMetric label="Unread messages" value={unreadMessages ?? 0} /></div>
-            <div className="card"><SitheloMetric label="Business" value={passport.business_name} /></div>
-            <div className="card"><SitheloMetric label="Location" value={`${passport.municipality ?? "—"}, ${passport.province ?? "—"}`} /></div>
+          <div className="flex items-baseline justify-between mb-3">
+            <div className="text-eyebrow text-ink-500">Unread messages</div>
+            <div className="text-base font-display font-medium text-navy">{unreadMessages ?? 0}</div>
           </div>
 
-          <div className="card">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-display font-semibold text-navy">Opportunities that match you</h2>
-              <Link href="/entrepreneur/opportunities" className="text-sm text-cobalt font-medium">View all</Link>
+          <div className="rule border-t pt-10 mt-10">
+            <div className="flex items-baseline justify-between mb-6">
+              <h2 className="text-lg font-display font-medium text-navy">Opportunities that match you</h2>
+              <Link href="/entrepreneur/opportunities" className="btn-text">View all →</Link>
             </div>
             {matches && matches.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-3 gap-x-8 gap-y-6">
                 {matches.map((m, i) => {
                   const opp = Array.isArray(m.opportunities) ? m.opportunities[0] : m.opportunities;
                   if (!opp) return null;
                   return (
-                    <div key={i} className="border border-line rounded-xl p-4 hover:border-sky-deep transition-colors">
-                      <div className="text-xs text-teal font-semibold uppercase tracking-wide mb-1">
+                    <div key={i} className="border-t border-line pt-4">
+                      <div className="text-eyebrow text-blue-600 mb-2">
                         {opp.opportunity_type.replace("_", " ")}
                       </div>
-                      <div className="font-display font-semibold text-sm text-navy mb-2">{opp.title}</div>
+                      <div className="font-display font-medium text-[15px] text-navy mb-2 leading-snug">{opp.title}</div>
                       <div className="text-xs text-ink-600 mb-3">
                         {opp.businesses_needed ? `${opp.businesses_needed} businesses needed` : ""}
                         {opp.closing_date ? ` · Closes ${new Date(opp.closing_date).toLocaleDateString("en-ZA")}` : ""}
                       </div>
-                      <div className="text-xs font-semibold text-cobalt">{Math.round(m.match_score)}% match</div>
+                      <div className="text-xs font-semibold text-navy">{Math.round(m.match_score)}% match</div>
                     </div>
                   );
                 })}
@@ -189,9 +204,9 @@ export default async function EntrepreneurDashboard() {
           </div>
 
           {persona?.recommended_focus && (
-            <div className="card mt-6 border-cobalt/30">
-              <div className="text-xs font-semibold text-navy uppercase tracking-wide mb-2">Your next step</div>
-              <p className="text-sm text-ink-600 mb-4">{persona.recommended_focus}</p>
+            <div className="rule border-t pt-8 mt-10">
+              <div className="eyebrow mb-3">Your next step</div>
+              <p className="text-sm text-ink-600 mb-5 max-w-lg">{persona.recommended_focus}</p>
               <SitheloButton href="/entrepreneur/journey" variant="ghost">Take the next step</SitheloButton>
             </div>
           )}

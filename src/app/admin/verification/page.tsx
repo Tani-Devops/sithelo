@@ -37,9 +37,10 @@ export default async function VerificationQueuePage() {
 
   return (
     <PortalShell portalLabel="Admin" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Super Admin">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-navy tracking-tight">Verification Queue</h1>
-        <p className="text-ink-600 mt-1">Review and decide on pending business verifications.</p>
+      <div className="mb-10 rule border-b pb-8">
+        <div className="eyebrow mb-3">Admin</div>
+        <h1 className="text-display-lg font-display font-medium text-navy leading-tight">Verification Queue</h1>
+        <p className="text-ink-600 mt-2">Review and decide on pending business verifications.</p>
       </div>
 
       {error && <p className="text-sm text-ink-600 text-center py-14">We couldn&apos;t load the verification queue right now. Please try again.</p>}
@@ -49,35 +50,33 @@ export default async function VerificationQueuePage() {
       )}
 
       {!error && pending && pending.length > 0 && (
-        <div className="card">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs text-ink-600 uppercase tracking-wide border-b border-line">
-                <th className="pb-3 font-medium">Business</th>
-                <th className="pb-3 font-medium">Verification type</th>
-                <th className="pb-3 font-medium">Reference</th>
-                <th className="pb-3 font-medium">Submitted</th>
-                <th className="pb-3 font-medium">Status</th>
-                <th className="pb-3 font-medium text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pending.map((v) => {
-                const bp = Array.isArray(v.business_passports) ? v.business_passports[0] : v.business_passports;
-                return (
-                  <tr key={v.id} className="border-b border-line last:border-0">
-                    <td className="py-3 font-medium text-navy">{bp?.business_name ?? "—"}</td>
-                    <td className="py-3 text-ink-600 uppercase text-xs font-semibold">{v.verification_type}</td>
-                    <td className="py-3 text-ink-600">{v.reference_number ?? "—"}</td>
-                    <td className="py-3 text-ink-600">{new Date(v.created_at).toLocaleDateString("en-ZA")}</td>
-                    <td className="py-3"><SitheloBadge tone="pending">Pending</SitheloBadge></td>
-                    <td className="py-3 text-right"><VerificationActions verificationId={v.id} /></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-eyebrow text-ink-500 border-b border-line">
+              <th className="pb-3 font-semibold">Business</th>
+              <th className="pb-3 font-semibold">Verification type</th>
+              <th className="pb-3 font-semibold">Reference</th>
+              <th className="pb-3 font-semibold">Submitted</th>
+              <th className="pb-3 font-semibold">Status</th>
+              <th className="pb-3 font-semibold text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pending.map((v) => {
+              const bp = Array.isArray(v.business_passports) ? v.business_passports[0] : v.business_passports;
+              return (
+                <tr key={v.id} className="border-b border-line last:border-0">
+                  <td className="py-4 font-medium text-navy">{bp?.business_name ?? "—"}</td>
+                  <td className="py-4 text-ink-600 uppercase text-xs font-semibold tracking-wide">{v.verification_type}</td>
+                  <td className="py-4 text-ink-600">{v.reference_number ?? "—"}</td>
+                  <td className="py-4 text-ink-600">{new Date(v.created_at).toLocaleDateString("en-ZA")}</td>
+                  <td className="py-4"><SitheloBadge tone="pending">Pending</SitheloBadge></td>
+                  <td className="py-4 text-right"><VerificationActions verificationId={v.id} /></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       )}
     </PortalShell>
   );

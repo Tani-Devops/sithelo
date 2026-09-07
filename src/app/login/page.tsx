@@ -46,22 +46,26 @@ function LoginForm() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-soft px-6">
+    <main id="main-content" className="min-h-screen flex items-center justify-center bg-soft px-6">
       <div className="card w-full max-w-md">
-        <div className="mb-6"><SitheloLogo height={28} /></div>
-        <h1 className="text-2xl font-display font-bold text-navy mb-1">Welcome back</h1>
+        <div className="mb-6"><SitheloLogo height={34} /></div>
+        <h1 className="text-2xl font-display font-medium text-navy mb-1.5">Welcome back</h1>
         <p className="text-sm text-ink-600 mb-6">Login to your Sithelo account</p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
-            <label className="block text-sm font-medium text-navy mb-1.5">Email address</label>
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="input" />
+            <label htmlFor="email" className="block text-sm font-medium text-navy mb-1.5">Email address</label>
+            <input id="email" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="input" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-navy mb-1.5">Password</label>
-            <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" className="input" />
+            <label htmlFor="password" className="block text-sm font-medium text-navy mb-1.5">Password</label>
+            <input id="password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" className="input" />
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <p role="alert" aria-live="polite" className="text-sm text-red-600">
+              {error}
+            </p>
+          )}
           <SitheloButton type="submit" disabled={loading} className="w-full py-3">
             {loading ? "Signing in…" : "Login"}
           </SitheloButton>

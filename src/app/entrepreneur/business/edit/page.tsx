@@ -188,18 +188,19 @@ export default async function EditBusinessPassportPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <main className="min-h-screen bg-soft px-6 py-10 max-w-3xl mx-auto">
-      <div className="mb-8"><SitheloLogo height={26} /></div>
-      <h1 className="text-2xl font-display font-bold text-navy mb-6">Edit your Business Passport</h1>
+    <main id="main-content" className="min-h-screen bg-ivory px-6 py-10 max-w-3xl mx-auto">
+      <div className="mb-8"><SitheloLogo height={32} /></div>
+      <div className="eyebrow mb-3">Business Passport</div>
+      <h1 className="text-display-lg font-display font-medium text-navy leading-tight mb-10">Edit your Business Passport</h1>
 
-      <form action={updatePassportAction} className="card space-y-4 mb-8">
+      <form action={updatePassportAction} className="space-y-5 rule border-t pt-8 mb-12">
         <input type="hidden" name="passport_id" value={detail.id} />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-5">
           <Field label="Business name" name="business_name" defaultValue={detail.business_name} />
           <Field label="Registration number (optional)" name="registration_number" />
           <div>
-            <label className="block text-sm font-medium text-navy mb-1.5">Business type</label>
-            <select name="business_type" defaultValue={detail.business_type ?? ""} className="input">
+            <label htmlFor="business_type" className="block text-sm font-medium text-navy mb-1.5">Business type</label>
+            <select id="business_type" name="business_type" defaultValue={detail.business_type ?? ""} className="input">
               <option value="">Not yet registered</option>
               <option value="sole_proprietor">Sole proprietor</option>
               <option value="private_company">Private company (Pty Ltd)</option>
@@ -227,58 +228,66 @@ export default async function EditBusinessPassportPage() {
         <SitheloButton type="submit">Save changes</SitheloButton>
       </form>
 
-      <div className="card mb-8">
-        <h2 className="text-lg font-display font-semibold text-navy mb-4">Capabilities</h2>
-        <div className="space-y-2 mb-5">
+      <div className="rule border-t pt-8 mb-12">
+        <h2 className="eyebrow mb-5">Capabilities</h2>
+        <div className="mb-6">
           {(capabilities as Capability[] | null)?.map((c) => (
-            <div key={c.id} className="flex items-center justify-between border border-line rounded-lg p-3 text-sm">
+            <div key={c.id} className="flex items-center justify-between py-3 border-b border-line text-sm">
               <div>
                 <span className="font-medium text-navy">{c.name}</span>
                 <span className="text-ink-600"> · {c.capability_type}{c.capacity ? ` · ${c.capacity}` : ""}</span>
-                {c.verified && <span className="text-teal ml-2">✓ verified</span>}
+                {c.verified && <span className="text-verified ml-2">✓ verified</span>}
               </div>
               <form action={deleteCapabilityAction}>
                 <input type="hidden" name="capability_id" value={c.id} />
-                <button type="submit" className="text-red-600 text-xs">Remove</button>
+                <button type="submit" className="text-red-600 text-xs" aria-label={`Remove ${c.name}`}>Remove</button>
               </form>
             </div>
           ))}
           {(!capabilities || capabilities.length === 0) && <p className="text-sm text-ink-600">No capabilities added yet.</p>}
         </div>
-        <form action={addCapabilityAction} className="grid grid-cols-2 gap-3">
+        <form action={addCapabilityAction} className="grid sm:grid-cols-2 gap-3">
           <input type="hidden" name="passport_id" value={detail.id} />
-          <input name="name" placeholder="e.g. Bulk catering" className="input" required />
-          <input name="capability_type" placeholder="Type e.g. service" className="input" />
-          <input name="capacity" placeholder="Capacity e.g. 200 meals/day" className="input" />
-          <input name="description" placeholder="Description (optional)" className="input" />
-          <div className="col-span-2"><SitheloButton type="submit" variant="ghost">Add capability</SitheloButton></div>
+          <label htmlFor="cap_name" className="sr-only">Capability name</label>
+          <input id="cap_name" name="name" placeholder="e.g. Bulk catering" className="input" required />
+          <label htmlFor="cap_type" className="sr-only">Capability type</label>
+          <input id="cap_type" name="capability_type" placeholder="Type e.g. service" className="input" />
+          <label htmlFor="cap_capacity" className="sr-only">Capacity</label>
+          <input id="cap_capacity" name="capacity" placeholder="Capacity e.g. 200 meals/day" className="input" />
+          <label htmlFor="cap_description" className="sr-only">Description</label>
+          <input id="cap_description" name="description" placeholder="Description (optional)" className="input" />
+          <div className="sm:col-span-2"><SitheloButton type="submit" variant="ghost">Add capability</SitheloButton></div>
         </form>
       </div>
 
-      <div className="card">
-        <h2 className="text-lg font-display font-semibold text-navy mb-4">Assets</h2>
-        <div className="space-y-2 mb-5">
+      <div className="rule border-t pt-8">
+        <h2 className="eyebrow mb-5">Assets</h2>
+        <div className="mb-6">
           {(assets as Asset[] | null)?.map((a) => (
-            <div key={a.id} className="flex items-center justify-between border border-line rounded-lg p-3 text-sm">
+            <div key={a.id} className="flex items-center justify-between py-3 border-b border-line text-sm">
               <div>
                 <span className="font-medium text-navy">{a.name}</span>
                 <span className="text-ink-600"> · {a.asset_type}{a.quantity ? ` · x${a.quantity}` : ""}{a.condition ? ` · ${a.condition}` : ""}</span>
               </div>
               <form action={deleteAssetAction}>
                 <input type="hidden" name="asset_id" value={a.id} />
-                <button type="submit" className="text-red-600 text-xs">Remove</button>
+                <button type="submit" className="text-red-600 text-xs" aria-label={`Remove ${a.name}`}>Remove</button>
               </form>
             </div>
           ))}
           {(!assets || assets.length === 0) && <p className="text-sm text-ink-600">No assets added yet.</p>}
         </div>
-        <form action={addAssetAction} className="grid grid-cols-2 gap-3">
+        <form action={addAssetAction} className="grid sm:grid-cols-2 gap-3">
           <input type="hidden" name="passport_id" value={detail.id} />
-          <input name="name" placeholder="e.g. Delivery van" className="input" required />
-          <input name="asset_type" placeholder="Type e.g. vehicle" className="input" />
-          <input name="quantity" type="number" placeholder="Quantity" className="input" />
-          <input name="condition" placeholder="Condition e.g. good" className="input" />
-          <div className="col-span-2"><SitheloButton type="submit" variant="ghost">Add asset</SitheloButton></div>
+          <label htmlFor="asset_name" className="sr-only">Asset name</label>
+          <input id="asset_name" name="name" placeholder="e.g. Delivery van" className="input" required />
+          <label htmlFor="asset_type" className="sr-only">Asset type</label>
+          <input id="asset_type" name="asset_type" placeholder="Type e.g. vehicle" className="input" />
+          <label htmlFor="asset_quantity" className="sr-only">Quantity</label>
+          <input id="asset_quantity" name="quantity" type="number" placeholder="Quantity" className="input" />
+          <label htmlFor="asset_condition" className="sr-only">Condition</label>
+          <input id="asset_condition" name="condition" placeholder="Condition e.g. good" className="input" />
+          <div className="sm:col-span-2"><SitheloButton type="submit" variant="ghost">Add asset</SitheloButton></div>
         </form>
       </div>
     </main>
@@ -288,8 +297,8 @@ export default async function EditBusinessPassportPage() {
 function Field({ label, name, type = "text", defaultValue }: { label: string; name: string; type?: string; defaultValue?: string }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-navy mb-1.5">{label}</label>
-      <input name={name} type={type} defaultValue={defaultValue} className="input" />
+      <label htmlFor={name} className="block text-sm font-medium text-navy mb-1.5">{label}</label>
+      <input id={name} name={name} type={type} defaultValue={defaultValue} className="input" />
     </div>
   );
 }
@@ -297,8 +306,8 @@ function Field({ label, name, type = "text", defaultValue }: { label: string; na
 function TextArea({ label, name, defaultValue }: { label: string; name: string; defaultValue?: string }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-navy mb-1.5">{label}</label>
-      <textarea name={name} defaultValue={defaultValue} rows={3} className="input" />
+      <label htmlFor={name} className="block text-sm font-medium text-navy mb-1.5">{label}</label>
+      <textarea id={name} name={name} defaultValue={defaultValue} rows={3} className="input" />
     </div>
   );
 }

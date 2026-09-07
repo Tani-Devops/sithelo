@@ -31,9 +31,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-sans bg-soft text-ink-900">{children}</body>
+      <body className="font-sans bg-ivory text-ink-900">
+        {/* Skip link: invisible until keyboard-focused, lets keyboard/screen-reader
+            users jump straight past repeated nav/sidebar markup on every page. */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-sm focus:bg-navy focus:text-white focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold"
+        >
+          Skip to main content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

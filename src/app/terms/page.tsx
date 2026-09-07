@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <main>
+    <main id="main-content">
       <SiteNav />
       <section className="max-w-[760px] mx-auto px-8 pt-6 pb-20">
-        <h1 className="text-3xl font-display font-bold tracking-tight text-navy mb-2">Terms of Service</h1>
+        <h1 className="text-3xl font-display font-medium tracking-tight text-navy mb-2">Terms of Service</h1>
         <p className="text-sm text-ink-600 mb-8">Last updated: [DATE, to be set on legal review]</p>
 
         <div className="card bg-champagne/10 border-champagne/40 mb-10">

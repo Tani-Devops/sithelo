@@ -10,7 +10,7 @@ import type { ReactNode } from "react";
 
 interface SitheloButtonProps {
   children: ReactNode;
-  variant?: "primary" | "ghost" | "dark";
+  variant?: "primary" | "ghost" | "on-dark" | "on-dark-ghost" | "dark";
   href?: string;
   onClick?: () => void;
   type?: "button" | "submit";
@@ -18,8 +18,16 @@ interface SitheloButtonProps {
   className?: string;
 }
 
+const VARIANT_CLASS: Record<string, string> = {
+  primary: "btn-primary",
+  ghost: "btn-ghost",
+  "on-dark": "btn-on-dark",
+  "on-dark-ghost": "btn-on-dark-ghost",
+  dark: "btn-on-dark",
+};
+
 export function SitheloButton({ children, variant = "primary", href, onClick, type = "button", disabled, className = "" }: SitheloButtonProps) {
-  const cls = `${variant === "primary" ? "btn-primary" : variant === "dark" ? "btn-dark" : "btn-ghost"} ${disabled ? "opacity-50 pointer-events-none" : ""} ${className}`;
+  const cls = `${VARIANT_CLASS[variant]} ${disabled ? "opacity-50 pointer-events-none" : ""} ${className}`;
   if (href) return <Link href={href} className={cls}>{children}</Link>;
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={cls}>
@@ -30,8 +38,8 @@ export function SitheloButton({ children, variant = "primary", href, onClick, ty
 
 // ---------- Card ----------
 
-export function SitheloCard({ children, className = "", flat = false }: { children: ReactNode; className?: string; flat?: boolean }) {
-  return <div className={`${flat ? "card-flat" : "card"} ${className}`}>{children}</div>;
+export function SitheloCard({ children, className = "" }: { children: ReactNode; className?: string; flat?: boolean }) {
+  return <div className={`card ${className}`}>{children}</div>;
 }
 
 // ---------- Badge / status ----------
@@ -83,7 +91,7 @@ export function SitheloAvatar({ name, size = 36 }: { name: string; size?: number
 export function SitheloMetric({ label, value, sublabel }: { label: string; value: string | number; sublabel?: string }) {
   return (
     <div>
-      <div className="text-3xl font-display font-bold text-navy tracking-tight">{value}</div>
+      <div className="text-3xl font-display font-medium text-navy tracking-tight">{value}</div>
       <div className="text-xs text-ink-600 mt-1">{label}</div>
       {sublabel && <div className="text-xs text-teal font-medium mt-0.5">{sublabel}</div>}
     </div>
@@ -103,8 +111,8 @@ export function SitheloRing({ value, max = 100, size = 96, label, sublabel }: { 
       <svg width={size} height={size} className="-rotate-90">
         <defs>
           <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#67C7F2" />
-            <stop offset="100%" stopColor="#3157D5" />
+            <stop offset="0%" stopColor="#2F7BF6" />
+            <stop offset="100%" stopColor="#0B1D33" />
           </linearGradient>
         </defs>
         <circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(255,255,255,0.14)" strokeWidth="7" fill="none" />
@@ -115,7 +123,7 @@ export function SitheloRing({ value, max = 100, size = 96, label, sublabel }: { 
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display font-bold text-white" style={{ fontSize: size * 0.24 }}>{label ?? value}</span>
+        <span className="font-display font-medium text-white" style={{ fontSize: size * 0.24 }}>{label ?? value}</span>
         {sublabel && <span className="text-white/60" style={{ fontSize: size * 0.1 }}>{sublabel}</span>}
       </div>
     </div>
@@ -153,14 +161,14 @@ export function SitheloErrorState({ title = "Something went wrong", body = "Plea
 
 // ---------- Logo ----------
 
-export function SitheloLogo({ height = 40 }: { height?: number }) {
+export function SitheloLogo({ height = 40, variant = "default" }: { height?: number; variant?: "default" | "light" }) {
   return (
     <Image
       src="/sithelo-logo.png"
       alt="Sithelo"
       width={height * 2.6}
       height={height}
-      style={{ height, width: "auto" }}
+      style={{ height, width: "auto", filter: variant === "light" ? "brightness(0) invert(1)" : undefined }}
       priority
     />
   );

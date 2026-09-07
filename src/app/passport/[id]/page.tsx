@@ -79,50 +79,67 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
   const isVerified = detail.overall_verification_status === "verified";
 
   return (
-    <main className="min-h-screen bg-soft px-6 md:px-8 py-8 max-w-[1200px] mx-auto">
-      {/* ---- Credential header — the "digital business credential" treatment ---- */}
-      <div className="surface-navy relative overflow-hidden mb-6">
-        <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full opacity-20" style={{ background: "radial-gradient(circle, #67C7F2, transparent 70%)" }} />
-        <div className="relative flex items-start justify-between mb-8">
-          <div className="brightness-0 invert opacity-80"><SitheloLogo height={20} /></div>
-          <div className="flex gap-2">
+    <main id="main-content" className="min-h-screen bg-ivory px-6 md:px-8 py-10 max-w-[1080px] mx-auto">
+      {/* ---- Credential header — the digital business credential itself.
+          A ring here is correct (unlike the dashboard, where it became a
+          plain number): this page *is* the seal being presented. ---- */}
+      <div className="surface-navy relative overflow-hidden mb-10 p-8 md:p-10">
+        <div className="relative flex flex-wrap items-start justify-between gap-4 mb-10">
+          <SitheloLogo height={22} variant="light" />
+          <div className="flex flex-wrap gap-2">
             {showOwnerAdminData && (
-              <SitheloButton href="/entrepreneur/business/edit" variant="ghost" className="!bg-white/10 !text-white !border-white/20 hover:!border-sky">Edit</SitheloButton>
+              <SitheloButton href="/entrepreneur/business/edit" variant="on-dark-ghost" className="!px-4 !py-2">Edit</SitheloButton>
             )}
-            <SitheloButton variant="ghost" className="!bg-white/10 !text-white !border-white/20 hover:!border-sky">Share Passport</SitheloButton>
-            <SitheloButton>Download PDF</SitheloButton>
+            {/* "Share Passport" removed: there was no share feature behind
+                it anywhere in the codebase (no route, no table, no edge
+                function) — it was a button that did nothing when clicked.
+                "Download PDF" disabled rather than removed: the PDF
+                generator (supabase/functions/generate-business-passport-pdf)
+                is real and callable, but the frontend was never wired to
+                call it or to fetch a signed URL for the private
+                'generated-pdfs' bucket it writes to. Re-enable once that
+                wiring exists — see AUDIT.md. */}
+            <SitheloButton variant="on-dark" disabled className="!px-4 !py-2">
+              Download PDF (coming soon)
+            </SitheloButton>
           </div>
         </div>
 
-        <div className="relative grid grid-cols-[auto_1fr] gap-8 items-center">
-          <SitheloRing value={detail.trust_score} label={`${detail.trust_score}`} sublabel="Trust Score" size={120} />
+        <div className="relative grid sm:grid-cols-[auto_1fr] gap-8 items-center">
+          <SitheloRing value={detail.trust_score} label={`${detail.trust_score}`} sublabel="Trust Score" size={116} />
           <div>
-            <div className="text-white/50 text-xs font-semibold tracking-wider uppercase mb-2">Business Passport</div>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-display font-bold text-white">{detail.business_name}</h1>
-              {isVerified && <SitheloBadge tone="verified">✓ Verified</SitheloBadge>}
+            <div className="eyebrow-on-dark mb-3">Business Passport</div>
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+              <h1 className="text-display-lg font-display font-medium text-white">{detail.business_name}</h1>
+              {isVerified && <SitheloBadge tone="verified">Verified</SitheloBadge>}
             </div>
-            <div className="text-white/60 text-sm">
+            <div className="text-white/55 text-sm">
               {detail.industry ?? "—"} · {detail.municipality ?? "—"}, {detail.province ?? "—"}
               {detail.established_year && ` · Est. ${detail.established_year}`}
             </div>
-            <div className="text-white/35 text-xs mt-3">Passport ID: {detail.passport_code}</div>
+            <div className="text-white/60 text-xs mt-4 tracking-wide">Passport ID {detail.passport_code}</div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-[1fr_320px] gap-6 mb-6">
-        <div className="card">
-          <h2 className="text-sm font-display font-semibold text-navy mb-4">Business Identity</h2>
-          <div className="grid grid-cols-2 gap-5 text-sm">
-            <div><span className="text-ink-600 block text-xs mb-1">Description</span>{detail.business_description ?? "—"}</div>
-            <div><span className="text-ink-600 block text-xs mb-1">Core Services</span>{detail.core_services ?? "—"}</div>
+      <div className="grid md:grid-cols-[1fr_300px] gap-x-14 gap-y-10 rule border-t pt-10 mb-10">
+        <div>
+          <h2 className="eyebrow mb-5">Business Identity</h2>
+          <div className="grid sm:grid-cols-2 gap-8 text-sm">
+            <div>
+              <span className="text-ink-500 block text-xs mb-1.5">Description</span>
+              <span className="text-navy leading-relaxed">{detail.business_description ?? "—"}</span>
+            </div>
+            <div>
+              <span className="text-ink-500 block text-xs mb-1.5">Core Services</span>
+              <span className="text-navy leading-relaxed">{detail.core_services ?? "—"}</span>
+            </div>
           </div>
         </div>
 
-        <div className="card">
-          <h2 className="text-sm font-display font-semibold text-navy mb-3">Capabilities</h2>
-          <div className="space-y-2.5 text-sm">
+        <div>
+          <h2 className="eyebrow mb-5">Capabilities</h2>
+          <div className="space-y-3 text-sm">
             <Row label="Employees" value={detail.employees_count?.toString() ?? "—"} />
             {detail.annual_turnover !== undefined && (
               <Row label="Annual Turnover" value={detail.annual_turnover ? `R${Number(detail.annual_turnover).toLocaleString()}` : "—"} />
@@ -134,35 +151,36 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
         </div>
       </div>
 
-      <div className="card mb-6">
-        <h2 className="text-sm font-display font-semibold text-navy mb-4">Compliance &amp; Verification</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="rule border-t pt-10 mb-10">
+        <h2 className="eyebrow mb-6">Compliance &amp; Verification</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">
           {Object.entries(VERIFICATION_LABELS).map(([key, label]) => {
             const verified = detail.verification_summary?.[key] === true;
             return (
-              <div key={key} className="flex items-center gap-2">
-                <span className={verified ? "text-teal" : "text-ink-600/50"}>{verified ? "✓" : "○"}</span>
-                <span className={`text-sm ${verified ? "text-navy font-medium" : "text-ink-600"}`}>{label}</span>
+              <div key={key} className="flex items-center gap-2.5">
+                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${verified ? "bg-verified" : "bg-ink-500/30"}`} />
+                <span className={`text-sm ${verified ? "text-navy font-medium" : "text-ink-500"}`}>{label}</span>
               </div>
             );
           })}
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-2">
+      <div className="grid md:grid-cols-3 gap-10 rule border-t pt-10">
+        <div className="md:col-span-2">
+          <h2 className="eyebrow mb-5">Documents</h2>
           <DocumentViewer passportId={id} />
         </div>
 
         {showOwnerAdminData && (
-          <div className="card">
-            <h2 className="text-sm font-display font-semibold text-navy mb-4">Recent Activity</h2>
+          <div>
+            <h2 className="eyebrow mb-5">Recent Activity</h2>
             {activity && activity.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {activity.map((a) => (
-                  <div key={a.id} className="text-sm">
+                  <div key={a.id} className="text-sm border-t border-line pt-3 first:border-t-0 first:pt-0">
                     <div className="text-navy">{a.description}</div>
-                    <div className="text-xs text-ink-600">{new Date(a.created_at).toLocaleDateString("en-ZA")}</div>
+                    <div className="text-xs text-ink-500 mt-0.5">{new Date(a.created_at).toLocaleDateString("en-ZA")}</div>
                   </div>
                 ))}
               </div>
@@ -174,14 +192,14 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
       </div>
 
       {showOwnerAdminData && history && history.length > 0 && (
-        <div className="card mt-6">
-          <h2 className="text-sm font-display font-semibold text-navy mb-4">Trust Score Over Time</h2>
+        <div className="rule border-t pt-10 mt-10">
+          <h2 className="eyebrow mb-6">Trust Score Over Time</h2>
           <div className="flex items-end gap-2 h-24">
             {history.map((h, i) => (
               <div
                 key={i}
-                className="flex-1 rounded-t"
-                style={{ height: `${h.score}%`, background: "linear-gradient(180deg, #67C7F2, #3157D5)", opacity: 0.75 }}
+                className="flex-1 rounded-t bg-navy"
+                style={{ height: `${h.score}%`, opacity: 0.15 + (h.score / 100) * 0.85 }}
                 title={`${h.score}`}
               />
             ))}
@@ -189,7 +207,7 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
         </div>
       )}
 
-      <p className="text-xs text-ink-600 text-center mt-8">
+      <p className="text-xs text-ink-500 text-center mt-14 pb-6">
         All information has been verified. Sithelo connects institutions with trusted, ready-to-work businesses.
       </p>
     </main>
@@ -198,9 +216,9 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between">
-      <span className="text-ink-600">{label}</span>
-      <span className="font-medium text-navy">{value}</span>
+    <div className="flex justify-between gap-4">
+      <span className="text-ink-500">{label}</span>
+      <span className="font-medium text-navy text-right">{value}</span>
     </div>
   );
 }

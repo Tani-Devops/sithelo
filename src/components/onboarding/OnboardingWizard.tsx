@@ -89,8 +89,9 @@ function Pill({ selected, onClick, children }: { selected: boolean; onClick: () 
     <button
       type="button"
       onClick={onClick}
-      className={`text-sm px-4 py-2 rounded-full border transition-colors ${
-        selected ? "bg-cobalt text-white border-cobalt" : "border-line text-ink-600 hover:border-cobalt"
+      aria-pressed={selected}
+      className={`text-sm px-4 py-2 rounded-sm border transition-colors ${
+        selected ? "bg-navy text-white border-navy" : "border-line text-ink-600 hover:border-navy"
       }`}
     >
       {children}
@@ -167,52 +168,59 @@ export function OnboardingWizard() {
   return (
     <div className="max-w-xl mx-auto">
       {/* Journey indicator */}
-      <div className="flex items-center gap-1 mb-8">
+      <div
+        role="progressbar"
+        aria-valuenow={step + 1}
+        aria-valuemin={1}
+        aria-valuemax={STEPS.length}
+        aria-label={`Step ${step + 1} of ${STEPS.length}: ${STEPS[step]}`}
+        className="flex items-center gap-1.5 mb-10"
+      >
         {STEPS.map((s, i) => (
-          <div key={s} className={`h-1 flex-1 rounded-full ${i <= step ? "bg-cobalt" : "bg-line"}`} />
+          <div key={s} aria-hidden="true" className={`h-[3px] flex-1 ${i <= step ? "bg-navy" : "bg-line"}`} />
         ))}
       </div>
 
       <div className="card">
         {step === 0 && (
           <div className="space-y-5">
-            <h1 className="text-2xl font-display font-bold text-navy">Let&apos;s get to know you.</h1>
+            <h1 className="text-2xl font-display font-medium text-navy">Let&apos;s get to know you.</h1>
             <p className="text-sm text-ink-600">
               Sithelo isn&apos;t only interested in your business. We want to understand where you&apos;re starting from.
               There&apos;s no wrong answer, and you don&apos;t need to be a registered business to begin.
             </p>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">Province</label>
-              <select className="input" value={form.province} onChange={(e) => set("province", e.target.value)}>
+              <label htmlFor="province" className="block text-sm font-medium text-navy mb-1.5">Province</label>
+              <select id="province" className="input" value={form.province} onChange={(e) => set("province", e.target.value)}>
                 <option value="">Select province</option>
                 {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">Municipality / town</label>
-              <input className="input" value={form.municipality} onChange={(e) => set("municipality", e.target.value)} />
+              <label htmlFor="municipality" className="block text-sm font-medium text-navy mb-1.5">Municipality / town</label>
+              <input id="municipality" className="input" value={form.municipality} onChange={(e) => set("municipality", e.target.value)} />
             </div>
           </div>
         )}
 
         {step === 1 && (
           <div className="space-y-5">
-            <h1 className="text-2xl font-display font-bold text-navy">What are you building?</h1>
+            <h1 className="text-2xl font-display font-medium text-navy">What are you building?</h1>
             <p className="text-sm text-ink-600">
               A person selling food from a street corner is a valid Sithelo user. So is someone doing hair from home,
               repairing phones from a garage, or selling clothing informally.
             </p>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">What do you sell or do?</label>
-              <input className="input" value={form.business_name} onChange={(e) => set("business_name", e.target.value)} placeholder="e.g. Dlamini Foods" required />
+              <label htmlFor="business_name" className="block text-sm font-medium text-navy mb-1.5">What do you sell or do?</label>
+              <input id="business_name" className="input" value={form.business_name} onChange={(e) => set("business_name", e.target.value)} placeholder="e.g. Dlamini Foods" required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">Industry</label>
-              <input className="input" value={form.industry} onChange={(e) => set("industry", e.target.value)} placeholder="e.g. Catering, hair & beauty, repairs" />
+              <label htmlFor="industry" className="block text-sm font-medium text-navy mb-1.5">Industry</label>
+              <input id="industry" className="input" value={form.industry} onChange={(e) => set("industry", e.target.value)} placeholder="e.g. Catering, hair & beauty, repairs" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">How many years have you been doing this?</label>
-              <input type="number" min={0} className="input" value={form.years_trading} onChange={(e) => set("years_trading", e.target.value)} />
+              <label htmlFor="years_trading" className="block text-sm font-medium text-navy mb-1.5">How many years have you been doing this?</label>
+              <input id="years_trading" type="number" min={0} className="input" value={form.years_trading} onChange={(e) => set("years_trading", e.target.value)} />
             </div>
             <div className="flex gap-2">
               <Pill selected={form.primary_income_source === true} onClick={() => set("primary_income_source", true)}>This is my main income</Pill>
@@ -223,54 +231,54 @@ export function OnboardingWizard() {
 
         {step === 2 && (
           <div className="space-y-5">
-            <h1 className="text-2xl font-display font-bold text-navy">How is it going?</h1>
+            <h1 className="text-2xl font-display font-medium text-navy">How is it going?</h1>
             <p className="text-sm text-ink-600">Approximate ranges are fine, no exact figures needed.</p>
             <div>
-              <label className="block text-sm font-medium text-navy mb-2">Weekly business income</label>
-              <div className="flex flex-wrap gap-2">
+              <div id="weekly-revenue-label" className="block text-sm font-medium text-navy mb-2">Weekly business income</div>
+              <div role="group" aria-labelledby="weekly-revenue-label" className="flex flex-wrap gap-2">
                 {REVENUE_OPTIONS.map((r) => (
                   <Pill key={r.value} selected={form.weekly_revenue_range === r.value} onClick={() => set("weekly_revenue_range", r.value)}>{r.label}</Pill>
                 ))}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-2">Is revenue consistent or seasonal?</label>
-              <div className="flex gap-2">
+              <div id="income-consistency-label" className="block text-sm font-medium text-navy mb-2">Is revenue consistent or seasonal?</div>
+              <div role="group" aria-labelledby="income-consistency-label" className="flex gap-2">
                 {["consistent", "seasonal", "unpredictable"].map((c) => (
                   <Pill key={c} selected={form.income_consistency === c} onClick={() => set("income_consistency", c)}>{c[0].toUpperCase() + c.slice(1)}</Pill>
                 ))}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">People working in/with the business</label>
-              <input type="number" min={0} className="input" value={form.employees_count} onChange={(e) => set("employees_count", e.target.value)} />
+              <label htmlFor="employees_count" className="block text-sm font-medium text-navy mb-1.5">People working in/with the business</label>
+              <input id="employees_count" type="number" min={0} className="input" value={form.employees_count} onChange={(e) => set("employees_count", e.target.value)} />
             </div>
           </div>
         )}
 
         {step === 3 && (
           <div className="space-y-5">
-            <h1 className="text-2xl font-display font-bold text-navy">Tell us about your everyday reality.</h1>
-            <p className="text-sm text-ink-600 bg-soft rounded-lg p-3">
+            <h1 className="text-2xl font-display font-medium text-navy">Tell us about your everyday reality.</h1>
+            <p className="text-sm text-ink-600 border-l-2 border-blue-600 pl-4 py-1">
               <span className="font-medium text-navy">Why are we asking this? </span>
               We use this to understand the realities affecting your business and recommend more relevant next steps.
               It isn&apos;t shown to institutions unless you explicitly choose to share it. All of this is optional.
             </p>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">Number of dependants</label>
-              <input type="number" min={0} className="input" value={form.dependants_count} onChange={(e) => set("dependants_count", e.target.value)} />
+              <label htmlFor="dependants_count" className="block text-sm font-medium text-navy mb-1.5">Number of dependants</label>
+              <input id="dependants_count" type="number" min={0} className="input" value={form.dependants_count} onChange={(e) => set("dependants_count", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-2">How much does your household rely on this income?</label>
-              <div className="flex gap-2">
+              <div id="household-dependency-label" className="block text-sm font-medium text-navy mb-2">How much does your household rely on this income?</div>
+              <div role="group" aria-labelledby="household-dependency-label" className="flex gap-2">
                 {["low", "medium", "high"].map((d) => (
                   <Pill key={d} selected={form.household_income_dependency === d} onClick={() => set("household_income_dependency", d)}>{d[0].toUpperCase() + d.slice(1)}</Pill>
                 ))}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">Where do you operate from?</label>
-              <select className="input" value={form.operating_location_type} onChange={(e) => set("operating_location_type", e.target.value)}>
+              <label htmlFor="operating_location_type" className="block text-sm font-medium text-navy mb-1.5">Where do you operate from?</label>
+              <select id="operating_location_type" className="input" value={form.operating_location_type} onChange={(e) => set("operating_location_type", e.target.value)}>
                 <option value="">Select</option>
                 <option value="home">Home</option>
                 <option value="street">Street / informal trading area</option>
@@ -288,7 +296,7 @@ export function OnboardingWizard() {
 
         {step === 4 && (
           <div className="space-y-5">
-            <h1 className="text-2xl font-display font-bold text-navy">What is your biggest challenge right now?</h1>
+            <h1 className="text-2xl font-display font-medium text-navy">What is your biggest challenge right now?</h1>
             <p className="text-sm text-ink-600">Choose as many as apply.</p>
             <div className="flex flex-wrap gap-2">
               {CHALLENGE_OPTIONS.map((c) => (
@@ -300,7 +308,7 @@ export function OnboardingWizard() {
 
         {step === 5 && (
           <div className="space-y-5">
-            <h1 className="text-2xl font-display font-bold text-navy">If Sithelo could help you achieve one thing over the next 12 months, what would it be?</h1>
+            <h1 className="text-2xl font-display font-medium text-navy">If Sithelo could help you achieve one thing over the next 12 months, what would it be?</h1>
             <div className="flex flex-wrap gap-2">
               {GOAL_OPTIONS.map((g) => (
                 <Pill key={g.value} selected={form.goal === g.value} onClick={() => set("goal", g.value)}>{g.label}</Pill>
@@ -313,7 +321,7 @@ export function OnboardingWizard() {
           </div>
         )}
 
-        {error && <p className="text-sm text-red-600 mt-4">{error}</p>}
+        {error && <p role="alert" aria-live="polite" className="text-sm text-red-600 mt-4">{error}</p>}
 
         <div className="flex justify-between mt-8">
           <SitheloButton variant="ghost" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}>

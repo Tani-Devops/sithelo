@@ -10,7 +10,7 @@ interface NavLink {
   label: string;
 }
 
-export function MobileNavToggle({ links }: { links: NavLink[] }) {
+export function MobileNavToggle({ links, dark = false }: { links: NavLink[]; dark?: boolean }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -53,7 +53,7 @@ export function MobileNavToggle({ links }: { links: NavLink[] }) {
         aria-expanded={open}
         aria-controls="mobile-nav-panel"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center justify-center w-11 h-11 -mr-2 text-navy"
+        className={`flex items-center justify-center w-11 h-11 -mr-2 ${dark && !open ? "text-white" : "text-navy"}`}
       >
         {open ? (
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
@@ -82,7 +82,7 @@ export function MobileNavToggle({ links }: { links: NavLink[] }) {
             className="fixed inset-x-0 top-0 z-50 bg-white shadow-float px-6 pt-6 pb-8 max-h-[85vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
-              <span className="font-display font-bold text-navy">Menu</span>
+              <span className="font-display font-medium text-navy">Menu</span>
               <button
                 type="button"
                 aria-label="Close menu"
