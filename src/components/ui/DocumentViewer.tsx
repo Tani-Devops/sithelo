@@ -3,18 +3,22 @@
 // ====================================================================
 // DocumentViewer — the first real UI consumer of both
 // list_passport_documents() (migration 012) and
-// /api/documents/[id]/signed-url (Part 4, prior pass).
+// /api/documents/[id]/signed-url (Part 4, prior pass). Now also the
+// consumer of /api/documents/upload for the passport owner.
 //
-// Authorization happens entirely server-side (the RPC and the route
-// handler both re-check independently) — this component has no local
-// notion of "am I allowed to see this," it just renders what the server
-// gave it and handles the 403/404 the server sends back cleanly. That's
+// Authorization happens entirely server-side (the RPC and both route
+// handlers re-check independently) — this component has no local
+// notion of "am I allowed to see or add this," it just renders what
+// the server gave it and handles 403/404/429 cleanly. That's
 // deliberate: a client-side permission check here would be UX polish at
-// best and a false sense of security at worst.
+// best and a false sense of security at worst. `canUpload` below is
+// exactly that kind of UX polish — hiding the form for non-owners saves
+// a wasted round trip, but the actual gate is the 403 the upload route
+// returns to anyone who isn't the passport's owner.
 // ====================================================================
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { SitheloStatus } from "@/components/ui/sithelo";
+import { SitheloStatus, SitheloButton } from "@/components/ui/sithelo";
 
 interface DocumentMeta {
   id: string;
@@ -28,44 +32,127 @@ interface DocumentMeta {
 
 type LoadState = "loading" | "empty" | "denied" | "not_found" | "error" | "ready";
 
-export function DocumentViewer({ passportId }: { passportId: string }) {
+// Kept in sync with the ALLOWED_DOCUMENT_TYPES allow-list in
+// /api/documents/upload — this is the human-facing half of that list.
+const DOCUMENT_TYPE_OPTIONS: { value: string; label: string }[] = [
+  { value: "cipc_certificate", label: "CIPC registration certificate" },
+  { value: "tax_clearance", label: "SARS tax clearance" },
+  { value: "vat_certificate", label: "VAT registration certificate" },
+  { value: "bbbee_certificate", label: "B-BBEE certificate" },
+  { value: "cidb_certificate", label: "CIDB registration" },
+  { value: "insurance_certificate", label: "Insurance certificate" },
+  { value: "bank_confirmation", label: "Bank confirmation letter" },
+  { value: "municipal_supplier_certificate", label: "Municipal supplier certificate" },
+  { value: "other", label: "Other" },
+];
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+export function DocumentViewer({ passportId, canUpload = false }: { passportId: string; canUpload?: boolean }) {
   const [state, setState] = useState<LoadState>("loading");
   const [documents, setDocuments] = useState<DocumentMeta[]>([]);
   const [openingId, setOpeningId] = useState<string | null>(null);
   const [openError, setOpenError] = useState<string | null>(null);
 
+  const [showUploadForm, setShowUploadForm] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+  const [documentType, setDocumentType] = useState(DOCUMENT_TYPE_OPTIONS[0].value);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [issuedDate, setIssuedDate] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+
+  async function load() {
+    setState("loading");
+    const supabase = createClient();
+    const { data, error } = await supabase.rpc("list_passport_documents", { p_passport_id: passportId });
+
+    if (error) {
+      // The RPC raises a plain exception (not a typed error code) for
+      // both "not found" and "not authorized" — Postgres surfaces both
+      // as a generic error here, so we can't reliably distinguish them
+      // client-side. That's fine: the honest, safe behavior is to show
+      // the same "can't access this" state either way, rather than
+      // leaking which case it was (confirming a passport ID exists to
+      // someone who isn't authorized to see it is itself a small
+      // information leak).
+      setState(error.message.toLowerCase().includes("not found") ? "not_found" : "denied");
+      return;
+    }
+
+    setDocuments((data as DocumentMeta[]) ?? []);
+    setState(((data as DocumentMeta[]) ?? []).length === 0 ? "empty" : "ready");
+  }
+
   useEffect(() => {
-    let cancelled = false;
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [passportId]);
 
-    async function load() {
-      setState("loading");
+  function resetUploadForm() {
+    setDocumentType(DOCUMENT_TYPE_OPTIONS[0].value);
+    setSelectedFile(null);
+    setIssuedDate("");
+    setExpiryDate("");
+  }
+
+  async function handleUpload(e: FormEvent) {
+    e.preventDefault();
+    setUploadError(null);
+    setUploadSuccess(null);
+
+    if (!selectedFile) {
+      setUploadError("Please choose a file to upload.");
+      return;
+    }
+    if (!["application/pdf", "image/jpeg", "image/png"].includes(selectedFile.type)) {
+      setUploadError("Only PDF, JPEG, and PNG files are accepted.");
+      return;
+    }
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      setUploadError("File is too large. Maximum size is 10MB.");
+      return;
+    }
+
+    setUploading(true);
+    try {
       const supabase = createClient();
-      const { data, error } = await supabase.rpc("list_passport_documents", { p_passport_id: passportId });
-
-      if (cancelled) return;
-
-      if (error) {
-        // The RPC raises a plain exception (not a typed error code) for
-        // both "not found" and "not authorized" — Postgres surfaces both
-        // as a generic error here, so we can't reliably distinguish them
-        // client-side. That's fine: the honest, safe behavior is to show
-        // the same "can't access this" state either way, rather than
-        // leaking which case it was (confirming a passport ID exists to
-        // someone who isn't authorized to see it is itself a small
-        // information leak).
-        setState(error.message.toLowerCase().includes("not found") ? "not_found" : "denied");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setUploadError("Your session has expired. Please log in again.");
         return;
       }
 
-      setDocuments((data as DocumentMeta[]) ?? []);
-      setState(((data as DocumentMeta[]) ?? []).length === 0 ? "empty" : "ready");
-    }
+      const body = new FormData();
+      body.append("file", selectedFile);
+      body.append("passport_id", passportId);
+      body.append("document_type", documentType);
+      if (issuedDate) body.append("issued_date", issuedDate);
+      if (expiryDate) body.append("expiry_date", expiryDate);
 
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [passportId]);
+      const res = await fetch("/api/documents/upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body,
+      });
+
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        setUploadError(payload?.error ?? "Something went wrong uploading this document.");
+        return;
+      }
+
+      setUploadSuccess("Document uploaded — pending admin review.");
+      resetUploadForm();
+      setShowUploadForm(false);
+      await load();
+    } catch {
+      setUploadError("Something went wrong uploading this document.");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function openDocument(doc: DocumentMeta) {
     setOpeningId(doc.id);
@@ -150,18 +237,104 @@ export function DocumentViewer({ passportId }: { passportId: string }) {
     );
   }
 
+  const uploadForm = showUploadForm && (
+    <form onSubmit={handleUpload} className="border-t border-line mt-4 pt-4 space-y-3">
+      <div className="grid sm:grid-cols-2 gap-3">
+        <label className="block">
+          <span className="text-xs text-ink-500 block mb-1">Document type</span>
+          <select
+            value={documentType}
+            onChange={(e) => setDocumentType(e.target.value)}
+            className="input text-sm w-full"
+          >
+            {DOCUMENT_TYPE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="block">
+          <span className="text-xs text-ink-500 block mb-1">File (PDF, JPEG, or PNG · max 10MB)</span>
+          <input
+            type="file"
+            accept="application/pdf,image/jpeg,image/png"
+            onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
+            className="text-sm w-full"
+          />
+        </label>
+        <label className="block">
+          <span className="text-xs text-ink-500 block mb-1">Issued date (optional)</span>
+          <input
+            type="date"
+            value={issuedDate}
+            onChange={(e) => setIssuedDate(e.target.value)}
+            className="input text-sm w-full"
+          />
+        </label>
+        <label className="block">
+          <span className="text-xs text-ink-500 block mb-1">Expiry date (optional)</span>
+          <input
+            type="date"
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
+            className="input text-sm w-full"
+          />
+        </label>
+      </div>
+      {uploadError && (
+        <p role="alert" aria-live="polite" className="text-sm text-red-600">{uploadError}</p>
+      )}
+      <div className="flex items-center gap-3">
+        <SitheloButton type="submit" disabled={uploading} className="!px-4 !py-2 text-xs">
+          {uploading ? "Uploading…" : "Upload document"}
+        </SitheloButton>
+        <button
+          type="button"
+          onClick={() => { setShowUploadForm(false); setUploadError(null); resetUploadForm(); }}
+          className="text-xs text-ink-600 hover:text-navy"
+        >
+          Cancel
+        </button>
+      </div>
+      <p className="text-xs text-ink-500">
+        New documents start as pending review — an admin verifies each one before it counts toward your trust score.
+      </p>
+    </form>
+  );
+
+  const uploadToggle = canUpload && !showUploadForm && (
+    <button
+      type="button"
+      onClick={() => { setShowUploadForm(true); setUploadSuccess(null); }}
+      className="btn-ghost text-xs px-3 py-1.5"
+    >
+      Upload document
+    </button>
+  );
+
   if (state === "empty") {
     return (
       <div className="card text-center py-10">
-        <p className="text-sm text-ink-600">No documents uploaded yet.</p>
+        <p className="text-sm text-ink-600 mb-4">No documents uploaded yet.</p>
+        {canUpload && (
+          <div className="max-w-sm mx-auto text-left">
+            <div className="flex justify-center mb-2">{uploadToggle}</div>
+            {uploadForm}
+            {uploadSuccess && <p className="text-sm text-teal text-center mt-3">{uploadSuccess}</p>}
+          </div>
+        )}
       </div>
     );
   }
 
   return (
     <div className="card">
-      <h2 className="text-sm font-semibold mb-4">Documents &amp; Certificates</h2>
-      <div className="space-y-2">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-semibold">Documents &amp; Certificates</h2>
+        {uploadToggle}
+      </div>
+      {uploadForm}
+      {uploadSuccess && <p className="text-sm text-teal mt-3">{uploadSuccess}</p>}
+      <div className="space-y-2 mt-4">
         {documents.map((doc) => (
           <div key={doc.id} className="flex items-center justify-between border-b border-line last:border-0 py-3">
             <div>

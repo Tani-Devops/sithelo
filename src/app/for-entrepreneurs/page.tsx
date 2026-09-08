@@ -1,7 +1,6 @@
-import Image from "next/image";
 import type { Metadata } from "next";
 import { SiteNav, SiteFooter } from "@/components/ui/MarketingChrome";
-import { SitheloButton } from "@/components/ui/sithelo";
+import { SitheloButton, HeroPhoto } from "@/components/ui/sithelo";
 
 export const metadata: Metadata = {
   title: "For Entrepreneurs | Sithelo",
@@ -35,15 +34,10 @@ export default function ForEntrepreneursPage() {
           </p>
           <SitheloButton href="/register?role=entrepreneur">Create your Passport</SitheloButton>
         </div>
-        <div className="relative h-[340px] md:h-[420px] rounded-card overflow-hidden">
-          <Image
-            src="https://images.unsplash.com/photo-1531483245484-5ca8c23a880b?auto=format&fit=crop&w=1200&q=80"
-            alt="Entrepreneurs collaborating"
-            fill
-            sizes="(min-width: 768px) 40vw, 100vw"
-            className="object-cover"
-          />
-        </div>
+        <HeroPhoto
+          src="https://images.unsplash.com/photo-1531483245484-5ca8c23a880b?auto=format&fit=crop&w=1200&q=80"
+          alt="Entrepreneurs collaborating"
+        />
       </section>
 
       <section className="bg-ivory py-16">

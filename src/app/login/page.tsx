@@ -48,7 +48,7 @@ function LoginForm() {
   return (
     <main id="main-content" className="min-h-screen flex items-center justify-center bg-soft px-6">
       <div className="card w-full max-w-md">
-        <div className="mb-6"><SitheloLogo height={34} /></div>
+        <div className="mb-6 flex justify-center"><SitheloLogo height={48} /></div>
         <h1 className="text-2xl font-display font-medium text-navy mb-1.5">Welcome back</h1>
         <p className="text-sm text-ink-600 mb-6">Login to your Sithelo account</p>
 

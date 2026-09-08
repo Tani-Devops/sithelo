@@ -189,7 +189,7 @@ export default async function EditBusinessPassportPage() {
 
   return (
     <main id="main-content" className="min-h-screen bg-ivory px-6 py-10 max-w-3xl mx-auto">
-      <div className="mb-8"><SitheloLogo height={32} /></div>
+      <div className="mb-8 flex justify-center"><SitheloLogo height={44} /></div>
       <div className="eyebrow mb-3">Business Passport</div>
       <h1 className="text-display-lg font-display font-medium text-navy leading-tight mb-10">Edit your Business Passport</h1>
 

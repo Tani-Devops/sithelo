@@ -159,7 +159,33 @@ export function SitheloErrorState({ title = "Something went wrong", body = "Plea
   );
 }
 
-// ---------- Logo ----------
+// ---------- Photo frame ----------
+
+// Used for the marketing hero photos (for-entrepreneurs, for-institutions).
+// A plain rounded-rectangle photo reads as a hard sticker sitting on top of
+// the page; fading the edges with a mask lets the ivory/soft page
+// background show through at the border so the photo feels embedded in the
+// page rather than pasted on top of it.
+export function HeroPhoto({ src, alt }: { src: string; alt: string }) {
+  const fade =
+    "radial-gradient(ellipse 78% 82% at center, black 62%, transparent 100%)";
+  return (
+    <div className="relative h-[360px] md:h-[440px]">
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes="(min-width: 768px) 40vw, 100vw"
+        className="object-cover rounded-card"
+        style={{
+          maskImage: fade,
+          WebkitMaskImage: fade,
+        }}
+      />
+    </div>
+  );
+}
+
 
 export function SitheloLogo({ height = 40, variant = "default" }: { height?: number; variant?: "default" | "light" }) {
   return (

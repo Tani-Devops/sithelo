@@ -85,7 +85,7 @@ function RegisterForm() {
   return (
     <main id="main-content" className="min-h-screen flex items-center justify-center bg-soft px-6 py-12">
       <div className="card w-full max-w-md">
-        <div className="mb-6"><SitheloLogo height={34} /></div>
+        <div className="mb-6 flex justify-center"><SitheloLogo height={48} /></div>
         <h1 className="text-2xl font-display font-medium text-navy mb-1.5">Create your account</h1>
         <p className="text-sm text-ink-600 mb-6">
           Join Sithelo as {role === "institution" ? "an institution" : "an entrepreneur"}

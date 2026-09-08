@@ -35,7 +35,7 @@ export default async function OnboardingCompletePage() {
   return (
     <main id="main-content" className="min-h-screen flex items-center justify-center bg-navy-900 px-6 py-16">
       <div className="max-w-lg w-full text-center">
-        <div className="mb-10 flex justify-center"><SitheloLogo height={28} variant="light" /></div>
+        <div className="mb-10 flex justify-center"><SitheloLogo height={40} variant="light" /></div>
         <p className="text-white/50 text-sm mb-3">You&apos;re in, {firstName}.</p>
         <h1 className="text-hero font-display font-medium text-white leading-tight mb-10">We see you.</h1>
 

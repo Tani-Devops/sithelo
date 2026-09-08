@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { SitheloLogo, SitheloAvatar } from "@/components/ui/sithelo";
+import { LogoutButton } from "@/components/ui/LogoutButton";
 
 interface NavItem {
   label: string;
@@ -58,7 +59,7 @@ export function PortalMobileNav({
   return (
     <div className="md:hidden bg-navy-900 sticky top-0 z-30">
       <div className="flex items-center justify-between px-5 py-4">
-        <SitheloLogo height={28} variant="light" />
+        <SitheloLogo height={34} variant="light" />
         <button
           ref={buttonRef}
           type="button"
@@ -118,10 +119,11 @@ export function PortalMobileNav({
             </nav>
             <div className="flex items-center gap-3 pt-4 border-t border-white/10">
               <SitheloAvatar name={userName} size={34} />
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="text-white text-sm font-medium leading-tight truncate">{userName}</div>
                 <div className="text-white/50 text-xs">{userRole}</div>
               </div>
+              <LogoutButton variant="dark" />
             </div>
           </div>
         </>

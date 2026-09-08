@@ -1,7 +1,6 @@
-import Image from "next/image";
 import type { Metadata } from "next";
 import { SiteNav, SiteFooter } from "@/components/ui/MarketingChrome";
-import { SitheloButton } from "@/components/ui/sithelo";
+import { SitheloButton, HeroPhoto } from "@/components/ui/sithelo";
 
 export const metadata: Metadata = {
   title: "For Institutions | Sithelo",
@@ -33,15 +32,10 @@ export default function ForInstitutionsPage() {
           </p>
           <SitheloButton href="/register?role=institution">Register your institution</SitheloButton>
         </div>
-        <div className="relative h-[340px] md:h-[420px] rounded-card overflow-hidden">
-          <Image
-            src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80"
-            alt="Civil engineer at a construction site"
-            fill
-            sizes="(min-width: 768px) 40vw, 100vw"
-            className="object-cover"
-          />
-        </div>
+        <HeroPhoto
+          src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80"
+          alt="Civil engineer at a construction site"
+        />
       </section>
 
       <section className="container-editorial py-16">

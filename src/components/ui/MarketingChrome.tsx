@@ -13,7 +13,7 @@ export function SiteNav() {
   return (
     <nav className="flex items-center justify-between px-6 md:px-8 py-5 max-w-[1180px] mx-auto">
       <Link href="/" aria-label="Sithelo home" className="shrink-0">
-        <SitheloLogo height={38} />
+        <SitheloLogo height={44} />
       </Link>
       <div className="hidden md:flex gap-9 text-[13px] font-medium tracking-wide uppercase text-navy/70">
         {NAV_LINKS.map((l) => (
@@ -36,7 +36,7 @@ export function SiteNavOnDark() {
   return (
     <nav className="relative z-10 flex items-center justify-between px-6 md:px-8 py-6 max-w-[1180px] mx-auto">
       <Link href="/" aria-label="Sithelo home" className="shrink-0">
-        <SitheloLogo height={38} variant="light" />
+        <SitheloLogo height={44} variant="light" />
       </Link>
       <div className="hidden md:flex gap-9 text-[13px] font-medium tracking-wide uppercase text-white/70">
         {NAV_LINKS.map((l) => (
@@ -59,7 +59,7 @@ export function SiteFooter() {
     <footer className="bg-navy text-white">
       <div className="container-editorial py-16 grid gap-12 md:grid-cols-4">
         <div>
-          <SitheloLogo height={30} variant="light" />
+          <SitheloLogo height={38} variant="light" />
           <p className="text-sm text-white/55 mt-4 max-w-xs leading-relaxed">
             Where South African businesses become visible, credible and connected to opportunity.
           </p>

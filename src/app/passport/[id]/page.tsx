@@ -85,7 +85,7 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
           plain number): this page *is* the seal being presented. ---- */}
       <div className="surface-navy relative overflow-hidden mb-10 p-8 md:p-10">
         <div className="relative flex flex-wrap items-start justify-between gap-4 mb-10">
-          <SitheloLogo height={22} variant="light" />
+          <SitheloLogo height={28} variant="light" />
           <div className="flex flex-wrap gap-2">
             {showOwnerAdminData && (
               <SitheloButton href="/entrepreneur/business/edit" variant="on-dark-ghost" className="!px-4 !py-2">Edit</SitheloButton>
@@ -169,7 +169,12 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
       <div className="grid md:grid-cols-3 gap-10 rule border-t pt-10">
         <div className="md:col-span-2">
           <h2 className="eyebrow mb-5">Documents</h2>
-          <DocumentViewer passportId={id} />
+          {/* Same gate as the "Edit" button above: access_tier
+              'owner_admin' covers both the owner and admin (migration
+              011/015/019). The upload route re-checks passport
+              ownership itself and returns 403 to anyone but the actual
+              owner, so this is UX convenience, not the real gate. */}
+          <DocumentViewer passportId={id} canUpload={showOwnerAdminData} />
         </div>
 
         {showOwnerAdminData && (
