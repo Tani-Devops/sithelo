@@ -27,6 +27,7 @@ const NAV_ITEMS = [
   { label: "Home", href: "/institution/dashboard" },
   { label: "Discover Businesses", href: "/institution/search", active: true },
   { label: "Opportunities", href: "/institution/opportunities" },
+  { label: "Applications", href: "/institution/applications" },
 ];
 
 export default async function BusinessDiscoveryPage({

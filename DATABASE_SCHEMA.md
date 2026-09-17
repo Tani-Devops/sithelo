@@ -1,4 +1,4 @@
-# Zenzele — Database Schema Reference
+# Sithelo — Database Schema Reference
 
 Full source: `supabase/migrations/001_core_schema.sql`. This is the human-readable index.
 

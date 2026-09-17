@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteNav, SiteFooter } from "@/components/ui/MarketingChrome";
+import { LEGAL_CONFIG } from "@/lib/legal/config";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Sithelo",
@@ -8,22 +9,26 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
+// ====================================================================
+// This page describes how the platform actually classifies and
+// protects data today (see DATA_CLASSIFICATION.md and the RLS policies
+// it documents), not aspirational or invented policy. Where a fact
+// hasn't been confirmed anywhere in the codebase or environment
+// (registered entity, retention period specifics, a monitored contact
+// mailbox), this page says so honestly rather than showing a bracketed
+// placeholder — see src/lib/legal/config.ts.
+// ====================================================================
+
 export default function PrivacyPage() {
+  const c = LEGAL_CONFIG;
   return (
     <main id="main-content">
       <SiteNav />
       <section className="max-w-[760px] mx-auto px-8 pt-6 pb-20">
         <h1 className="text-3xl font-display font-medium tracking-tight text-navy mb-2">Privacy Policy</h1>
-        <p className="text-sm text-ink-600 mb-8">Last updated: [DATE, to be set on legal review]</p>
-
-        <div className="card bg-champagne/10 border-champagne/40 mb-10">
-          <p className="text-sm text-ink-600 leading-relaxed">
-            <strong className="text-navy">Draft placeholder, high priority before launch.</strong> Sithelo
-            collects personal and business information, so this page needs POPIA-aware legal review
-            before going live. This draft is structured around how the platform actually classifies
-            and protects data today, not invented policy.
-          </p>
-        </div>
+        <p className="text-sm text-ink-600 mb-10">
+          {c.lastUpdated ? `Last updated: ${c.lastUpdated}` : "This policy has not yet completed legal review."}
+        </p>
 
         <div className="space-y-8 text-[15px] text-ink-600 leading-relaxed">
           <section>
@@ -35,6 +40,7 @@ export default function PrivacyPage() {
               <li>Verification documents: CIPC, SARS, VAT, banking, B-BBEE, insurance, CIDB and municipal supplier documentation, uploaded to a private document store.</li>
               <li>Owner-private business details: business email/phone, head office address, key clients, annual turnover.</li>
               <li>For entrepreneurs who complete the onboarding wizard: approximate, self-reported household and financial context (used only to shape guidance shown to that entrepreneur, never exact figures, never institution-visible).</li>
+              <li>For institutions: organisation name, type, province/municipality, and primary contact details provided during institution onboarding.</li>
             </ul>
           </section>
           <section>
@@ -47,7 +53,8 @@ export default function PrivacyPage() {
               Uploaded documents themselves are never shown to institutions directly; only the
               verification status derived from them is. Personal/household context from the onboarding
               wizard is visible only to you and platform administrators; it is never shared with
-              institutions under any circumstance.
+              institutions under any circumstance. Institutions can only see applications submitted to
+              their own opportunities, and never another institution&apos;s applicants or opportunities.
             </p>
           </section>
           <section>
@@ -85,15 +92,40 @@ export default function PrivacyPage() {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-display font-semibold text-navy mb-2">6. Data retention and your rights</h2>
+            <h2 className="text-lg font-display font-semibold text-navy mb-2">6. Data retention</h2>
             <p>
-              [PLACEHOLDER: retention periods, deletion process and POPIA data-subject rights to be
-              confirmed on legal review.]
+              We retain your account and business information for as long as your account is active,
+              and for a reasonable period afterwards to meet legal, tax, dispute-resolution and audit
+              obligations. A specific retention schedule for each data category is being finalised and
+              will be published here before public launch.
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-display font-semibold text-navy mb-2">7. Contact</h2>
-            <p>Questions about this policy can be directed to [CONTACT EMAIL, not yet published].</p>
+            <h2 className="text-lg font-display font-semibold text-navy mb-2">7. Your rights</h2>
+            <p>
+              Under South Africa&apos;s Protection of Personal Information Act (POPIA), you have the
+              right to request access to the personal information we hold about you, request correction
+              of inaccurate information, object to certain processing, and request deletion of your
+              information subject to our legal retention obligations. You can exercise most of these
+              directly from your account settings; for anything else, use the contact details below.
+            </p>
+          </section>
+          <section>
+            <h2 className="text-lg font-display font-semibold text-navy mb-2">8. Security</h2>
+            <p>
+              Access to business and personal information is controlled by row-level security policies
+              enforced by our database, so that entrepreneurs, institutions and administrators can each
+              only reach the data their role and relationships entitle them to. Documents are stored
+              privately and served only through short-lived, authorised links, never public URLs.
+            </p>
+          </section>
+          <section>
+            <h2 className="text-lg font-display font-semibold text-navy mb-2">9. Contact</h2>
+            <p>
+              {c.privacyContactEmail
+                ? <>Questions about this policy, or requests relating to your data, can be directed to <a className="text-navy underline underline-offset-2" href={`mailto:${c.privacyContactEmail}`}>{c.privacyContactEmail}</a>.</>
+                : "A monitored contact address for privacy questions and data requests will be published here before public launch."}
+            </p>
           </section>
         </div>
       </section>

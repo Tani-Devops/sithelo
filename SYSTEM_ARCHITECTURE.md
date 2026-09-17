@@ -1,4 +1,4 @@
-# Zenzele — System Architecture
+# Sithelo — System Architecture
 
 ## High level
 

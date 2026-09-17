@@ -1,4 +1,10 @@
 import type { Metadata } from "next";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/500.css";
+import "@fontsource/inter/600.css";
+import "@fontsource/inter/700.css";
+import "@fontsource-variable/fraunces/standard.css";
+import "@fontsource-variable/fraunces/standard-italic.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,22 +23,19 @@ export const metadata: Metadata = {
   // opengraph-image.png — no manual `icons`/`images` override needed here.
 };
 
-// Fonts loaded via <link> rather than next/font/google: next/font fetches
-// and self-hosts font files at BUILD TIME, which requires network access
-// to fonts.googleapis.com — unavailable in this environment's build
-// sandbox (confirmed by an actual failed build attempt, not assumed).
-// A real deployment target (Vercel, any CI with normal internet access)
-// would have no trouble with next/font either way; this is the safer,
-// environment-independent choice regardless, since it doesn't couple the
-// build itself to a third-party network call succeeding.
+// Fonts (Inter, Fraunces) are self-hosted via @fontsource/inter and
+// @fontsource-variable/fraunces (imported above), not loaded at runtime
+// from fonts.googleapis.com/fonts.gstatic.com. This removes an external
+// dependency and its associated per-visitor request to Google, and
+// means the site keeps working (typography included) if Google Fonts is
+// ever slow or unreachable. A previous pass used a runtime <link> here
+// because this sandbox's build environment couldn't reach
+// fonts.googleapis.com — @fontsource ships the actual font files
+// through the npm registry instead, which this environment can reach,
+// so that workaround is no longer needed.
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
-      </head>
       <body className="font-sans bg-ivory text-ink-900">
         {/* Skip link: invisible until keyboard-focused, lets keyboard/screen-reader
             users jump straight past repeated nav/sidebar markup on every page. */}

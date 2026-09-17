@@ -22,7 +22,7 @@
 
   /* ---------- Buttons: flat, confident, no gradients ---------- */
   .btn {
-    @apply inline-flex items-center justify-center rounded-sm px-6 py-3 text-sm font-semibold tracking-wide transition-colors duration-150;
+    @apply inline-flex items-center justify-center rounded-sm px-6 py-3 text-sm font-semibold tracking-wide transition-all duration-200 ease-brand hover:-translate-y-0.5;
   }
   .btn-primary {
     @apply btn bg-navy text-white hover:bg-navy-700;
@@ -74,4 +74,25 @@
   /* ---------- Image treatment: bleed, don't box ---------- */
   .img-fade-b { @apply absolute inset-0 bg-fade-navy-b; }
   .img-fade-t { @apply absolute inset-0 bg-fade-navy-t; }
+
+  /* ---------- Small pop-in surfaces (menus, dropdowns) ---------- */
+  @keyframes reveal-scale {
+    from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .animate-reveal {
+    animation: reveal-scale 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+/* Respect the OS-level motion preference for every animation/transition
+   this project adds — including the WAAPI calls in src/lib/motion, which
+   check this same media query in JS before running. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

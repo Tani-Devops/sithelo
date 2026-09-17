@@ -1,14 +1,14 @@
-# Zenzele — Product Requirements
+# Sithelo — Product Requirements
 
 ## What this is not
 
-Not LinkedIn, not a CRM/ERP, not a chatbot, not a generic business directory. Zenzele is infrastructure: a verified, portable credential (the Business Passport™) that entrepreneurs build once and use everywhere they seek opportunity.
+Not LinkedIn, not a CRM/ERP, not a chatbot, not a generic business directory. Sithelo is infrastructure: a verified, portable credential (the Business Passport™) that entrepreneurs build once and use everywhere they seek opportunity.
 
 ## Users (exactly three roles)
 
 1. **Entrepreneur** — owns a Business Passport, applies to opportunities, manages documents/verifications.
 2. **Institution** — searches/filters verified businesses, posts opportunities, shortlists, contracts.
-3. **Admin** (Zenzele team) — approves/rejects verifications, moderates content, oversees platform health.
+3. **Admin** (Sithelo team) — approves/rejects verifications, moderates content, oversees platform health.
 
 ## Core entity: the Business Passport
 
@@ -32,6 +32,6 @@ CIPC, SARS, VAT, B-BBEE, CIDB, and Municipal Supplier Database are first-class v
 
 ## Non-goals for v1
 
-- Public business directory / SEO-driven discovery (Zenzele is permissioned: institutions search, they don't browse a public catalog)
+- Public business directory / SEO-driven discovery (Sithelo is permissioned: institutions search, they don't browse a public catalog)
 - Payments/escrow between entrepreneur and institution (opportunities are matched and applied to; money changes hands off-platform for now)
 - Multi-country support (South Africa only; the schema doesn't currently generalize province/municipality beyond SA)

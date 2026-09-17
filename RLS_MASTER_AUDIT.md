@@ -1,4 +1,4 @@
-# Zenzele — RLS Master Audit
+# Sithelo — RLS Master Audit
 
 Enumerates every table's **final** authorization state after all 20 migrations (i.e., accounting for every `drop policy` / `revoke` that superseded an earlier migration — this is what's actually in effect, not a chronological list of everything ever written). Verified by grepping the actual `create policy`/`drop policy`/`revoke` statements across all migrations before writing this table, not from memory. Migration count corrected from a stale "13" in a prior revision of this document — caught during an explicit consistency-check pass, not left uncorrected.
 

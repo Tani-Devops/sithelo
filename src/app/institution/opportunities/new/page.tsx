@@ -66,6 +66,7 @@ export default async function NewOpportunityPage({ searchParams }: { searchParam
     { label: "Home", href: "/institution/dashboard" },
     { label: "Discover Businesses", href: "/institution/search" },
     { label: "Opportunities", href: "/institution/opportunities", active: true },
+    { label: "Applications", href: "/institution/applications" },
   ];
 
   return (

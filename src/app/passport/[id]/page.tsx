@@ -213,7 +213,7 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
       )}
 
       <p className="text-xs text-ink-500 text-center mt-14 pb-6">
-        All information has been verified. Sithelo connects institutions with trusted, ready-to-work businesses.
+        Verification status shown above reflects information currently reviewed through Sithelo, not an automatic check against CIPC, SARS, CIDB, or B-BBEE systems. Sithelo connects institutions with businesses that have submitted this information for review.
       </p>
     </main>
   );

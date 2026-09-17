@@ -36,7 +36,7 @@ const config: Config = {
         soft: "#F7F5F0",
       },
       fontFamily: {
-        display: ["'Fraunces'", "Georgia", "serif"],
+        display: ["'Fraunces Variable'", "'Fraunces'", "Georgia", "serif"],
         sans: ["'Inter'", "system-ui", "sans-serif"],
       },
       fontSize: {
@@ -45,6 +45,13 @@ const config: Config = {
         eyebrow: ["0.75rem", { lineHeight: "1", letterSpacing: "0.14em" }],
       },
       borderRadius: { sm: "3px", DEFAULT: "4px", card: "6px", pill: "999px" },
+      transitionTimingFunction: {
+        // The easing used across both motion-skill references (WAAPI +
+        // CSS): a snappy, no-overshoot expo-out. One named token so every
+        // hover/reveal in the app shares the same feel instead of each
+        // component inventing its own curve.
+        brand: "cubic-bezier(0.16, 1, 0.3, 1)",
+      },
       boxShadow: {
         edge: "0 1px 0 rgba(11,29,51,0.06)",
         lift: "0 18px 40px -20px rgba(8,22,37,0.35)",

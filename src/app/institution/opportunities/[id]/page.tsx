@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { label: "Home", href: "/institution/dashboard" },
   { label: "Discover Businesses", href: "/institution/search" },
   { label: "Opportunities", href: "/institution/opportunities", active: true },
+  { label: "Applications", href: "/institution/applications" },
 ];
 
 export default async function InstitutionOpportunityDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -64,6 +65,9 @@ export default async function InstitutionOpportunityDetail({ params }: { params:
         <SitheloBadge tone={opportunity.status === "active" ? "verified" : "pending"}>{opportunity.status}</SitheloBadge>
         <h1 className="text-display-lg font-display font-medium text-navy leading-tight mt-4">{opportunity.title}</h1>
         <p className="text-ink-600 mt-2">{opportunity.municipality ?? opportunity.province ?? "South Africa"}</p>
+        <a href={`/institution/applications?opportunity=${opportunity.id}`} className="inline-block mt-4 text-sm font-medium text-blue-600 hover:text-blue-700">
+          View applications for this opportunity →
+        </a>
       </div>
 
       <div className="mb-8">

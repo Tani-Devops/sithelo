@@ -1,7 +1,8 @@
 import Image from "next/image";
 import type { Metadata } from "next";
 import { SitheloButton } from "@/components/ui/sithelo";
-import { SiteNavOnDark, SiteFooter } from "@/components/ui/MarketingChrome";
+import { SiteFooter } from "@/components/ui/MarketingChrome";
+import { Hero } from "@/components/marketing/Hero";
 
 export const metadata: Metadata = {
   title: "Sithelo | Where South African businesses meet opportunity",
@@ -34,40 +35,7 @@ export default function LandingPage() {
   return (
     <main id="main-content" className="bg-ivory">
       {/* ================= HERO ================= */}
-      <section className="relative min-h-[92vh] flex flex-col bg-navy-900 overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1604348489791-f95132c5d8c0?auto=format&fit=crop&w=2400&q=80"
-            alt="Johannesburg skyline at dawn"
-            fill
-            sizes="100vw"
-            className="object-cover opacity-70"
-            priority
-          />
-          <div className="absolute inset-0 bg-fade-navy-b" />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(8,22,37,0.75) 0%, rgba(8,22,37,0.25) 55%, rgba(8,22,37,0.6) 100%)" }} />
-        </div>
-
-        <SiteNavOnDark />
-
-        <div className="relative z-10 container-editorial flex-1 flex flex-col justify-center pb-20 pt-10">
-          <div className="max-w-2xl">
-            <div className="eyebrow-on-dark mb-6">South African Business Network</div>
-            <h1 className="text-hero font-display font-medium text-white mb-7">
-              Where South African businesses meet opportunity.
-            </h1>
-            <p className="text-lg text-white/70 leading-relaxed max-w-lg mb-10">
-              Sithelo helps entrepreneurs build credible business profiles, become discoverable,
-              and connect with procurement, funding, partnerships and growth — backed by one
-              verified Business Passport.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <SitheloButton variant="on-dark" href="/register?role=entrepreneur">Create your business profile</SitheloButton>
-              <SitheloButton variant="on-dark-ghost" href="/for-institutions">Explore Businesses</SitheloButton>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Hero />
 
       {/* ================= THE PROBLEM ================= */}
       <section className="section">
@@ -122,7 +90,7 @@ export default function LandingPage() {
             <div className="border border-white/15 rounded-card p-8 md:p-10 bg-white/[0.03] backdrop-blur-sm">
               <div className="flex items-baseline justify-between mb-8 border-b border-white/10 pb-6">
                 <div>
-                  <div className="eyebrow-on-dark mb-2">Business Passport™</div>
+                  <div className="eyebrow-on-dark mb-2">Example Business Passport™</div>
                   <div className="text-2xl font-display font-medium text-white">Karabo Manufacturing (Pty) Ltd</div>
                   <div className="text-sm text-white/50 mt-1">Ekurhuleni, Gauteng</div>
                 </div>
@@ -145,6 +113,7 @@ export default function LandingPage() {
                   <span className="text-white/55">CIDB</span><span className="text-white">Grade 6 CE</span>
                 </div>
               </div>
+              <p className="text-xs text-white/40 mt-6">Illustrative example. Not an actual Sithelo business or live data.</p>
             </div>
           </div>
         </div>

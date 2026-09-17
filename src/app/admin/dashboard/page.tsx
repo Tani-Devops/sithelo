@@ -52,29 +52,31 @@ export default async function AdminDashboard() {
       <div>
         <h2 className="text-lg font-display font-medium text-navy mb-6">Recent opportunities</h2>
         {recentOpportunities && recentOpportunities.length > 0 ? (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-eyebrow text-ink-500 border-b border-line">
-                <th className="pb-3 font-semibold">Opportunity</th>
-                <th className="pb-3 font-semibold">Institution</th>
-                <th className="pb-3 font-semibold">Posted</th>
-                <th className="pb-3 font-semibold">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentOpportunities.map((o) => {
-                const inst = Array.isArray(o.institutions) ? o.institutions[0] : o.institutions;
-                return (
-                  <tr key={o.id} className="border-b border-line last:border-0">
-                    <td className="py-4 font-medium text-navy">{o.title}</td>
-                    <td className="py-4 text-ink-600">{inst?.name ?? "—"}</td>
-                    <td className="py-4 text-ink-600">{new Date(o.created_at).toLocaleDateString("en-ZA")}</td>
-                    <td className="py-4"><SitheloStatus status={o.status} /></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto -mx-1 px-1">
+                        <table className="w-full text-sm min-w-[720px]">
+                        <thead>
+                          <tr className="text-left text-eyebrow text-ink-500 border-b border-line">
+                            <th className="pb-3 font-semibold">Opportunity</th>
+                            <th className="pb-3 font-semibold">Institution</th>
+                            <th className="pb-3 font-semibold">Posted</th>
+                            <th className="pb-3 font-semibold">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {recentOpportunities.map((o) => {
+                            const inst = Array.isArray(o.institutions) ? o.institutions[0] : o.institutions;
+                            return (
+                              <tr key={o.id} className="border-b border-line last:border-0">
+                                <td className="py-4 font-medium text-navy">{o.title}</td>
+                                <td className="py-4 text-ink-600">{inst?.name ?? "—"}</td>
+                                <td className="py-4 text-ink-600">{new Date(o.created_at).toLocaleDateString("en-ZA")}</td>
+                                <td className="py-4"><SitheloStatus status={o.status} /></td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+          </div>
         ) : (
           <p className="text-sm text-ink-600">No opportunities yet.</p>
         )}

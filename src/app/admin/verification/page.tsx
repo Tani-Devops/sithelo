@@ -50,33 +50,35 @@ export default async function VerificationQueuePage() {
       )}
 
       {!error && pending && pending.length > 0 && (
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-eyebrow text-ink-500 border-b border-line">
-              <th className="pb-3 font-semibold">Business</th>
-              <th className="pb-3 font-semibold">Verification type</th>
-              <th className="pb-3 font-semibold">Reference</th>
-              <th className="pb-3 font-semibold">Submitted</th>
-              <th className="pb-3 font-semibold">Status</th>
-              <th className="pb-3 font-semibold text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pending.map((v) => {
-              const bp = Array.isArray(v.business_passports) ? v.business_passports[0] : v.business_passports;
-              return (
-                <tr key={v.id} className="border-b border-line last:border-0">
-                  <td className="py-4 font-medium text-navy">{bp?.business_name ?? "—"}</td>
-                  <td className="py-4 text-ink-600 uppercase text-xs font-semibold tracking-wide">{v.verification_type}</td>
-                  <td className="py-4 text-ink-600">{v.reference_number ?? "—"}</td>
-                  <td className="py-4 text-ink-600">{new Date(v.created_at).toLocaleDateString("en-ZA")}</td>
-                  <td className="py-4"><SitheloBadge tone="pending">Pending</SitheloBadge></td>
-                  <td className="py-4 text-right"><VerificationActions verificationId={v.id} /></td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto -mx-1 px-1">
+                    <table className="w-full text-sm min-w-[720px]">
+                    <thead>
+                      <tr className="text-left text-eyebrow text-ink-500 border-b border-line">
+                        <th className="pb-3 font-semibold">Business</th>
+                        <th className="pb-3 font-semibold">Verification type</th>
+                        <th className="pb-3 font-semibold">Reference</th>
+                        <th className="pb-3 font-semibold">Submitted</th>
+                        <th className="pb-3 font-semibold">Status</th>
+                        <th className="pb-3 font-semibold text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pending.map((v) => {
+                        const bp = Array.isArray(v.business_passports) ? v.business_passports[0] : v.business_passports;
+                        return (
+                          <tr key={v.id} className="border-b border-line last:border-0">
+                            <td className="py-4 font-medium text-navy">{bp?.business_name ?? "—"}</td>
+                            <td className="py-4 text-ink-600 uppercase text-xs font-semibold tracking-wide">{v.verification_type}</td>
+                            <td className="py-4 text-ink-600">{v.reference_number ?? "—"}</td>
+                            <td className="py-4 text-ink-600">{new Date(v.created_at).toLocaleDateString("en-ZA")}</td>
+                            <td className="py-4"><SitheloBadge tone="pending">Pending</SitheloBadge></td>
+                            <td className="py-4 text-right"><VerificationActions verificationId={v.id} /></td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+        </div>
       )}
     </PortalShell>
   );

@@ -1,4 +1,4 @@
-# Zenzele — Access Control Matrix
+# Sithelo — Access Control Matrix
 
 Every table × every role × every operation, as of migration 020. Built from the actual final policy/grant state (verified this session, not from memory or a prior document). Legend:
 

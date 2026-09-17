@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { label: "Home", href: "/institution/dashboard", active: true },
   { label: "Discover Businesses", href: "/institution/search" },
   { label: "Opportunities", href: "/institution/opportunities" },
+  { label: "Applications", href: "/institution/applications" },
 ];
 
 export default async function InstitutionDashboard() {
@@ -76,30 +77,32 @@ export default async function InstitutionDashboard() {
           <Link href="/institution/opportunities" className="btn-text">View all →</Link>
         </div>
         {opportunities && opportunities.length > 0 ? (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-eyebrow text-ink-500 border-b border-line">
-                <th className="pb-3 font-semibold">Opportunity</th>
-                <th className="pb-3 font-semibold">Category</th>
-                <th className="pb-3 font-semibold">Location</th>
-                <th className="pb-3 font-semibold">Businesses needed</th>
-                <th className="pb-3 font-semibold">Closing date</th>
-                <th className="pb-3 font-semibold">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {opportunities.map((o) => (
-                <tr key={o.id} className="border-b border-line last:border-0">
-                  <td className="py-4 font-medium text-navy">{o.title}</td>
-                  <td className="py-4 text-ink-600">{o.category ?? "—"}</td>
-                  <td className="py-4 text-ink-600">{o.province ?? "—"}</td>
-                  <td className="py-4 text-ink-600">{o.businesses_needed ?? "—"}</td>
-                  <td className="py-4 text-ink-600">{o.closing_date ? new Date(o.closing_date).toLocaleDateString("en-ZA") : "—"}</td>
-                  <td className="py-4"><SitheloStatus status={o.status} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto -mx-1 px-1">
+                        <table className="w-full text-sm min-w-[720px]">
+                        <thead>
+                          <tr className="text-left text-eyebrow text-ink-500 border-b border-line">
+                            <th className="pb-3 font-semibold">Opportunity</th>
+                            <th className="pb-3 font-semibold">Category</th>
+                            <th className="pb-3 font-semibold">Location</th>
+                            <th className="pb-3 font-semibold">Businesses needed</th>
+                            <th className="pb-3 font-semibold">Closing date</th>
+                            <th className="pb-3 font-semibold">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {opportunities.map((o) => (
+                            <tr key={o.id} className="border-b border-line last:border-0">
+                              <td className="py-4 font-medium text-navy">{o.title}</td>
+                              <td className="py-4 text-ink-600">{o.category ?? "—"}</td>
+                              <td className="py-4 text-ink-600">{o.province ?? "—"}</td>
+                              <td className="py-4 text-ink-600">{o.businesses_needed ?? "—"}</td>
+                              <td className="py-4 text-ink-600">{o.closing_date ? new Date(o.closing_date).toLocaleDateString("en-ZA") : "—"}</td>
+                              <td className="py-4"><SitheloStatus status={o.status} /></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+          </div>
         ) : (
           <SitheloEmptyState
             title="No opportunities yet"
