@@ -15,12 +15,17 @@ const NAV_LINKS = [
   { href: "/resources", label: "Resources" },
 ];
 
-// Real, already-verified South African entrepreneur photography (the same
-// market-stall image already used lower down this page in "Meet the
-// Businesses") — reused here rather than sourcing an unverified new photo,
-// so every claim of "South African entrepreneur" on this page traces back
-// to the one image this project has already vetted for that description.
-const HERO_IMAGE = "https://images.unsplash.com/photo-1747774999070-ef45a60c9d00?auto=format&fit=crop&w=2400&q=80";
+// The previous image here (and in "Meet the Businesses" below) carried a
+// code comment claiming it was "already-verified South African" — that
+// claim was never actually substantiated and the photo does not depict a
+// verifiably South African scene. Replaced with a photo from Vije
+// Vijendranath, an Unsplash photographer whose profile states he lives in
+// Johannesburg, South Africa (a real, checkable claim, not a keyword tag) —
+// taken at Johannesburg's Rosebank Sunday Market. This changes the
+// composition from a single-vendor portrait to a market scene; see
+// FINAL_HARDENING_REPORT-style note in chat for why a portrait-style
+// replacement could not be sourced with the same confidence.
+const HERO_IMAGE = "https://images.unsplash.com/photo-1692689383052-9fbf3d1c0969?auto=format&fit=crop&w=2400&q=80";
 
 export function Hero() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -47,7 +52,7 @@ export function Hero() {
         {/* Background photography */}
         <Image
           src={HERO_IMAGE}
-          alt="A South African entrepreneur at her market stall"
+          alt="A weekend market in Johannesburg, South Africa"
           fill
           sizes="100vw"
           priority

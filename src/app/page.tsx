@@ -120,8 +120,28 @@ export default function LandingPage() {
       </section>
 
       {/* ================= OPPORTUNITIES ================= */}
-      <section className="rule">
-        <div className="container-editorial section">
+      <section className="rule relative overflow-hidden">
+        {/* Stylized South Africa silhouette, decorative only (aria-hidden) —
+            fills the dead space to the right of the heading without
+            competing with it: very low opacity, bleeds off the right edge,
+            no borders/labels. Not a to-scale map, just a recognizable mark. */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 500 520"
+          className="pointer-events-none absolute -right-16 top-1/2 -translate-y-1/2 h-[140%] w-auto text-navy/[0.05] hidden md:block"
+        >
+          <path
+            fillRule="evenodd"
+            fill="currentColor"
+            d="M130 40 C200 20 300 15 370 40 C410 55 430 90 440 130 C448 165 420 175 395 190
+               C430 210 460 250 455 300 C450 350 415 390 390 430 C360 470 320 495 270 505
+               C220 500 180 480 150 450 C110 415 90 370 80 320 C70 270 75 220 90 175
+               C100 140 95 100 110 70 C118 55 122 47 130 40 Z
+               M300 338 C288 324 272 328 265 345 C259 361 268 380 287 384
+               C305 388 321 373 319 355 C318 345 310 340 300 338 Z"
+          />
+        </svg>
+        <div className="container-editorial section relative">
           <div className="eyebrow mb-6">Opportunities</div>
           <h2 className="text-display-lg font-display font-medium text-navy leading-tight mb-14 max-w-xl">
             Procurement, funding, partnerships and growth — matched to your business.
@@ -149,8 +169,8 @@ export default function LandingPage() {
         <div className="grid md:grid-cols-2 gap-1">
           <div className="relative h-[420px] md:h-[520px]">
             <Image
-              src="https://images.unsplash.com/photo-1747774999070-ef45a60c9d00?auto=format&fit=crop&w=1400&q=80"
-              alt="An entrepreneur at her market stall"
+              src="https://images.unsplash.com/photo-1692689383052-9fbf3d1c0969?auto=format&fit=crop&w=1400&q=80"
+              alt="A weekend market in Johannesburg, South Africa"
               fill
               sizes="(min-width: 768px) 50vw, 100vw"
               className="object-cover"

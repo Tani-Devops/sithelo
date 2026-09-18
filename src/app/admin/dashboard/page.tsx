@@ -6,6 +6,7 @@ import { SitheloStatus } from "@/components/ui/sithelo";
 const NAV_ITEMS = [
   { label: "Overview", href: "/admin/dashboard", active: true },
   { label: "Verification Queue", href: "/admin/verification" },
+  { label: "Institution Approvals", href: "/admin/institutions" },
 ];
 
 export default async function AdminDashboard() {
@@ -20,6 +21,8 @@ export default async function AdminDashboard() {
     .from("opportunities").select("id", { count: "exact", head: true }).eq("status", "active");
   const { count: pendingVerifications } = await supabase
     .from("verifications").select("id", { count: "exact", head: true }).eq("status", "pending");
+  const { count: pendingInstitutions } = await supabase
+    .from("institutions").select("id", { count: "exact", head: true }).eq("approval_status", "pending");
 
   const { data: recentOpportunities } = await supabase
     .from("opportunities")
@@ -35,12 +38,13 @@ export default async function AdminDashboard() {
         <p className="text-sm text-ink-600 mt-2">Platform-wide activity across Sithelo.</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 rule border-y mb-10">
+      <div className="grid grid-cols-2 sm:grid-cols-5 rule border-y mb-10">
         {[
           ["Total businesses", totalBusinesses ?? 0],
           ["Verified businesses", verifiedBusinesses ?? 0],
           ["Active opportunities", activeOpportunities ?? 0],
           ["Pending verifications", pendingVerifications ?? 0],
+          ["Pending institutions", pendingInstitutions ?? 0],
         ].map(([label, value], i) => (
           <div key={label as string} className={`py-6 pr-4 ${i > 0 ? "sm:border-l border-line sm:pl-6" : ""} ${i >= 2 ? "border-t sm:border-t-0 border-line" : ""}`}>
             <div className="text-2xl font-display font-medium text-navy">{value}</div>

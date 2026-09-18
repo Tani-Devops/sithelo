@@ -59,7 +59,7 @@ export default async function BusinessDiscoveryPage({
       <div className="mb-8 rule border-b pb-8">
         <div className="eyebrow mb-3">Discover Businesses</div>
         <h1 className="text-display-lg font-display font-medium text-navy leading-tight">Find the right South African business.</h1>
-        <p className="text-ink-600 mt-2">Verified, compliant, ready to work.</p>
+        <p className="text-ink-600 mt-2">Discover businesses with verification and compliance information.</p>
       </div>
 
       <form method="get" className="flex flex-wrap items-end gap-4 mb-10">

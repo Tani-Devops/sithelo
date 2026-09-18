@@ -17,6 +17,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { requireRole } from "../_shared/auth.ts";
 import { adminVerificationSchema, parseBody } from "../_shared/schemas.ts";
+import { safeErrorMessage } from "../_shared/errors.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -86,7 +87,7 @@ Deno.serve(async (req) => {
     return json({ ok: true, verification_id, status: newStatus });
   } catch (err) {
     console.error(err);
-    return json({ error: (err as Error).message ?? "Internal error" }, 500);
+    return json({ error: safeErrorMessage(err) }, 500);
   }
 });
 

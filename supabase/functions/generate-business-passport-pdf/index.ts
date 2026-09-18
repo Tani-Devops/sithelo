@@ -22,6 +22,7 @@ import { PDFDocument, StandardFonts, rgb } from "https://esm.sh/pdf-lib@1.17.1";
 import { requireRole } from "../_shared/auth.ts";
 import { generatePassportPdfSchema, parseBody } from "../_shared/schemas.ts";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rateLimit.ts";
+import { safeErrorMessage } from "../_shared/errors.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -83,7 +84,7 @@ Deno.serve(async (req) => {
     return json({ path });
   } catch (err) {
     console.error(err);
-    return json({ error: (err as Error).message ?? "Internal error" }, 500);
+    return json({ error: safeErrorMessage(err) }, 500);
   }
 });
 

@@ -14,6 +14,7 @@ export type DocumentStatus = "valid" | "expiring_soon" | "expired" | "pending_re
 export type SaProvince =
   | "Eastern Cape" | "Free State" | "Gauteng" | "KwaZulu-Natal" | "Limpopo"
   | "Mpumalanga" | "North West" | "Northern Cape" | "Western Cape";
+export type InstitutionApprovalStatus = "pending" | "approved" | "rejected";
 
 export interface Profile {
   id: string;
@@ -33,6 +34,21 @@ export interface Institution {
   institution_type: string | null;
   logo_url: string | null;
   primary_contact_id: string | null;
+  // Added in migration 028 — institution profile fields, moved off of
+  // audit_logs (where migration 027 originally recorded them) and onto
+  // the institution's own row.
+  approval_status: InstitutionApprovalStatus;
+  province: SaProvince | null;
+  municipality: string | null;
+  website: string | null;
+  primary_contact_name: string | null;
+  primary_contact_email: string | null;
+  primary_contact_phone: string | null;
+  description: string | null;
+  focus_area: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  rejection_reason: string | null;
   created_at: string;
 }
 

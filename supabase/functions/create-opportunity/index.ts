@@ -17,6 +17,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { requireRole } from "../_shared/auth.ts";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rateLimit.ts";
 import { createOpportunitySchema, parseBody } from "../_shared/schemas.ts";
+import { safeErrorMessage } from "../_shared/errors.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -45,10 +46,30 @@ Deno.serve(async (req) => {
     if (!institutionId) return json({ error: "institution_id is required" }, 400);
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
+    const status = rest.status ?? "active";
+
+    // Friendly, specific error before we even attempt the insert. The
+    // actual, unconditional enforcement of this rule is the
+    // trg_opportunity_requires_approved_institution trigger (migration
+    // 028) on the opportunities table itself -- that trigger is what
+    // stops this from being bypassed, since it fires for this
+    // service-role write the same as any other. This check exists only
+    // so a legitimate caller sees a clear reason instead of a raw
+    // Postgres error string.
+    if (status === "active") {
+      const { data: institution } = await supabase
+        .from("institutions")
+        .select("approval_status")
+        .eq("id", institutionId)
+        .single();
+      if (institution?.approval_status !== "approved") {
+        return json({ error: "institution_not_approved", message: "Your institution must be approved by Sithelo before you can publish an active opportunity." }, 403);
+      }
+    }
 
     const { data: opportunity, error: insertErr } = await supabase
       .from("opportunities")
-      .insert({ ...rest, title, opportunity_type, institution_id: institutionId, created_by: auth.user.id, status: rest.status ?? "active" })
+      .insert({ ...rest, title, opportunity_type, institution_id: institutionId, created_by: auth.user.id, status })
       .select()
       .single();
     if (insertErr) throw insertErr;
@@ -88,7 +109,7 @@ Deno.serve(async (req) => {
     return json({ opportunity, matches_found: matchData.total_matches ?? 0, notified: strongMatches.length });
   } catch (err) {
     console.error(err);
-    return json({ error: (err as Error).message ?? "Internal error" }, 500);
+    return json({ error: safeErrorMessage(err) }, 500);
   }
 });
 

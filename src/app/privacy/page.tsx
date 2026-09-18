@@ -106,8 +106,9 @@ export default function PrivacyPage() {
               Under South Africa&apos;s Protection of Personal Information Act (POPIA), you have the
               right to request access to the personal information we hold about you, request correction
               of inaccurate information, object to certain processing, and request deletion of your
-              information subject to our legal retention obligations. You can exercise most of these
-              directly from your account settings; for anything else, use the contact details below.
+              information subject to our legal retention obligations. To exercise these rights, contact
+              the privacy contact address provided below. We may request reasonable information to
+              verify your identity before responding.
             </p>
           </section>
           <section>

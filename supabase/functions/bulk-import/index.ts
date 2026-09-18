@@ -19,6 +19,7 @@ import Papa from "https://esm.sh/papaparse@5.4.1";
 import { requireRole } from "../_shared/auth.ts";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rateLimit.ts";
 import { bulkImportSchema, parseBody } from "../_shared/schemas.ts";
+import { safeErrorMessage } from "../_shared/errors.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -170,7 +171,7 @@ Deno.serve(async (req) => {
     return json(results);
   } catch (err) {
     console.error(err);
-    return json({ error: (err as Error).message ?? "Internal error" }, 500);
+    return json({ error: safeErrorMessage(err) }, 500);
   }
 });
 

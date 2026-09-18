@@ -1,4 +1,4 @@
-# Zenzele — Data Classification Model
+# Sithelo — Data Classification Model
 
 ## Three tiers
 
@@ -10,7 +10,7 @@ This is exactly the column set in `public.institution_business_directory` (migra
 
 ### 2. Owner-private business data — visible only to the owner and admin
 
-`head_office_address` (street-level, not just municipality), `business_email`, `business_phone`, `key_clients` (a business's named client relationships are themselves confidential — disclosing them isn't Zenzele's call to make on a business's behalf), `annual_turnover` (exact figure).
+`head_office_address` (street-level, not just municipality), `business_email`, `business_phone`, `key_clients` (a business's named client relationships are themselves confidential — disclosing them isn't Sithelo's call to make on a business's behalf), `annual_turnover` (exact figure).
 
 **Current state:** these remain on `business_passports` and are protected by the base table's RLS — an institution querying `business_passports` directly for a *published* passport still sees these columns today, because the existing `"passports: published readable by institutions"` policy is row-level (is the row visible) not column-level (which columns). The discovery view (tier 1) solves this for the search/browse path. It does **not** retroactively lock these columns on the base table, because that would also block the owner and admin from seeing their own/managed data if done carelessly, and because whether an institution should ever see full contact/financial detail — and under what condition — is a product decision, not a default I should invent. See "Open question" below.
 

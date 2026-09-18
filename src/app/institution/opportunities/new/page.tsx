@@ -61,6 +61,7 @@ async function createOpportunityAction(formData: FormData) {
 export default async function NewOpportunityPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams;
   const { profile } = await requireInstitution();
+  const supabase = await createClient();
 
   const NAV_ITEMS = [
     { label: "Home", href: "/institution/dashboard" },
@@ -68,6 +69,50 @@ export default async function NewOpportunityPage({ searchParams }: { searchParam
     { label: "Opportunities", href: "/institution/opportunities", active: true },
     { label: "Applications", href: "/institution/applications" },
   ];
+
+  // Admins have no institution_id and are exempt from the approval gate
+  // (see the create-opportunity edge function and the DB trigger it
+  // relies on). An institution-role user whose institution isn't yet
+  // approved cannot publish an active opportunity — checked here for a
+  // clear message, and enforced regardless of this page by the
+  // trg_opportunity_requires_approved_institution trigger (migration 028).
+  let approvalStatus: string | null = null;
+  if (profile.role === "institution" && profile.institution_id) {
+    const { data: institution } = await supabase
+      .from("institutions")
+      .select("approval_status")
+      .eq("id", profile.institution_id)
+      .single();
+    approvalStatus = institution?.approval_status ?? null;
+  }
+
+  if (approvalStatus && approvalStatus !== "approved") {
+    return (
+      <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Institution">
+        <div className="mb-10 rule border-b pb-8">
+          <div className="eyebrow mb-3">Institution</div>
+          <h1 className="text-display-lg font-display font-medium text-navy leading-tight">Post an opportunity</h1>
+        </div>
+        <div className="card max-w-xl">
+          {approvalStatus === "pending" ? (
+            <>
+              <p className="text-sm font-medium text-navy mb-1.5">Your institution is awaiting review</p>
+              <p className="text-sm text-ink-600">
+                Sithelo reviews new institutions before they can publish opportunities. You&apos;ll be notified as soon as your institution is approved.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-medium text-navy mb-1.5">Your institution registration was not approved</p>
+              <p className="text-sm text-ink-600">
+                Contact Sithelo for more information about your institution&apos;s review outcome.
+              </p>
+            </>
+          )}
+        </div>
+      </PortalShell>
+    );
+  }
 
   return (
     <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Institution">

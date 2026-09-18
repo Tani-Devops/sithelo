@@ -14,7 +14,7 @@ const NAV_ITEMS = [
 export default async function InstitutionDashboard() {
   const { profile } = await requireInstitution();
   const supabase = await createClient();
-  const { data: institution } = await supabase.from("institutions").select("name").eq("id", profile.institution_id!).single();
+  const { data: institution } = await supabase.from("institutions").select("name, approval_status, rejection_reason").eq("id", profile.institution_id!).single();
 
   const { data: opportunities } = await supabase
     .from("opportunities")
@@ -55,6 +55,19 @@ export default async function InstitutionDashboard() {
         <h1 className="text-display-lg font-display font-medium text-navy leading-tight">{firstName}.</h1>
         <p className="text-ink-600 mt-2">Here&apos;s what&apos;s happening with {institutionName}&apos;s opportunities.</p>
       </div>
+
+      {institution?.approval_status === "pending" && (
+        <div className="card mb-10 border-l-2 border-navy">
+          <p className="text-sm font-medium text-navy mb-1">Your institution is awaiting review</p>
+          <p className="text-sm text-ink-600">You can complete your profile and explore Sithelo, but you&apos;ll need to be approved before publishing an active opportunity.</p>
+        </div>
+      )}
+      {institution?.approval_status === "rejected" && (
+        <div className="card mb-10 border-l-2 border-red-600">
+          <p className="text-sm font-medium text-navy mb-1">Your institution registration was not approved</p>
+          <p className="text-sm text-ink-600">{institution.rejection_reason || "Contact Sithelo for more information."}</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-5 rule border-y mb-10">
         {[

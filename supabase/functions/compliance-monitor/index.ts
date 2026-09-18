@@ -9,6 +9,7 @@
 // and a pg_cron job calling it, documented in SUPABASE_SETUP.md.
 // ====================================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { safeErrorMessage } from "../_shared/errors.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -74,7 +75,7 @@ Deno.serve(async (req) => {
     return json({ scanned: expiring?.length ?? 0, expired: expiredCount, expiring_soon: expiringCount });
   } catch (err) {
     console.error(err);
-    return json({ error: (err as Error).message ?? "Internal error" }, 500);
+    return json({ error: safeErrorMessage(err) }, 500);
   }
 });
 

@@ -18,7 +18,7 @@ This applies, in order: `001_core_schema.sql` → `002_rls_policies.sql` → `00
 There's no self-service or automated path to create an admin — deliberately, since that's exactly the privilege-escalation surface `004_fix_role_escalation.sql` closes off. To create the first (bootstrap) admin, run this directly against your Supabase project (SQL editor or `psql`), after the person has already registered normally as an entrepreneur:
 
 ```sql
-update public.profiles set role = 'admin' where email = 'the-admins-email@zenzele.co.za';
+update public.profiles set role = 'admin' where email = 'your-admin-email@example.com';
 ```
 
 This bypasses RLS by running with your own database-owner credentials, which is intentional — it's an out-of-band action that should require project-level access, not something reachable through the app. There's no bootstrap secret or token stored anywhere for this — direct database access *is* the bootstrap mechanism, and it naturally expires the moment you're done using it (nothing persists that could later leak).
@@ -69,7 +69,7 @@ In the Supabase SQL editor, using `pg_cron` (enable the extension first):
 
 ```sql
 select cron.schedule(
-  'zenzele-compliance-monitor',
+  'sithelo-compliance-monitor',
   '0 4 * * *', -- 06:00 SAST (UTC+2)
   $$
   select net.http_post(
