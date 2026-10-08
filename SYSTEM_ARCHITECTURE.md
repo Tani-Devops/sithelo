@@ -48,6 +48,18 @@ The service role key (`SUPABASE_SERVICE_ROLE_KEY`) must never reach a Client Com
 
 This is also a second real example of the Route-Handler-with-service-role pattern described below (the first being `/api/documents/[id]/signed-url`): authenticate with the session-bound client first, then use the service client for the privileged write, because `entrepreneur_persona_state` has no `authenticated` INSERT/UPDATE grant at all (see DATA_CLASSIFICATION.md tier 0).
 
+## Two-layer profiling + matching engines (migration 031)
+
+The product has evolved from "Entrepreneur → Programme" to a two-layer intelligence model:
+
+- **Assessment engine** (`src/lib/assessment/*`) — an adaptive question bank (`bank.ts`, ~70 questions across sections A–L) with a deterministic branching resolver (`engine.ts`). The client never decides which question is next; the server does. Written via `/api/assessment/{start,answer,complete}`.
+- **Classification engine** (`src/lib/classification/classify.ts`) — deterministic two-layer classifier: Layer 1 is the 10 journey personas (decision table over explicit stage signals); Layer 2 is a multidimensional context (economic dependence, household responsibility, employment attachment, time capacity, care responsibilities, financial resilience, risk capacity, digital accessibility, transport accessibility, support preference, self-efficacy, perceived control, entrepreneurial identity, growth aspiration, motivation). Persisted to `assessment_snapshots` + `journey_profile_history` by `src/lib/assessment/persist.ts` (service-role only).
+- **Readiness engine** (`src/lib/readiness/readiness.ts`) — per-class opportunity readiness (funding, procurement, incubation, accelerator, market, training, investment, corporate, government). Never a single global %.
+- **Matching engine** (`src/lib/matching/*`) — five-dimension scoring (eligibility / business fit / practical fit / readiness / friction), never conflated. Eligibility failure is shown with a reason; practical friction is shown WITH the opportunity. Assembled server-side from the entrepreneur's own tier-0 context (`assemble.ts`) — institutions never see this context.
+- **AI** (`src/lib/ai/*`) — DeepSeek added as a provider; `narrative.ts` produces prose only, always grounded in deterministic output and degrading gracefully when AI is unavailable. AI never determines classification or eligibility.
+
+All intelligence modules are pure functions (no DB, no AI) and are unit-tested with Vitest (`npm test`).
+
 ## Design system enforcement
 
 `DESIGN_SYSTEM.md` is the single source of truth for colors/type/spacing/components, extracted from the reference screens. Tailwind config (`tailwind.config.ts`) encodes the color tokens directly (`forest`, `gold`, `cream`, `ink`, `line`) so new screens can't accidentally drift to ad-hoc hex values.

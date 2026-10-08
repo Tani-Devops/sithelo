@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
   try {
     const parsed = await parseBody(req, createOpportunitySchema);
     if (parsed instanceof Response) return parsed;
-    const { title, opportunity_type, institution_id: bodyInstitutionId, ...rest } = parsed;
+    const { title, opportunity_type, institution_id: bodyInstitutionId, structured_requirements, ...rest } = parsed;
 
     // Admins may specify institution_id explicitly (e.g. seeding on an
     // institution's behalf); institution users always use their own,
@@ -73,6 +73,20 @@ Deno.serve(async (req) => {
       .select()
       .single();
     if (insertErr) throw insertErr;
+
+    // Persist structured, categorised requirements (eligibility / practical
+    // fit / readiness) — the authoritative source the matching engine reads.
+    if (structured_requirements && structured_requirements.length > 0) {
+      const requirementRows = structured_requirements.map((sr) => ({
+        opportunity_id: opportunity.id,
+        requirement_key: sr.key,
+        requirement_value: sr.value,
+        category: sr.category,
+        label: sr.label ?? null,
+      }));
+      const { error: reqErr } = await supabase.from("opportunity_requirements").insert(requirementRows);
+      if (reqErr) throw reqErr;
+    }
 
     const matchRes = await fetch(`${supabaseUrl}/functions/v1/match-businesses`, {
       method: "POST",

@@ -102,7 +102,10 @@ export default async function EntrepreneurDashboard() {
             {String(persona.persona_number).padStart(2, "0")} — {persona.persona_name}
           </div>
           <p className="text-sm text-ink-600 leading-relaxed mb-2 max-w-xl">{persona.explanation}</p>
-          <Link href="/entrepreneur/journey" className="btn-text">View my journey →</Link>
+          <div className="flex items-center gap-4">
+            <Link href="/entrepreneur/journey" className="btn-text">View my journey →</Link>
+            <Link href="/entrepreneur/assessment" className="btn-text">Take the full journey assessment →</Link>
+          </div>
         </div>
       )}
 

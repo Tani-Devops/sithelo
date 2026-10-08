@@ -40,4 +40,12 @@ Added for the "understand the person, not just the business" MVP (see PRODUCT_RE
 
 `business_capabilities` and `business_assets` are **not** tier 0 — they describe the business (what it can do, what it owns), not the person, so they follow tier 1's institution-safe-once-published rule, mirroring `business_passports`/`institution_business_directory` visibility. The one exception: `verified` on `business_capabilities` is owner-read-only (column-level revoke) — only an admin/backend process can mark a capability verified, matching how verification works everywhere else in the schema.
 
+### Tier 0 additions (migration 031 — entrepreneurial intelligence layer)
+
+The adaptive assessment + two-layer profiling layer is **Tier 0** — more sensitive than the business passport itself (household finance, employment, risk capacity, caregiving, digital/transport access). It includes: `assessments`, `assessment_responses`, `assessment_snapshots`, and `journey_profile_history`. **Owner + admin only, full stop — no institution policy exists on any of these tables.** `assessment_snapshots` and `journey_profile_history` additionally have no `authenticated` INSERT/UPDATE grant (backend-only writes, mirroring `entrepreneur_persona_state`).
+
+The matching engine *uses* this tier-0 context internally to compute practical fit and friction for the entrepreneur's own view. It never exposes raw tier-0 answers to institutions — providers only ever receive derived, non-sensitive signals (e.g. "weekday attendance constraint"), never "has two children and supports their mother" (directive §17). `opportunity_matches` (which institutions can read) therefore contains only the derived breakdown, not the underlying context.
+
+See `supabase/tests/database/011_entrepreneurial_intelligence_security.test.sql` for the RLS regression coverage (not yet executed against live Postgres — see MVP_STATUS.md).
+
 See `supabase/tests/database/008_reality_persona_layer_security.test.sql` for the RLS regression coverage (not yet executed against live Postgres — see MVP_STATUS.md).

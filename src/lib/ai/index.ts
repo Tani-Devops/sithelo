@@ -7,7 +7,7 @@
 // projects — cheap multi-model fallback without vendor lock-in).
 // ====================================================================
 
-export type AiProvider = "openrouter" | "openai" | "anthropic" | "gemini";
+export type AiProvider = "openrouter" | "openai" | "anthropic" | "gemini" | "deepseek";
 
 export interface CompleteOptions {
   system?: string;
@@ -28,6 +28,7 @@ const DEFAULT_MODELS: Record<AiProvider, string> = {
   openai: "gpt-4o-mini",
   anthropic: "claude-sonnet-4-6",
   gemini: "gemini-2.0-flash",
+  deepseek: "deepseek-chat", // OpenAI-compatible, non-thinking chat model
 };
 
 export async function complete(opts: CompleteOptions): Promise<CompleteResult> {
@@ -43,6 +44,8 @@ export async function complete(opts: CompleteOptions): Promise<CompleteResult> {
       return callAnthropic(opts, model);
     case "gemini":
       return callGemini(opts, model);
+    case "deepseek":
+      return callDeepSeek(opts, model);
     default:
       throw new Error(`Unknown AI provider: ${provider}`);
   }
@@ -123,4 +126,27 @@ async function callGemini(opts: CompleteOptions, model: string): Promise<Complet
   if (!res.ok) throw new Error(`Gemini error: ${res.status} ${await res.text()}`);
   const data = await res.json();
   return { text: data.candidates[0].content.parts[0].text, provider: "gemini", model };
+}
+
+async function callDeepSeek(opts: CompleteOptions, model: string): Promise<CompleteResult> {
+  // DeepSeek exposes an OpenAI-compatible chat-completions endpoint.
+  const res = await fetch("https://api.deepseek.com/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        ...(opts.system ? [{ role: "system", content: opts.system }] : []),
+        { role: "user", content: opts.prompt },
+      ],
+      max_tokens: opts.maxTokens ?? 1024,
+      temperature: opts.temperature ?? 0.7,
+    }),
+  });
+  if (!res.ok) throw new Error(`DeepSeek error: ${res.status} ${await res.text()}`);
+  const data = await res.json();
+  return { text: data.choices[0].message.content, provider: "deepseek", model };
 }

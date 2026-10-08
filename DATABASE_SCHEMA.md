@@ -29,6 +29,21 @@ Full source: `supabase/migrations/001_core_schema.sql`. This is the human-readab
 
 Migration `025_entrepreneur_reality_persona.sql` (Aug 2026 pass) — see DATA_CLASSIFICATION.md's "Tier 0" section for the sensitivity model behind these seven tables.
 
+Migration `031_entrepreneurial_intelligence.sql` — the "Entrepreneurial Intelligence & Opportunity Matching" evolution. Adds:
+
+| Table | Purpose | Tier |
+|---|---|---|
+| `assessment_definitions` | Versioned question bank (framework_version + definition JSONB) | admin-managed |
+| `assessments` | One adaptive assessment run per entrepreneur | Tier 0 |
+| `assessment_responses` | Append-only raw answers, keyed by question_id | Tier 0 |
+| `assessment_snapshots` | Immutable two-layer classification result per run (backend-only writes) | Tier 0 |
+| `journey_profile_history` | Append-only longitudinal journey snapshots (never overwritten) | Tier 0 |
+| `opportunity_requirements` | Structured, categorised requirements (eligibility / practical_fit / readiness) | institution manage own, entrepreneur read active |
+| `opportunity_matches` | Rich five-dimension match (eligibility / business_fit / practical_fit / readiness / friction) | service-role writes |
+| `outcomes` | Event/outcome stream for future validation | service-role writes |
+
+The assessment engine (`src/lib/assessment/*`), two-layer classifier (`src/lib/classification/*`), readiness engine (`src/lib/readiness/*`) and matching engine (`src/lib/matching/*`) are deterministic pure functions — no AI, no DB. The AI layer (`src/lib/ai/*`) only produces prose, never classification.
+
 ## Enums
 
 `user_role`, `verification_status`, `business_type`, `opportunity_type`, `opportunity_status`, `application_status`, `document_status`, `sa_province` — all defined at the top of `001_core_schema.sql`.

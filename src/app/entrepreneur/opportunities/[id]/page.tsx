@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { requireEntrepreneur } from "@/lib/auth/guards";
 import { PortalShell } from "@/components/ui/PortalShell";
 import { SitheloBadge, SitheloButton } from "@/components/ui/sithelo";
+import { assembleMatchableEntrepreneur } from "@/lib/matching/assemble";
+import { readOpportunityRequirements } from "@/lib/matching/requirements";
+import { scoreOpportunity } from "@/lib/matching/score";
 
 // ====================================================================
 // /entrepreneur/opportunities/[id]
@@ -114,6 +117,18 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
         .maybeSingle()
     : { data: null };
 
+  // Rich, five-dimension match — computed only for the entrepreneur's own
+  // context (tier-0 data), which institutions never see.
+  const [structuredRequirements, matchable] = passport
+    ? await Promise.all([
+        readOpportunityRequirements(supabase, id),
+        assembleMatchableEntrepreneur(supabase, userId),
+      ])
+    : [null, null];
+  const richMatch = matchable && structuredRequirements && structuredRequirements.length > 0
+    ? scoreOpportunity(structuredRequirements, matchable)
+    : null;
+
   const inst = Array.isArray(opportunity.institutions) ? opportunity.institutions[0] : opportunity.institutions;
   const reasons: string[] = Array.isArray(match?.match_reasons)
     ? (match!.match_reasons as unknown[]).filter((r): r is string => typeof r === "string")
@@ -210,6 +225,43 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
         </div>
 
         <div className="space-y-8">
+          {richMatch && (
+            <div className="rule border-t pt-8">
+              <div className="eyebrow mb-2">How this fits you</div>
+              <div className="text-4xl font-display font-medium text-navy">{richMatch.matchScore}%</div>
+              <div className="text-sm text-ink-600 mb-4">
+                {richMatch.eligibility === "ineligible"
+                  ? "You may not be eligible"
+                  : richMatch.eligibility === "unverified"
+                    ? "Eligibility not yet confirmed"
+                    : "You are a match"}
+              </div>
+              {richMatch.eligibilityReasons.length > 0 && (
+                <ul className="text-sm text-red-600 space-y-1.5 mb-4">
+                  {richMatch.eligibilityReasons.map((r, i) => <li key={i}>• {r}</li>)}
+                </ul>
+              )}
+              {richMatch.reasons.length > 0 && (
+                <>
+                  <div className="eyebrow mb-2">Why</div>
+                  <ul className="text-sm text-verified space-y-1.5 mb-4">
+                    {richMatch.reasons.map((r, i) => <li key={i}>✓ {r}</li>)}
+                  </ul>
+                </>
+              )}
+              {richMatch.friction.length > 0 && (
+                <>
+                  <div className="eyebrow mb-2">Potential difficulty</div>
+                  <ul className="text-sm text-ink-600 space-y-1.5 mb-4">
+                    {richMatch.friction.map((f, i) => <li key={i}>! {f.detail}</li>)}
+                  </ul>
+                </>
+              )}
+              <div className="text-xs text-ink-500 border-t border-line pt-3 mt-2">
+                Business fit {richMatch.businessFit}% · Practical fit {richMatch.practicalFit}% · Readiness {richMatch.readiness}%
+              </div>
+            </div>
+          )}
           {match && (
             <div className="rule border-t pt-8">
               <div className="text-4xl font-display font-medium text-navy">{Math.round(match.match_score)}%</div>

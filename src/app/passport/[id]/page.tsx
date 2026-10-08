@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DocumentViewer } from "@/components/ui/DocumentViewer";
 import { SitheloRing, SitheloBadge, SitheloButton, SitheloLogo } from "@/components/ui/sithelo";
+import { snapshotToJourneyProfile, type AssessmentSnapshotRow } from "@/lib/assessment/read";
+import { READINESS_TIER_LABELS } from "@/lib/readiness/readiness";
 
 // ====================================================================
 // SECURITY-CRITICAL DATA FLOW — UNCHANGED FROM THE PRIOR PASS.
@@ -75,6 +77,22 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
     ? await supabase.rpc("get_passport_trust_history", { p_passport_id: id })
     : { data: null };
   const history = historyData as unknown as TrustHistoryEntry[] | null;
+
+  // The owner's living journey profile (Tier 0 — owner/admin only, and RLS
+  // guarantees an institution viewing this page never receives these rows).
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: journeySnapshot } = user
+    ? await supabase
+        .from("assessment_snapshots")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("computed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+    : { data: null };
+  const journey = showOwnerAdminData && journeySnapshot
+    ? snapshotToJourneyProfile(journeySnapshot as unknown as AssessmentSnapshotRow)
+    : null;
 
   const isVerified = detail.overall_verification_status === "verified";
 
@@ -166,6 +184,45 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
         </div>
       </div>
 
+      {journey && (
+        <div className="rule border-t pt-10 mb-10">
+          <div className="flex items-baseline justify-between mb-6">
+            <h2 className="eyebrow">Your current entrepreneurial journey</h2>
+            <SitheloButton href="/entrepreneur/journey" variant="ghost" className="!px-4 !py-2">View full journey →</SitheloButton>
+          </div>
+          <div className="mb-4">
+            <span className="text-2xl font-display font-medium text-navy">
+              {String(journey.journey.personaNumber).padStart(2, "0")} — {journey.journey.personaName}
+            </span>
+          </div>
+          <p className="text-sm text-ink-600 max-w-2xl mb-6">{journey.journey.explanation}</p>
+          <div className="grid sm:grid-cols-3 gap-x-6 gap-y-4 mb-6">
+            <div><span className="text-xs text-ink-500 block mb-1">Work</span><span className="text-sm text-navy">{label(journey.context.employmentAttachment)}</span></div>
+            <div><span className="text-xs text-ink-500 block mb-1">Time available</span><span className="text-sm text-navy">{cap(journey.context.timeCapacity)}</span></div>
+            <div><span className="text-xs text-ink-500 block mb-1">Risk capacity</span><span className="text-sm text-navy">{cap(journey.context.riskCapacity)}</span></div>
+            <div><span className="text-xs text-ink-500 block mb-1">Digital access</span><span className="text-sm text-navy">{cap(journey.context.digitalAccessibility)}</span></div>
+            <div><span className="text-xs text-ink-500 block mb-1">Transport</span><span className="text-sm text-navy">{cap(journey.context.transportAccessibility)}</span></div>
+            <div><span className="text-xs text-ink-500 block mb-1">Growth aspiration</span><span className="text-sm text-navy">{cap(journey.context.growthAspiration)}</span></div>
+          </div>
+          {journey.nextMoves.length > 0 && (
+            <div className="mb-6">
+              <div className="text-xs text-ink-500 mb-2">Your next moves</div>
+              <ol className="space-y-1.5">
+                {journey.nextMoves.map((m, i) => <li key={i} className="text-sm text-ink-600">{i + 1}. {m}</li>)}
+              </ol>
+            </div>
+          )}
+          <div>
+            <div className="text-xs text-ink-500 mb-2">Opportunity readiness</div>
+            <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+              {Object.entries(journey.opportunityReadiness).map(([k, v]) => (
+                <span key={k} className="text-ink-600 capitalize">{k}: <span className="text-navy font-medium">{READINESS_TIER_LABELS[v as keyof typeof READINESS_TIER_LABELS]}</span></span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid md:grid-cols-3 gap-10 rule border-t pt-10">
         <div className="md:col-span-2">
           <h2 className="eyebrow mb-5">Documents</h2>
@@ -226,4 +283,22 @@ function Row({ label, value }: { label: string; value: string }) {
       <span className="font-medium text-navy text-right">{value}</span>
     </div>
   );
+}
+
+function cap(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+const EMPLOYMENT_LABELS: Record<string, string> = {
+  full_time_employed: "Employed full-time",
+  part_time_employed: "Employed part-time",
+  self_employed_full: "Full-time in your business",
+  self_employed_part: "Part-time in your business",
+  unemployed: "Not currently employed",
+  student: "Studying",
+  retired: "Retired",
+};
+
+function label(employment: string): string {
+  return EMPLOYMENT_LABELS[employment] ?? cap(employment);
 }

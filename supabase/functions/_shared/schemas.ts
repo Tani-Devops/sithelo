@@ -30,6 +30,12 @@ export const createOpportunitySchema = z.object({
   closing_date: z.string().date().optional(),
   status: z.enum(["draft", "active", "closed", "awarded", "cancelled"]).optional(),
   requirements: z.record(z.unknown()).optional(),
+  structured_requirements: z.array(z.object({
+    key: z.string().trim().min(1).max(100),
+    value: z.union([z.string(), z.number(), z.boolean()]),
+    category: z.enum(["eligibility", "practical_fit", "readiness"]),
+    label: z.string().trim().max(200).optional(),
+  })).max(50).optional(),
   institution_id: uuid.optional(), // only honored for admin callers — see create-opportunity/index.ts
 }).strict();
 

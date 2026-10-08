@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth/guards";
 import { PortalShell } from "@/components/ui/PortalShell";
 import { SitheloStatus } from "@/components/ui/sithelo";
+import { computeEcosystemInsights, type SnapshotSummary } from "@/lib/ecosystem/insights";
 
 const NAV_ITEMS = [
   { label: "Overview", href: "/admin/dashboard", active: true },
@@ -30,6 +31,28 @@ export default async function AdminDashboard() {
     .order("created_at", { ascending: false })
     .limit(6);
 
+  // Ecosystem intelligence — computed only from REAL assessment snapshots.
+  // Never seeded; renders "Insufficient data" below the minimum sample size.
+  const { data: snapshots } = await supabase
+    .from("assessment_snapshots")
+    .select("journey_persona, context_dimensions, constraints")
+    .limit(1000);
+  const summaries: SnapshotSummary[] = (snapshots ?? []).map((s) => {
+    const journey = (s.journey_persona as { personaName?: string } | null) ?? null;
+    const ctx = (s.context_dimensions as Record<string, unknown> | null) ?? {};
+    const constraints = (s.constraints as Array<{ key?: string }> | null) ?? [];
+    return {
+      personaName: journey?.personaName ?? null,
+      employmentAttachment: typeof ctx.employmentAttachment === "string" ? ctx.employmentAttachment : null,
+      digitalAccessibility: typeof ctx.digitalAccessibility === "string" ? ctx.digitalAccessibility : null,
+      transportAccessibility: typeof ctx.transportAccessibility === "string" ? ctx.transportAccessibility : null,
+      riskCapacity: typeof ctx.riskCapacity === "string" ? ctx.riskCapacity : null,
+      supportPreference: Array.isArray(ctx.supportPreference) ? (ctx.supportPreference as string[]) : [],
+      constraintKeys: constraints.map((c) => c.key ?? "").filter(Boolean),
+    };
+  });
+  const insights = computeEcosystemInsights(summaries);
+
   return (
     <PortalShell portalLabel="Admin" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Super Admin">
       <div className="mb-10">
@@ -51,6 +74,28 @@ export default async function AdminDashboard() {
             <div className="text-eyebrow text-ink-500 mt-1.5">{label}</div>
           </div>
         ))}
+      </div>
+
+      <div className="mb-10">
+        <h2 className="text-lg font-display font-medium text-navy mb-1">Ecosystem intelligence</h2>
+        <p className="text-sm text-ink-600 mb-6">Anonymised, aggregated across the entrepreneurial population. Shown only once enough real data exists.</p>
+        {insights ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-6 rule border-t pt-6">
+            {insights.map((insight) => (
+              <div key={insight.label}>
+                <div className="text-2xl font-display font-medium text-navy">{insight.value}</div>
+                <div className="text-eyebrow text-ink-500 mt-1.5">{insight.label}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rule border-t pt-6">
+            <p className="text-sm text-ink-600">Insufficient data</p>
+            <p className="text-xs text-ink-500 mt-1">
+              Ecosystem insights appear once enough entrepreneurs have completed the journey assessment. Sithelo never displays estimated or placeholder statistics.
+            </p>
+          </div>
+        )}
       </div>
 
       <div>

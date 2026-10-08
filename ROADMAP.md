@@ -2,6 +2,22 @@
 
 Priority order for continuing development, sequenced so each step is independently testable.
 
+## Built this pass — Entrepreneurial Intelligence & Opportunity Matching
+
+The two-layer profiling + matching evolution (directive §1–§24). Deterministic, no AI in classification:
+
+- **Schema** (migration `031_entrepreneurial_intelligence.sql`): `assessment_definitions`, `assessments`, `assessment_responses`, `assessment_snapshots`, `journey_profile_history`, `opportunity_requirements`, `opportunity_matches`, `outcomes` — all with RLS; snapshots/history/matches/outcomes are backend-only writes. pgTAP file `011` written (not executed — no live Postgres).
+- **Assessment engine** (`src/lib/assessment/*`): ~70-question adaptive bank (sections A–L) + deterministic branching resolver; `/api/assessment/{start,answer,complete}` routes; `/entrepreneur/assessment` UI.
+- **Classification engine** (`src/lib/classification/classify.ts`): two-layer — 10 journey personas + 15 context dimensions, all traceable to answers.
+- **Readiness engine** (`src/lib/readiness/readiness.ts`): per-class opportunity readiness.
+- **Matching engine** (`src/lib/matching/*`): five-dimension scoring (eligibility / business fit / practical fit / readiness / friction); wired into `/entrepreneur/opportunities/[id]` and the provider creation form.
+- **Provider intelligence** (`/institution/opportunities/new`): structured, categorised requirements.
+- **AI** (`src/lib/ai/*`): DeepSeek provider + grounded narrative (prose only).
+- **Ecosystem intelligence** (`src/lib/ecosystem/insights.ts` + admin dashboard): real-data-gated, never seeded.
+- **Tests**: Vitest added (`npm test`) — 33 tests across classification, matching, branching, ecosystem insights. `tsc --noEmit`, `next build`, `next lint` all clean.
+
+**Not executed:** migration 031 and pgTAP `011` have not run against a live Postgres instance (same environment limitation as migration 025 — see MVP_STATUS.md).
+
 ## Built this pass (Aug 2026 — Sithelo MVP directive)
 
 Onboarding wizard (`/entrepreneur/business/new`) → Business Passport creation → reality/needs/goals capture → first Persona computed in the same request → "We see you" magic moment (`/entrepreneur/onboarding/complete`) → dashboard now shows Persona + reality + next-step cards → `/entrepreneur/journey` (full persona explainer) → opportunity detail with real match reasons + apply/withdraw → institution opportunity creation (`/institution/opportunities/new`) → institution "potential matches" view. Passport edit form + capabilities/assets manager (`/entrepreneur/business/edit`). See IMPLEMENTATION_SUMMARY.md and MVP_STATUS.md for the full breakdown, including what's NOT executed (nothing has run against real Postgres — no Supabase/Docker available in the build environment).
