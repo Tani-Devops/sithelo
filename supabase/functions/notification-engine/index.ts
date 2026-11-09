@@ -14,8 +14,15 @@
 // never a browser client. Deploy with `--no-verify-jwt` is NOT a
 // substitute for this check; it must stay even if that flag is used.
 //
-// Invoke: POST { recipient_id, category, title, body, channels?: ('in_app'|'email')[], metadata? }
+// Invoke: POST { recipient_id, category, title, body, channels?: ('in_app'|'email')[], metadata?, context: { entity_type, entity_id } }
 // Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY>
+//
+// `context` is REQUIRED: the engine verifies the recipient plausibly
+// relates to the referenced entity (match owner for opportunities,
+// passport owner for passports/verifications/applications, institution
+// member for institutions) before writing anything — a caller holding
+// the service key cannot notify an arbitrary recipient_id without a
+// real relationship (the residual spam risk documented in AUDIT.md).
 // ====================================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { notificationRequestSchema, parseBody } from "../_shared/schemas.ts";
@@ -34,9 +41,23 @@ Deno.serve(async (req) => {
   try {
     const parsed = await parseBody(req, notificationRequestSchema);
     if (parsed instanceof Response) return parsed;
-    const { recipient_id, category, title, body, channels = ["in_app"], metadata } = parsed;
+    const { recipient_id, category, title, body, channels = ["in_app"], metadata, context } = parsed;
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // Relationship check BEFORE any write: recipient must plausibly
+    // relate to the referenced entity. (Service-role client, so these
+    // reads bypass RLS — the check here IS the gate.)
+    const plausible = await recipientRelatesTo(
+      supabase,
+      context.entity_type,
+      context.entity_id,
+      recipient_id
+    );
+    if (!plausible) {
+      return json({ error: "Recipient has no relationship to the given context" }, 403);
+    }
+
     const results: Record<string, string> = {};
 
     // In-app (always recorded, regardless of requested channels, so the
@@ -99,6 +120,75 @@ Deno.serve(async (req) => {
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+}
+
+/**
+ * Verifies the recipient has a real relationship to the referenced
+ * entity, per entity_type:
+ * - opportunity  → recipient owns a passport matched to that opportunity
+ * - passport     → recipient is the passport's owner
+ * - verification → recipient owns the passport the verification belongs to
+ * - application  → recipient owns the passport the application was filed with
+ * - institution  → recipient is a member profile of that institution
+ *
+ * Runs with the service-role client (RLS-free) — this check IS the gate
+ * for who may be notified, so it must not itself be RLS-filtered.
+ */
+async function recipientRelatesTo(
+  supabase: ReturnType<typeof createClient>,
+  entityType: string,
+  entityId: string,
+  recipientId: string
+): Promise<boolean> {
+  switch (entityType) {
+    case "passport": {
+      const { data } = await supabase
+        .from("business_passports")
+        .select("id")
+        .eq("id", entityId)
+        .eq("owner_id", recipientId)
+        .maybeSingle();
+      return !!data;
+    }
+    case "verification": {
+      const { data } = await supabase
+        .from("verifications")
+        .select("passport_id, business_passports!inner(owner_id)")
+        .eq("id", entityId)
+        .eq("business_passports.owner_id", recipientId)
+        .maybeSingle();
+      return !!data;
+    }
+    case "application": {
+      const { data } = await supabase
+        .from("applications")
+        .select("passport_id, business_passports!inner(owner_id)")
+        .eq("id", entityId)
+        .eq("business_passports.owner_id", recipientId)
+        .maybeSingle();
+      return !!data;
+    }
+    case "opportunity": {
+      const { data } = await supabase
+        .from("matches")
+        .select("passport_id, business_passports!inner(owner_id)")
+        .eq("opportunity_id", entityId)
+        .eq("business_passports.owner_id", recipientId)
+        .maybeSingle();
+      return !!data;
+    }
+    case "institution": {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", recipientId)
+        .eq("institution_id", entityId)
+        .maybeSingle();
+      return !!data;
+    }
+    default:
+      return false;
+  }
 }
 
 /**

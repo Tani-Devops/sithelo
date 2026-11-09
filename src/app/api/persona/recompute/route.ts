@@ -15,6 +15,7 @@
 // ====================================================================
 import { NextResponse } from "next/server";
 import { requireEntrepreneur } from "@/lib/auth/guards";
+import { enforceRateLimit } from "@/lib/auth/rateLimit";
 import { createServiceClient } from "@/lib/supabase/service";
 import { recomputePersonaForUser } from "@/lib/persona/recompute";
 
@@ -22,14 +23,14 @@ export async function POST() {
   const { userId } = await requireEntrepreneur();
   const supabase = createServiceClient();
 
-  const { data: allowed } = await supabase.rpc("check_rate_limit", {
-    p_key: `persona-recompute:${userId}`,
-    p_max_requests: 20,
-    p_window_seconds: 3600,
-  });
-  if (allowed === false) {
-    return NextResponse.json({ error: "Too many requests. Please try again shortly." }, { status: 429 });
-  }
+  const limitResponse = await enforceRateLimit(
+    supabase,
+    `persona-recompute:${userId}`,
+    20,
+    3600,
+    "Too many requests. Please try again shortly."
+  );
+  if (limitResponse) return limitResponse;
 
   const result = await recomputePersonaForUser(supabase, userId);
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });

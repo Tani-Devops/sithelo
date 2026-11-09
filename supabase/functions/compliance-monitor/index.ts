@@ -44,7 +44,11 @@ Deno.serve(async (req) => {
     for (const v of expiring ?? []) {
       const expiryDate = new Date(v.expiry_date);
       const isExpired = expiryDate < today;
-      isExpired ? expiredCount++ : expiringCount++;
+      if (isExpired) {
+        expiredCount++;
+      } else {
+        expiringCount++;
+      }
 
       const owner = (v as unknown as { business_passports: { owner_id: string; business_name: string } }).business_passports;
       notifications.push({

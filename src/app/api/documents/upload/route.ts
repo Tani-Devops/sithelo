@@ -23,6 +23,7 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { requireAuth } from "@/lib/auth/guards";
+import { enforceRateLimit } from "@/lib/auth/rateLimit";
 import { createServiceClient } from "@/lib/supabase/service";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // matches passport-documents bucket file_size_limit
@@ -71,14 +72,14 @@ export async function POST(req: Request) {
   const { userId } = await requireAuth();
   const supabase = createServiceClient();
 
-  const { data: allowed } = await supabase.rpc("check_rate_limit", {
-    p_key: `documents-upload:${userId}`,
-    p_max_requests: 20,
-    p_window_seconds: 3600,
-  });
-  if (allowed === false) {
-    return NextResponse.json({ error: "Too many uploads. Please wait a moment and try again." }, { status: 429 });
-  }
+  const limitResponse = await enforceRateLimit(
+    supabase,
+    `documents-upload:${userId}`,
+    20,
+    3600,
+    "Too many uploads. Please wait a moment and try again."
+  );
+  if (limitResponse) return limitResponse;
 
   let formData: FormData;
   try {

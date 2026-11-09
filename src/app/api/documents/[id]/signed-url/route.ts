@@ -18,6 +18,7 @@
 // ====================================================================
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/guards";
+import { enforceRateLimit } from "@/lib/auth/rateLimit";
 import { createServiceClient } from "@/lib/supabase/service";
 
 const SIGNED_URL_EXPIRY_SECONDS = 60;
@@ -28,14 +29,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   const supabase = createServiceClient();
 
-  const { data: allowed } = await supabase.rpc("check_rate_limit", {
-    p_key: `documents-signed-url:${userId}`,
-    p_max_requests: 30,
-    p_window_seconds: 3600,
-  });
-  if (allowed === false) {
-    return NextResponse.json({ error: "Too many document requests. Please try again shortly." }, { status: 429 });
-  }
+  const limitResponse = await enforceRateLimit(
+    supabase,
+    `documents-signed-url:${userId}`,
+    30,
+    3600,
+    "Too many document requests. Please try again shortly."
+  );
+  if (limitResponse) return limitResponse;
 
   const { data: document, error: docErr } = await supabase
     .from("documents")

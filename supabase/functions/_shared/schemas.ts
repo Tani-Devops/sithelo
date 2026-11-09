@@ -73,6 +73,12 @@ export const bulkImportSchema = z.object({
     .refine((p) => p.startsWith("imports/"), 'Path must be within the "imports/" namespace'),
 }).strict();
 
+// The notification context the caller must provide: which entity the
+// notification is about. The engine verifies server-side that the
+// recipient actually relates to that entity (e.g. the entrepreneur who
+// owns the matched passport, the institution member of the institution
+// being notified) — a caller cannot just point at any UUID, which is the
+// residual spam risk documented in AUDIT.md.
 export const notificationRequestSchema = z.object({
   recipient_id: uuid,
   category: z.enum(["verification", "invitation", "application", "approval", "document_expiry", "trust_score"]),
@@ -80,6 +86,10 @@ export const notificationRequestSchema = z.object({
   body: longText(2000),
   channels: z.array(z.enum(["in_app", "email", "whatsapp", "sms"])).max(4).optional(),
   metadata: z.record(z.unknown()).optional(),
+  context: z.object({
+    entity_type: z.enum(["opportunity", "passport", "verification", "application", "institution"]),
+    entity_id: uuid,
+  }).strict(),
 }).strict();
 
 // The audit trail is only as trustworthy as its boundary. Before this

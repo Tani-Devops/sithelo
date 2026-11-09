@@ -32,9 +32,14 @@ export function PortalMobileNav({
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
+  // Close on route change — render-time state adjustment (React's
+  // sanctioned alternative to setState-in-effect for "reset state when a
+  // prop changes": react.dev/learn/you-might-not-need-an-effect).
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (lastPathname !== pathname) {
+    setLastPathname(pathname);
     setOpen(false);
-  }, [pathname]);
+  }
 
   useEffect(() => {
     if (!open) return;

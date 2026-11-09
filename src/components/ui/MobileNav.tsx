@@ -16,10 +16,14 @@ export function MobileNavToggle({ links, dark = false }: { links: NavLink[]; dar
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Close on route change.
-  useEffect(() => {
+  // Close on route change — render-time state adjustment (React's
+  // sanctioned alternative to setState-in-effect for "reset state when a
+  // prop changes": react.dev/learn/you-might-not-need-an-effect).
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (lastPathname !== pathname) {
+    setLastPathname(pathname);
     setOpen(false);
-  }, [pathname]);
+  }
 
   // Lock body scroll while open, and allow Escape to close.
   useEffect(() => {

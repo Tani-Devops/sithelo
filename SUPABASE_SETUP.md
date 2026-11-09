@@ -91,3 +91,13 @@ In Authentication → URL Configuration, add:
 - Redirect URLs: `https://yourdomain.com/auth/callback`, `http://localhost:3000/auth/callback`
 
 This is the exact misconfiguration that broke `signUp()` in production on an earlier Zenzele Holdings project (Ubulula) — a malformed Site URL causes GoTrue to build a broken confirmation link. Double-check this value has no trailing slash and matches exactly.
+
+## 8. Pre-launch security checklist
+
+Before going live, in the Supabase dashboard:
+
+- **Auth > Providers > Email**: enable CAPTCHA protection (hCaptcha/Turnstile). This is the effective rate limiter for public register/login, because those calls go directly from the browser to Supabase Auth and never touch the Next.js app — page-level rate limiting would be theater. Supabase Auth also applies built-in per-email rate limits; leave them at defaults.
+- **Auth > URL Configuration**: confirm Site URL and redirect URLs (step 7 above).
+- **Database**: `supabase db push` to apply migrations 032–034 (institution read-surface narrowing, client-write locks, onboarding role guard), then run the pgTAP suite (`supabase test db`, see `SECURITY_TESTS.md`) against a staging project before production.
+- **Edge Functions**: redeploy the functions changed in the audit-fix pass — `audit-logger`, `notification-engine`, `admin-verification`, `bulk-import`, `compliance-monitor` (see step 4). Note `notification-engine` now requires a `context` field in its payload; no existing callers are affected (it had none).
+- **Resend**: verify `notifications@sithelo.co.za` (or your chosen sender address) is verified as a sending domain, or notification emails silently fail.

@@ -18,7 +18,7 @@ Two patterns, applied per function:
 | `create-opportunity` | Institution (own) / admin | Inserts opportunity scoped to the caller's own institution → triggers matching → notifies matches. |
 | `audit-logger` | Internal-only | Writes immutable audit rows. |
 | `compliance-monitor` | Internal-only, scheduled | Scans expiring/expired verifications, notifies owners, downgrades status. |
-| `notification-engine` | Internal-only | In-app + email (Resend) wired. WhatsApp/SMS return `not_implemented`. |
+| `notification-engine` | Internal-only | In-app + email (Resend) wired. WhatsApp/SMS return `not_implemented`. Requires `context` (entity_type + entity_id) and verifies the recipient's relationship to it before sending — see function header. |
 | `generate-business-passport-pdf` | Owner / admin | Real PDF via `pdf-lib`; visual fidelity upgrade path documented in file header. |
 | `bulk-import` | Admin only | Parses CSV, invites users (profile created by the `handle_new_user` trigger, not this function), creates passports, queues for review. Upload CSVs to `imports/<admin-user-id>/<filename>.csv` in the `bulk-imports` bucket — `csv_storage_path` is validated to require that exact namespace, reject `..`, leading `/`, and `//` (path-traversal hardening added after a real gap was found: the prior regex allowed all of those). |
 

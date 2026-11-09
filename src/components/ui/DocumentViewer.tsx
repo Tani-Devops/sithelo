@@ -64,7 +64,6 @@ export function DocumentViewer({ passportId, canUpload = false }: { passportId: 
   const [expiryDate, setExpiryDate] = useState("");
 
   async function load() {
-    setState("loading");
     const supabase = createClient();
     const { data, error } = await supabase.rpc("list_passport_documents", { p_passport_id: passportId });
 
@@ -85,7 +84,18 @@ export function DocumentViewer({ passportId, canUpload = false }: { passportId: 
     setState(((data as DocumentMeta[]) ?? []).length === 0 ? "empty" : "ready");
   }
 
+  // Reset to the loading state when the passport prop changes — render-time
+  // state adjustment instead of a synchronous setState inside the effect
+  // below (initial mount already starts in "loading").
+  const [loadedPassportId, setLoadedPassportId] = useState(passportId);
+  if (loadedPassportId !== passportId) {
+    setLoadedPassportId(passportId);
+    setState("loading");
+    setDocuments([]);
+  }
+
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount; setState in load() is post-await only
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [passportId]);

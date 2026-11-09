@@ -8,7 +8,7 @@ Read this before assuming anything below is further along than it is. **Read `AU
 
 **Fully wired (real Supabase queries, real logic, no mock data):**
 - Full DB schema + RLS on every table (`supabase/migrations/`)
-- Auth: register, login, email verification callback, role-based redirect, middleware route protection
+- Auth: register, login, email verification callback, role-based redirect, proxy route protection
 - Landing page, matching the reference design system exactly (`DESIGN_SYSTEM.md`)
 - Entrepreneur / Institution / Admin dashboards — real Supabase reads, empty-state handling, no fake numbers
 - Entrepreneur onboarding, Business Passport creation/edit, document upload, opportunity discovery and application/withdrawal

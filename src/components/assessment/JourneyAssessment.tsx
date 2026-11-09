@@ -112,7 +112,12 @@ export function JourneyAssessment() {
     }
   }, [finish]);
 
+  // Fetch-on-mount data loading. The set-state-in-effect rule fires here
+  // because it can't trace through the useCallback ref, but every
+  // setState inside start() happens AFTER an await — nothing is set
+  // synchronously, so there's no cascading-render concern.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount; setState in start() is post-await only
     void start();
   }, [start]);
 

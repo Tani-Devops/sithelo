@@ -18,6 +18,7 @@
 // ====================================================================
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/guards";
+import { enforceRateLimit } from "@/lib/auth/rateLimit";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 
@@ -84,14 +85,14 @@ export async function POST(req: Request) {
   // already_onboarded -- but limiting attempts also caps retry storms
   // from a broken client).
   const service = createServiceClient();
-  const { data: allowed } = await service.rpc("check_rate_limit", {
-    p_key: `institution-onboarding:${userId}`,
-    p_max_requests: 10,
-    p_window_seconds: 3600,
-  });
-  if (allowed === false) {
-    return NextResponse.json({ error: "Too many attempts. Please wait a moment and try again." }, { status: 429 });
-  }
+  const limitResponse = await enforceRateLimit(
+    service,
+    `institution-onboarding:${userId}`,
+    10,
+    3600,
+    "Too many attempts. Please wait a moment and try again."
+  );
+  if (limitResponse) return limitResponse;
 
   const supabase = await createClient();
   const { data, error } = await supabase

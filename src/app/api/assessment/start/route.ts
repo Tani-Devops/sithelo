@@ -8,6 +8,7 @@
 // ====================================================================
 import { NextResponse } from "next/server";
 import { requireEntrepreneur } from "@/lib/auth/guards";
+import { enforceRateLimit } from "@/lib/auth/rateLimit";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { FRAMEWORK_VERSION } from "@/lib/assessment/bank";
@@ -20,14 +21,14 @@ export async function POST() {
   // Rate limit (check_rate_limit is service-role-only, so it needs the
   // service client — same pattern as /api/documents/upload).
   const service = createServiceClient();
-  const { data: allowed } = await service.rpc("check_rate_limit", {
-    p_key: `assessment-start:${userId}`,
-    p_max_requests: 30,
-    p_window_seconds: 3600,
-  });
-  if (allowed === false) {
-    return NextResponse.json({ error: "Too many attempts. Please wait a moment and try again." }, { status: 429 });
-  }
+  const limitResponse = await enforceRateLimit(
+    service,
+    `assessment-start:${userId}`,
+    30,
+    3600,
+    "Too many attempts. Please wait a moment and try again."
+  );
+  if (limitResponse) return limitResponse;
 
   const supabase = await createClient();
 
