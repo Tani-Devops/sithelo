@@ -17,7 +17,12 @@
 // stops a logged-in entrepreneur from rendering the admin dashboard.
 // Layer 3 is what actually stops a crafted request that skips the UI
 // entirely — it's the layer that matters if the other three have a bug.
+//
+// Server-only by construction: these read session cookies, which only
+// exist in server code. `server-only` turns any accidental client import
+// into a build error.
 // ====================================================================
+import "server-only";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, UserRole } from "@/types/database";

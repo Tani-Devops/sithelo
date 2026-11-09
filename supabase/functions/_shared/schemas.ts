@@ -82,6 +82,28 @@ export const notificationRequestSchema = z.object({
   metadata: z.record(z.unknown()).optional(),
 }).strict();
 
+// The audit trail is only as trustworthy as its boundary. Before this
+// schema, audit-logger accepted any JSON the caller (a service-role-key
+// holder) sent — arbitrary action strings, oversized fields, malformed
+// actor/entity ids — so a leaked key could mint plausible forged entries.
+// `action`/`entity_type` stay open-ended enough for new callers (dotted
+// lowercase names, matching every current caller: opportunity.created,
+// verification.approve, bulk_import.completed) but reject junk.
+export const auditLogSchema = z.object({
+  actor_id: uuid.nullable(),
+  action: z.string().trim().min(1).max(100).regex(
+    /^[a-z][a-z0-9_.-]*$/,
+    "action must be a lowercase dotted name (e.g. opportunity.created)"
+  ),
+  entity_type: z.string().trim().min(1).max(64).regex(
+    /^[a-z][a-z0-9_.-]*$/,
+    "entity_type must be a lowercase dotted name"
+  ),
+  entity_id: uuid.nullable(),
+  changes: z.record(z.unknown()).nullable(),
+  metadata: z.record(z.unknown()).nullable(),
+}).strict();
+
 export const matchBusinessesSchema = z.object({
   opportunity_id: uuid,
 }).strict();

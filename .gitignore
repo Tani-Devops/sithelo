@@ -1,6 +1,26 @@
-.env.local
+# Environment files — .env.example is the only committed env file.
+# The blanket .env* patterns are scoped so .env.example stays trackable.
 .env
+.env.local
+.env.development
+.env.development.local
+.env.production
+.env.production.local
+.env.test
+.env.test.local
+.env.staging
+.env.staging.local
+.env*.local
+.env.local.backup
+
+# Dependencies / build output
 node_modules/
 .next/
 out/
 dist/
+*.tsbuildinfo
+
+# Supabase CLI local state — contains the linked project ref, org id and
+# pooler URL; never commit (was committed in error before the audit and
+# removed).
+supabase/.temp/

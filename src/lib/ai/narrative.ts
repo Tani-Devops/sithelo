@@ -12,7 +12,12 @@
 // counts, household data, and financial detail. Only business-level,
 // derived signals (persona, strengths, next moves, match dimensions) are
 // sent to the provider.
+//
+// `server-only` enforces that server-only claim at build time — the
+// sanitised-payload guarantee is meaningless if this module can ever be
+// bundled for the browser.
 // ====================================================================
+import "server-only";
 
 import type { JourneyProfile } from "../classification/types";
 import type { MatchResult } from "../matching/score";

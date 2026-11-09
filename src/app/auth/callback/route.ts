@@ -8,7 +8,18 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/entrepreneur/dashboard";
+
+  // SECURITY: `next` is attacker-controllable (it's a query param) and is
+  // concatenated onto `origin`. Anything that isn't a plain absolute path
+  // is rejected — this blocks both `//evil.com` protocol-relative jumps
+  // and the `@evil.com` userinfo trick (`https://oursite.com@evil.com`
+  // resolves to host evil.com), which a bare `origin + next` would
+  // happily produce. Same validation exists on /login.
+  const requestedNext = searchParams.get("next");
+  const next =
+    requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//")
+      ? requestedNext
+      : "/entrepreneur/dashboard";
 
   if (code) {
     const supabase = await createClient();

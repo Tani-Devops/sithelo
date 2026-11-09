@@ -3,6 +3,11 @@
 // to the browser. Use only inside Route Handlers / Server Actions after the
 // caller's role has already been checked via the session-bound server client.
 // See client.ts for why this isn't parameterized with our Database type.
+//
+// `server-only` makes this a compile error if a client bundle ever imports
+// it — the service key must never be resolvable from browser code, so the
+// guard is enforced by the build rather than by convention.
+import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 export function createServiceClient() {

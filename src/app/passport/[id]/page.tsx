@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/auth/guards";
 import { DocumentViewer } from "@/components/ui/DocumentViewer";
 import { SitheloRing, SitheloBadge, SitheloButton, SitheloLogo } from "@/components/ui/sithelo";
 import { snapshotToJourneyProfile, type AssessmentSnapshotRow } from "@/lib/assessment/read";
@@ -60,6 +61,10 @@ const VERIFICATION_LABELS: Record<string, string> = {
 
 export default async function PassportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  // Defense-in-depth: every other protected page calls a guard explicitly.
+  // Layer 1 (middleware) and Layer 3 (get_passport_detail's own auth.uid()
+  // tiering) also protect this route, but none of the three is redundant.
+  await requireAuth();
   const supabase = await createClient();
 
   const { data: passport, error } = await supabase.rpc("get_passport_detail", { p_passport_id: id });
@@ -78,14 +83,23 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
     : { data: null };
   const history = historyData as unknown as TrustHistoryEntry[] | null;
 
-  // The owner's living journey profile (Tier 0 — owner/admin only, and RLS
-  // guarantees an institution viewing this page never receives these rows).
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: journeySnapshot } = user
+  // The passport OWNER's living journey profile (Tier 0 — owner/admin
+  // only, and RLS guarantees an institution viewing this page never
+  // receives these rows). Queried by the passport's owner_id, not the
+  // viewer's session: previously an admin viewing someone else's passport
+  // was shown their OWN journey snapshot pasted onto that passport.
+  // owner_id is SELECT-granted to authenticated (021) and RLS limits it to
+  // published passports / own row / admin — same visibility as the page.
+  const { data: ownerRow } = showOwnerAdminData
+    ? await supabase.from("business_passports").select("owner_id").eq("id", id).maybeSingle()
+    : { data: null };
+  const passportOwnerId = ownerRow?.owner_id;
+
+  const { data: journeySnapshot } = passportOwnerId
     ? await supabase
         .from("assessment_snapshots")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", passportOwnerId)
         .order("computed_at", { ascending: false })
         .limit(1)
         .maybeSingle()

@@ -20,6 +20,20 @@ interface CompleteBody {
 
 export async function POST(req: Request) {
   const { userId } = await requireEntrepreneur();
+
+  // Rate limit — this endpoint does the heaviest writes (snapshots,
+  // journey history, persona state via service role), so it gets its own
+  // limit in addition to start's.
+  const service = createServiceClient();
+  const { data: allowed } = await service.rpc("check_rate_limit", {
+    p_key: `assessment-complete:${userId}`,
+    p_max_requests: 30,
+    p_window_seconds: 3600,
+  });
+  if (allowed === false) {
+    return NextResponse.json({ error: "Too many attempts. Please wait a moment and try again." }, { status: 429 });
+  }
+
   const supabase = await createClient();
 
   let body: CompleteBody;
@@ -57,8 +71,8 @@ export async function POST(req: Request) {
   }
 
   // Classify + persist with the service client (the only write path for
-  // snapshots/history/persona_state).
-  const service = createServiceClient();
+  // snapshots/history/persona_state) — created above, before the rate
+  // limit, and reused here.
   const result = await completeAndPersistJourney(service, userId, assessmentId, answers);
 
   if (!result.ok) {

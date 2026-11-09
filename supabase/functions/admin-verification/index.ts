@@ -41,6 +41,17 @@ Deno.serve(async (req) => {
       .single();
     if (findErr || !verification) return json({ error: "Verification not found" }, 404);
 
+    // Status-transition guard: decisions are final. Previously an admin
+    // could re-verify an already-verified record or re-open a rejected
+    // one, silently overwriting verified_by/verified_at and corrupting
+    // the audit trail's who/when accuracy. Only 'pending' rows are
+    // decidable; 'expired' rows need a new verification row, not a
+    // status flip.
+    const currentStatus = (verification as { status: string }).status;
+    if (currentStatus !== "pending") {
+      return json({ error: `Verification is already ${currentStatus} — decisions are final` }, 409);
+    }
+
     const newStatus = decision === "approve" ? "verified" : "rejected";
 
     const { error: updateErr } = await supabase

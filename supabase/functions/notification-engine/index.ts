@@ -44,7 +44,10 @@ Deno.serve(async (req) => {
     const { error: inAppErr } = await supabase
       .from("notifications")
       .insert({ recipient_id, channel: "in_app", category, title, body, metadata: metadata ?? {} });
-    results.in_app = inAppErr ? `failed: ${inAppErr.message}` : "sent";
+    // Status-only result: raw DB error text (constraint names, relation
+    // details) must not be echoed to callers; log it server-side instead.
+    if (inAppErr) console.error("notification-engine: in-app insert failed:", inAppErr.message);
+    results.in_app = inAppErr ? "failed: could not write in-app notification" : "sent";
 
     // Email via Resend
     if (channels.includes("email")) {
@@ -67,7 +70,11 @@ Deno.serve(async (req) => {
               from: "Sithelo <notifications@sithelo.co.za>",
               to: profile.email,
               subject: title,
-              html: `<p>Hi ${profile.full_name?.split(" ")[0] ?? "there"},</p><p>${body ?? ""}</p>`,
+              // Both interpolated values are HTML-escaped: full_name comes
+              // from the recipient's own profile and body from the caller,
+              // and an unescaped user-controlled string here is stored HTML
+              // injection into every email this function sends.
+              html: `<p>Hi ${escapeHtml(profile.full_name?.split(" ")[0] ?? "there")},</p><p>${escapeHtml(body ?? "")}</p>`,
             }),
           });
           results.email = emailRes.ok ? "sent" : `failed: ${emailRes.status}`;
@@ -92,4 +99,19 @@ Deno.serve(async (req) => {
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+}
+
+/**
+ * HTML-escapes text before it is interpolated into email HTML. Must be
+ * applied to any string that could ever carry user-authored content —
+ * otherwise a malicious business name / notification body becomes stored
+ * HTML injection in every email built from it.
+ */
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }

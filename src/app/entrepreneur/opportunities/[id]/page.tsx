@@ -51,6 +51,20 @@ async function applyAction(formData: FormData) {
 
   if (!passport) return; // no passport yet — UI already gates this, RLS would reject anyway
 
+  // Business-rule check in addition to RLS: only ACTIVE opportunities
+  // accept applications. The page's own read is RLS-filtered to active
+  // rows, but a crafted POST could still target a draft/closed/cancelled
+  // id — the insert policy doesn't verify status. (RLS hides non-active
+  // rows from this select, so an inactive id simply finds nothing.)
+  const { data: opportunity } = await supabase
+    .from("opportunities")
+    .select("id")
+    .eq("id", opportunityId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (!opportunity) return;
+
   // RLS ("applications: entrepreneur insert own") is the actual
   // authority here — it independently re-checks passport ownership,
   // forces status='submitted', and forbids reviewed_by/reviewed_at.

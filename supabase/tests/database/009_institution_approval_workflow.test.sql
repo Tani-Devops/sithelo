@@ -85,27 +85,27 @@ select lives_ok(
 );
 
 select is(
-  (select institution_id from public.profiles where id = 'd1111111-1111-1111-1111-111111111111'),
-  (select institution_id from public.institutions where primary_contact_id = 'd1111111-1111-1111-1111-111111111111'),
-  'Caller was linked to the institution row created in the same transaction'
+  (select (public.get_institution_detail(p.institution_id)).id from public.profiles p where p.id = 'd1111111-1111-1111-1111-111111111111'),
+  (select p.institution_id from public.profiles p where p.id = 'd1111111-1111-1111-1111-111111111111'),
+  'Caller was linked to the institution row created in the same transaction (own row readable via get_institution_detail — 032)'
 );
 
 select is(
-  (select approval_status::text from public.institutions where primary_contact_id = 'd1111111-1111-1111-1111-111111111111'),
+  (select (public.get_institution_detail(p.institution_id)).approval_status::text from public.profiles p where p.id = 'd1111111-1111-1111-1111-111111111111'),
   'pending',
   'A freshly onboarded institution starts in approval_status = pending, not auto-trusted'
 );
 
 select is(
-  (select province::text from public.institutions where primary_contact_id = 'd1111111-1111-1111-1111-111111111111'),
+  (select (public.get_institution_detail(p.institution_id)).province::text from public.profiles p where p.id = 'd1111111-1111-1111-1111-111111111111'),
   'Gauteng',
   'Onboarding fields (province) are stored on the institutions row itself, not only in the audit log'
 );
 
 select is(
-  (select primary_contact_email from public.institutions where primary_contact_id = 'd1111111-1111-1111-1111-111111111111'),
+  (select (public.get_institution_detail(p.institution_id)).primary_contact_email from public.profiles p where p.id = 'd1111111-1111-1111-1111-111111111111'),
   'jane@example.co.za',
-  'primary_contact_email is stored as a real institutions column'
+  'primary_contact_email is stored as a real institutions column (readable via get_institution_detail — 032)'
 );
 
 -- Cannot onboard a second time.
@@ -182,7 +182,7 @@ select lives_ok(
 );
 
 select is(
-  (select approval_status::text from public.institutions where primary_contact_id = 'd1111111-1111-1111-1111-111111111111'),
+  (select (public.get_institution_detail(p.institution_id)).approval_status::text from public.profiles p where p.id = 'd1111111-1111-1111-1111-111111111111'),
   'approved',
   'approval_status actually moved to approved after admin decision'
 );
@@ -205,7 +205,7 @@ select lives_ok(
 );
 
 select is(
-  (select approval_status::text from public.institutions where primary_contact_id = 'd5555555-5555-5555-5555-555555555555'),
+  (select (public.get_institution_detail(p.institution_id)).approval_status::text from public.profiles p where p.id = 'd5555555-5555-5555-5555-555555555555'),
   'rejected',
   'approval_status moved to rejected'
 );

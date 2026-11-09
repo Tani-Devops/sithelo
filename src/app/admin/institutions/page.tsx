@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth/guards";
 import { PortalShell } from "@/components/ui/PortalShell";
 import { SitheloEmptyState, SitheloBadge } from "@/components/ui/sithelo";
+import type { Institution } from "@/types/database";
 
 // ====================================================================
 // /admin/institutions
@@ -51,11 +52,11 @@ export default async function InstitutionApprovalsPage() {
   const { profile } = await requireAdmin();
   const supabase = await createClient();
 
-  const { data: pending, error } = await supabase
-    .from("institutions")
-    .select("id, name, institution_type, province, municipality, website, primary_contact_name, primary_contact_email, primary_contact_phone, description, focus_area, created_at")
-    .eq("approval_status", "pending")
-    .order("created_at", { ascending: true });
+  // The queue (incl. primary-contact PII) is only readable via the
+  // SECURITY DEFINER RPC (migration 032) — direct table SELECT of the PII
+  // columns is revoked from `authenticated`, which admins share.
+  const { data: pendingRaw, error } = await supabase.rpc("list_institutions_for_review");
+  const pending = (pendingRaw ?? []) as Institution[];
 
   return (
     <PortalShell portalLabel="Admin" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Super Admin">

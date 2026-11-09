@@ -9,12 +9,26 @@
 import { NextResponse } from "next/server";
 import { requireEntrepreneur } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { FRAMEWORK_VERSION } from "@/lib/assessment/bank";
 import { answersFromResponses, nextQuestion, publicQuestion } from "@/lib/assessment/engine";
 import type { AssessmentAnswer } from "@/lib/assessment/types";
 
 export async function POST() {
   const { userId } = await requireEntrepreneur();
+
+  // Rate limit (check_rate_limit is service-role-only, so it needs the
+  // service client — same pattern as /api/documents/upload).
+  const service = createServiceClient();
+  const { data: allowed } = await service.rpc("check_rate_limit", {
+    p_key: `assessment-start:${userId}`,
+    p_max_requests: 30,
+    p_window_seconds: 3600,
+  });
+  if (allowed === false) {
+    return NextResponse.json({ error: "Too many attempts. Please wait a moment and try again." }, { status: 429 });
+  }
+
   const supabase = await createClient();
 
   // Resume the most recent in-progress assessment, if any.

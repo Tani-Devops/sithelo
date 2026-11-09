@@ -14,7 +14,12 @@ const NAV_ITEMS = [
 export default async function InstitutionDashboard() {
   const { profile } = await requireInstitution();
   const supabase = await createClient();
-  const { data: institution } = await supabase.from("institutions").select("name, approval_status, rejection_reason").eq("id", profile.institution_id!).single();
+  // Own-institution detail (incl. rejection_reason) is only readable via
+  // the SECURITY DEFINER RPC (migration 032) — direct table SELECT of the
+  // PII/decision columns is revoked from `authenticated`.
+  const { data: institution } = await supabase.rpc("get_institution_detail", {
+    p_institution_id: profile.institution_id,
+  });
 
   const { data: opportunities } = await supabase
     .from("opportunities")

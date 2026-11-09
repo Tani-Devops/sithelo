@@ -28,6 +28,29 @@ import { createServiceClient } from "@/lib/supabase/service";
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // matches passport-documents bucket file_size_limit
 const ALLOWED_MIME_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
 
+// Server-side content sniffing: the client-declared MIME type is checked
+// as a first pass but never trusted for what actually gets stored — a
+// browser only knows what the uploader's OS/UA said. Without this, an
+// HTML/JS payload labelled `application/pdf` would pass the allow-list,
+// be stored in the private bucket, and later be rendered by a sniffing
+// browser from the signed URL (stored-XSS-in-document-pipeline).
+function sniffContentType(bytes: Uint8Array): string | null {
+  // PDF header: "%PDF-"
+  if (bytes.length >= 5 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46 && bytes[4] === 0x2d) {
+    return "application/pdf";
+  }
+  // PNG signature: 89 50 4E 47 0D 0A 1A 0A
+  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47
+    && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a) {
+    return "image/png";
+  }
+  // JPEG SOI marker: FF D8 FF
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return "image/jpeg";
+  }
+  return null;
+}
+
 // Kept in sync with the labels DocumentViewer/passport page display.
 // Free-text at the DB level, but constrained here so every document in
 // the system is one of a known set the admin verification screen can
@@ -103,15 +126,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Not authorized to upload documents to this passport." }, { status: 403 });
   }
 
-  const rawExtension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") ?? "";
-  const extension = rawExtension || (file.type === "application/pdf" ? "pdf" : file.type === "image/png" ? "png" : "jpg");
-  const storagePath = `${userId}/${passportId}/${randomUUID()}.${extension}`;
-
   const arrayBuffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(arrayBuffer);
+
+  // The stored content type and extension come from the BYTES, not from
+  // anything the client declared. Reject anything that isn't genuinely
+  // PDF/JPEG/PNG — including HTML/JS mislabelled as PDF.
+  const sniffedType = sniffContentType(bytes);
+  if (!sniffedType || !ALLOWED_MIME_TYPES.has(sniffedType)) {
+    return NextResponse.json(
+      { error: "The file contents do not match an accepted document type (PDF, JPEG, or PNG)." },
+      { status: 400 }
+    );
+  }
+  const storedExtension = sniffedType === "application/pdf" ? "pdf" : sniffedType === "image/png" ? "png" : "jpg";
+  const storagePath = `${userId}/${passportId}/${randomUUID()}.${storedExtension}`;
+
   const { error: uploadErr } = await supabase.storage
     .from("passport-documents")
     .upload(storagePath, Buffer.from(arrayBuffer), {
-      contentType: file.type,
+      contentType: sniffedType,
       upsert: false,
     });
 

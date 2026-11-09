@@ -36,9 +36,16 @@ function LoginForm() {
     }
 
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
-    const next = params.get("next");
+    // SECURITY: only honor `next` when it's a plain absolute path — an
+    // unvalidated value passed to router.push() would perform a full
+    // external navigation (`https://evil.com` or `//evil.com`). Matches
+    // the validation in /auth/callback.
+    const requestedNext = params.get("next");
+    const safeNext = requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//")
+      ? requestedNext
+      : null;
     const destination =
-      next ?? (profile?.role === "institution" ? "/institution/dashboard"
+      safeNext ?? (profile?.role === "institution" ? "/institution/dashboard"
         : profile?.role === "admin" ? "/admin/dashboard"
         : "/entrepreneur/dashboard");
     router.push(destination);

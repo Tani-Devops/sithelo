@@ -7,6 +7,7 @@
 // Invoke: POST { actor_id, action, entity_type, entity_id, changes?, metadata? }
 // ====================================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { auditLogSchema, parseBody } from "../_shared/schemas.ts";
 import { safeErrorMessage } from "../_shared/errors.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -22,22 +23,25 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.json();
-    const { actor_id, action, entity_type, entity_id, changes, metadata } = body;
-
-    if (!action || !entity_type) {
-      return json({ error: "action and entity_type are required" }, 400);
-    }
+    // Full schema validation before the DB write: action/entity_type must
+    // be bounded lowercase dotted names, actor_id/entity_id must be real
+    // UUIDs (or null), changes/metadata must be JSON objects. Previously
+    // only truthiness was checked, so any service-role-key holder could
+    // attribute arbitrary actions to arbitrary actors — forged audit
+    // entries. Audit integrity is this function's entire purpose.
+    const parsed = await parseBody(req, auditLogSchema);
+    if (parsed instanceof Response) return parsed;
+    const { actor_id, action, entity_type, entity_id, changes, metadata } = parsed;
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
     const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("cf-connecting-ip") ?? null;
 
     const { error } = await supabase.from("audit_logs").insert({
-      actor_id: actor_id ?? null,
+      actor_id,
       action,
       entity_type,
-      entity_id: entity_id ?? null,
-      changes: changes ?? null,
+      entity_id,
+      changes,
       ip_address: ip,
       metadata: metadata ?? {},
     });

@@ -78,11 +78,33 @@ Added a real, runnable pgTAP suite (`supabase/tests/database/`, 23 assertions) c
 
 ## Not yet fixed — next priority
 
-- **Admin provisioning.** There is currently no secure path to create the first admin account or promote a user to admin. This needs to be a deliberate, out-of-band action (e.g. a one-time SQL script run directly against the database by someone with project owner access, or a `supabase/functions/promote-to-admin` function gated behind a separate, rotated bootstrap secret — not behind another admin, since that's circular for the first admin). I'm flagging this rather than guessing at your preferred provisioning process.
+- **Admin provisioning — RESOLVED by this pass**: `supabase/scripts/bootstrap_admin.sql` is the documented, audited, idempotent one-time path for the first admin (run out-of-band by a project owner; see SUPABASE_SETUP.md). Subsequent admins go through `admin_promote_user()`. No standing bootstrap secret exists.
 - **`notification-engine`** is now internal-only (service-role gated), which stops arbitrary spam, but a compromised or buggy caller *inside* the trust boundary could still notify any `recipient_id`. Low severity given the gate, but worth a follow-up: validate that `recipient_id` is a plausible target for the calling context (e.g. the entrepreneur who owns the passport a match refers to), not just any UUID.
 - **File storage**: bucket-level RLS is in place (private `passport-documents`, admin-only `bulk-imports`), but no server route yet issues short-lived signed URLs for document access — the frontend doesn't have a document viewer built yet (see ROADMAP.md), so this hasn't been exercised end-to-end. When that UI is built, use `createSignedUrl()` with a short expiry, not public URLs, and re-check ownership server-side before minting the signed URL.
 - **Rate limiting / abuse prevention** on public endpoints (registration, login) — not implemented. Supabase Auth has some built-in protections; nothing Zenzele-specific has been added.
 - **Zod validation on edge function payloads** — functions currently do manual `if (!field)` checks, not schema validation. Works, but is easy to leave gaps in as fields are added. Recommend introducing `zod` (already a dependency in the Next.js app) into edge functions via esm.sh.
+
+## 2026 audit-fix pass (resolutions of the above + new findings)
+
+A full fresh audit (dependency scan + four-surface code review: edge functions, migrations/RLS, App Router code, lib/config) produced one new HIGH, several MEDIUM findings, and a dependency critical. Fixed in this pass:
+
+- **Dependencies**: `next` 15.5.23 → **15.5.29** (closed 5 advisories incl. the Windows-server RCE and two image-optimization RCEs); `zod` removed from the Next.js app (unused; closed GHSA-mrhx-c7xc-m3w5); `npm audit fix` closed the eslint-toolchain chain. Residual: next's internally pinned `postcss@8.4.31` (build-time CSS tooling only, not runtime-reachable) — closed by the eventual Next 16 migration.
+- **HIGH — institutions PII**: migration 032 revokes table-level SELECT on `institutions` from `authenticated`, grants back only the non-PII columns, and adds SECURITY DEFINER `get_institution_detail()` (own row or admin) + `list_institutions_for_review()` (admin queue). Institution dashboard and admin approvals pages read through these; pgTAP test 009 updated to match.
+- **Open redirects**: `/auth/callback` and `/login` now accept `next` only when it's a plain absolute path (`startsWith("/") && !startsWith("//")`).
+- **`audit-logger`**: now schema-validated (`_shared/schemas.ts` `auditLogSchema` — UUID actors/entities, bounded lowercase-dotted action/entity names, object changes/metadata).
+- **`notification-engine`**: email HTML now escapes `full_name` and `body`; in-app failure result no longer echoes raw DB errors.
+- **`admin-verification`**: added a status-transition guard — only `pending` verifications are decidable; decisions are final.
+- **`bulk-import`**: per-row errors returned sanitized (`safeErrorMessage`), full detail server-side only.
+- **Git hygiene**: `supabase/.temp/` (live project ref, org id, pooler URL) untracked + ignored; `.env.*` variants and `*.tsbuildinfo` added to `.gitignore`; `tsconfig.tsbuildinfo` untracked.
+- **Security headers**: `next.config.js` now sets CSP (production-tightened), `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, HSTS, and `poweredByHeader: false`.
+- **Server-only enforcement**: `server-only` import added to `lib/supabase/service.ts`, `lib/supabase/server.ts`, `lib/auth/guards.ts`, `lib/ai/*` — a client-bundle import is now a build error.
+- **AI layer**: 30s timeouts on all provider fetches, Gemini key moved from query string to `x-goog-api-key` header, provider errors are status-only (bodies no longer embedded in `Error` messages).
+- **Document upload**: server-side magic-byte sniffing (PDF/JPEG/PNG) — stored content type and extension come from the bytes, not the client.
+- **Migration 033**: `documents.uploaded_by` removed from the INSERT grant (client writes land null; the route sets it from the session); `opportunities.status` (+ `institution_id`/timestamps) UPDATE-revoked from `authenticated` — lifecycle transitions need a dedicated function when a close/cancel UI is built.
+- **App logic**: `applyAction` now verifies the opportunity is `active` before inserting an application; `/passport/[id]` now calls `requireAuth()` and renders the passport *owner's* journey snapshot (previously an admin saw their own pasted onto another's passport).
+- **Follow-up round**: migration 034 adds an entrepreneur-role guard to `complete_entrepreneur_onboarding()` (institutions/admins can no longer mint themselves a passport) and makes the four 025/031 RLS-helper functions' PUBLIC-executable grants explicit per the 020 standard. `supabase/scripts/bootstrap_admin.sql` provides the audited, idempotent, out-of-band first-admin path. The two heavyweight assessment endpoints (`/api/assessment/start`, `/api/assessment/complete`) are now rate-limited via `check_rate_limit` like the other write routes.
+
+Still open (unchanged from the prior list or deliberate): notification recipient plausibility, pre-launch rate limiting on public endpoints, Next 16 migration (nested postcss), fail-open rate-limit handling in route handlers (availability-first tradeoff, documented), and the un-executed pgTAP suite (needs a live Supabase).
 
 ## Explicitly not audited this pass
 

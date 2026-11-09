@@ -4,7 +4,7 @@
 
 ## Status: substantially built, pre-launch
 
-Read this before assuming anything below is further along than it is. **Read `AUDIT.md` first if you're evaluating security posture** — it documents real vulnerabilities that were found and fixed (role escalation via public registration, edge functions trusting client-supplied identity) and what's still explicitly open. This is no longer accurately described as a scaffold: every core entrepreneur, institution and admin flow below is wired to real Supabase data behind real RLS, across 27 migrations.
+Read this before assuming anything below is further along than it is. **Read `AUDIT.md` first if you're evaluating security posture** — it documents real vulnerabilities that were found and fixed (role escalation via public registration, edge functions trusting client-supplied identity) and what's still explicitly open. This is no longer accurately described as a scaffold: every core entrepreneur, institution and admin flow below is wired to real Supabase data behind real RLS, across 33 migrations.
 
 **Fully wired (real Supabase queries, real logic, no mock data):**
 - Full DB schema + RLS on every table (`supabase/migrations/`)

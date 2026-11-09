@@ -3,6 +3,7 @@
 // For privileged operations, use a service-role client inside a Route
 // Handler only, never in a Server Component.
 // See client.ts for why this isn't parameterized with our Database type.
+import "server-only";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 

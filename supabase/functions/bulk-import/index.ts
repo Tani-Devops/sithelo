@@ -156,7 +156,11 @@ Deno.serve(async (req) => {
         results.created++;
       } catch (rowErr) {
         results.failed++;
-        results.errors.push({ row: rowNumber, error: (rowErr as Error).message });
+        // Sanitized, not raw: error.message can carry Postgres/Auth
+        // internals (constraint names, relation names, invite detail).
+        // The full error stays server-side only.
+        console.error(`bulk-import: row ${rowNumber} failed:`, rowErr);
+        results.errors.push({ row: rowNumber, error: safeErrorMessage(rowErr) });
       }
     }
 
