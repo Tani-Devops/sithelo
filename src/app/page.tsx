@@ -1,50 +1,97 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { SitheloButton } from "@/components/ui/sithelo";
-import { SiteFooter } from "@/components/ui/MarketingChrome";
-import { Hero } from "@/components/marketing/Hero";
+import { SiteNav, SiteFooter } from "@/components/ui/MarketingChrome";
 
 export const metadata: Metadata = {
   title: "Sithelo | Where South African businesses meet opportunity",
   description:
-    "Sithelo connects verified South African entrepreneurs with institutions, procurement, funding and enterprise development opportunities through the Business Passport.",
+    "Sithelo connects South African entrepreneurs with institutions, procurement, funding and enterprise development opportunities through the Business Passport.",
   alternates: { canonical: "/" },
 };
 
-// NOTE: the stats band and "trusted by" institutional logos previously here
-// (50K+ businesses, R2.8B+ opportunities matched, Seda/IDC/DBSA/sefa/
-// National Treasury/SALGA) stay removed — see AUDIT.md. None were backed
-// by real, verified figures or confirmed institutional relationships.
-// Re-add only once real numbers and signed-off partner logos exist.
+// No stats band or partner logos: none are backed by real figures or
+// signed-off relationships yet (see AUDIT.md). Add them only once they are.
+//
+// Photography is self-hosted (public/images) under the Unsplash License.
+// Captions state where each photo was actually taken rather than implying
+// it shows a Sithelo business.
 
 const NETWORK = [
-  { label: "Entrepreneurs", body: "Build a verified profile once. Apply it to every opportunity that follows." },
-  { label: "Established businesses", body: "Turn a track record into a credential institutions can act on immediately." },
-  { label: "Institutions", body: "Search and shortlist against real, verified compliance data — not self-reported claims." },
+  { label: "Entrepreneurs", body: "Build one Business Passport and use it for every opportunity that follows." },
+  { label: "Established businesses", body: "Turn a track record into a credential institutions can act on." },
+  { label: "Institutions", body: "Search and shortlist businesses whose documents have been reviewed, not just typed into a form." },
   { label: "Opportunity providers", body: "Reach capacity-ready businesses across every province, sector and municipality." },
 ];
 
+const OPPORTUNITIES = [
+  { title: "Procurement", body: "Supplier and contractor opportunities from municipalities and corporates." },
+  { title: "Funding", body: "Grants, loans and blended finance matched to your stage." },
+  { title: "Enterprise development", body: "Programmes that build capability, not just paperwork." },
+  { title: "Partnerships", body: "Larger businesses looking for capable local partners." },
+];
+
 const WHY = [
-  { n: "01", title: "Visibility", body: "Good businesses shouldn't be invisible. A Business Passport puts yours in front of the organisations looking for it." },
-  { n: "02", title: "Trust", body: "Your trust score is calculated from verification and track record, not typed in by hand." },
-  { n: "03", title: "Access", body: "CIPC, SARS, VAT, B-BBEE, CIDB and Municipal Supplier Database verification, mapped to all nine provinces." },
-  { n: "04", title: "Opportunity", body: "Procurement, funding, enterprise development and partnerships — matched to what your business can actually deliver." },
+  { n: "01", title: "Visibility", body: "Good businesses shouldn't be invisible. Your Business Passport puts yours in front of the organisations looking for it." },
+  { n: "02", title: "Trust", body: "Your trust score comes from reviewed documents and your track record. Nobody types it in by hand." },
+  { n: "03", title: "Access", body: "CIPC, SARS, VAT, B-BBEE, CIDB and Municipal Supplier Database documents, across all nine provinces." },
+  { n: "04", title: "Opportunity", body: "Procurement, funding, enterprise development and partnerships, matched to what your business can actually deliver." },
 ];
 
 export default function LandingPage() {
   return (
     <main id="main-content" className="bg-ivory">
+      <SiteNav />
+
       {/* ================= HERO ================= */}
-      <Hero />
+      <section className="container-editorial pt-6 md:pt-10 pb-20 md:pb-28">
+        <div className="grid lg:grid-cols-[1fr_minmax(0,520px)] gap-12 lg:gap-16 items-center">
+          <div>
+            <div className="eyebrow mb-6">The Sithelo Business Passport</div>
+            <h1 className="text-hero font-display font-medium text-navy max-w-[13ch]">
+              Turning effort into opportunity.
+            </h1>
+            <p className="text-lg text-ink-600 leading-relaxed max-w-lg mt-7">
+              You&apos;ve done the work. Sithelo turns it into one verified record that funders,
+              municipalities and corporates can trust, so you stop proving yourself from scratch
+              for every tender, grant and programme.
+            </p>
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-4 mt-10">
+              <SitheloButton href="/register?role=entrepreneur">Create your Business Passport</SitheloButton>
+              <Link href="/for-institutions" className="btn-text">I represent an institution →</Link>
+            </div>
+            <p className="text-sm text-ink-500 mt-12 max-w-md">
+              Free for entrepreneurs. No CIPC registration needed to start.
+            </p>
+          </div>
+
+          <figure>
+            <div className="relative aspect-[4/5] overflow-hidden rounded-card bg-navy-900">
+              <Image
+                src="/images/shop-owner.jpg"
+                alt="A shop owner standing behind the counter of her well-stocked general store"
+                fill
+                priority
+                sizes="(min-width: 1024px) 520px, 100vw"
+                className="object-cover object-[50%_40%]"
+              />
+            </div>
+            <figcaption className="text-xs text-ink-500 mt-3">
+              A shop owner in Dar es Salaam. Photo: Ali Mkumbwa / Unsplash
+            </figcaption>
+          </figure>
+        </div>
+      </section>
 
       {/* ================= THE PROBLEM ================= */}
-      <section className="section">
-        <div className="container-editorial max-w-3xl">
+      <section className="rule">
+        <div className="container-editorial section max-w-4xl">
           <div className="eyebrow mb-6">The Problem</div>
-          <h2 className="text-display-lg font-display font-medium text-navy leading-tight">
-            Good businesses are often invisible to opportunity —
-            <span className="text-ink-600"> not because they lack capability, but because they lack a way to prove it.</span>
-          </h2>
+          <p className="text-display-lg font-display font-medium text-navy leading-tight">
+            Good businesses are often invisible to opportunity.
+            <span className="text-ink-600"> Not because they lack capability, but because they have no easy way to prove it.</span>
+          </p>
         </div>
       </section>
 
@@ -76,126 +123,109 @@ export default function LandingPage() {
           <div>
             <div className="eyebrow-on-dark mb-6">The Business Passport</div>
             <h2 className="text-display-lg font-display font-medium text-white leading-tight mb-6">
-              A digital credential worth sharing.
+              A credential worth handing over.
             </h2>
             <p className="text-white/65 leading-relaxed max-w-md mb-8">
-              Identity, verification, compliance, capability and track record — built once, in one
-              place. Not another dashboard tile. A credential your business is proud to hand over.
+              Identity, compliance documents, capability and track record, built once and kept
+              current. Sithelo reviews what you upload, and your Passport becomes visible to
+              institutions as soon as one of your documents is verified.
             </p>
-            <SitheloButton variant="on-dark" href="/register?role=entrepreneur">Build Your Passport</SitheloButton>
+            <SitheloButton variant="on-dark" href="/register?role=entrepreneur">Build your Passport</SitheloButton>
           </div>
 
-          {/* Passport artefact — deliberately not a generic dashboard card */}
-          <div className="relative">
-            <div className="border border-white/15 rounded-card p-8 md:p-10 bg-white/[0.03] backdrop-blur-sm">
-              <div className="flex items-baseline justify-between mb-8 border-b border-white/10 pb-6">
-                <div>
-                  <div className="eyebrow-on-dark mb-2">Example Business Passport™</div>
-                  <div className="text-2xl font-display font-medium text-white">Karabo Manufacturing (Pty) Ltd</div>
-                  <div className="text-sm text-white/50 mt-1">Ekurhuleni, Gauteng</div>
-                </div>
-                <div className="text-right shrink-0 pl-6">
-                  <div className="text-5xl font-display font-semibold text-white">87</div>
-                  <div className="text-eyebrow uppercase text-white/50 mt-1">Trust Score</div>
-                </div>
+          <div className="border border-white/15 rounded-card p-8 md:p-10 bg-white/[0.03]">
+            <div className="flex items-baseline justify-between gap-6 mb-8 border-b border-white/10 pb-6">
+              <div>
+                <div className="eyebrow-on-dark mb-2">Example Business Passport</div>
+                <div className="text-2xl font-display font-medium text-white">Karabo Manufacturing (Pty) Ltd</div>
+                <div className="text-sm text-white/50 mt-1">Ekurhuleni, Gauteng</div>
               </div>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <span className="text-white/55">CIPC</span><span className="text-white">Verified</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <span className="text-white/55">SARS &amp; VAT</span><span className="text-white">Verified</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <span className="text-white/55">B-BBEE</span><span className="text-white">Level 2</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <span className="text-white/55">CIDB</span><span className="text-white">Grade 6 CE</span>
-                </div>
+              <div className="text-right shrink-0">
+                <div className="text-5xl font-display font-semibold text-white">87</div>
+                <div className="text-eyebrow uppercase text-white/50 mt-1">Trust Score</div>
               </div>
-              <p className="text-xs text-white/40 mt-6">Illustrative example. Not an actual Sithelo business or live data.</p>
             </div>
+            <dl className="grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+              {[
+                ["CIPC", "Verified"],
+                ["SARS & VAT", "Verified"],
+                ["B-BBEE", "Level 2"],
+                ["CIDB", "Grade 6 CE"],
+              ].map(([k, v]) => (
+                <div key={k} className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <dt className="text-white/55">{k}</dt>
+                  <dd className="text-white">{v}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="text-xs text-white/40 mt-6">Illustrative example, not a real Sithelo business.</p>
           </div>
         </div>
       </section>
 
       {/* ================= OPPORTUNITIES ================= */}
-      <section className="rule relative overflow-hidden">
-        {/* Stylized South Africa silhouette, decorative only (aria-hidden) —
-            fills the dead space to the right of the heading without
-            competing with it: very low opacity, bleeds off the right edge,
-            no borders/labels. Not a to-scale map, just a recognizable mark. */}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 500 520"
-          className="pointer-events-none absolute -right-16 top-1/2 -translate-y-1/2 h-[140%] w-auto text-navy/[0.05] hidden md:block"
-        >
-          <path
-            fillRule="evenodd"
-            fill="currentColor"
-            d="M130 40 C200 20 300 15 370 40 C410 55 430 90 440 130 C448 165 420 175 395 190
-               C430 210 460 250 455 300 C450 350 415 390 390 430 C360 470 320 495 270 505
-               C220 500 180 480 150 450 C110 415 90 370 80 320 C70 270 75 220 90 175
-               C100 140 95 100 110 70 C118 55 122 47 130 40 Z
-               M300 338 C288 324 272 328 265 345 C259 361 268 380 287 384
-               C305 388 321 373 319 355 C318 345 310 340 300 338 Z"
-          />
-        </svg>
-        <div className="container-editorial section relative">
+      <section>
+        <div className="container-editorial section">
           <div className="eyebrow mb-6">Opportunities</div>
-          <h2 className="text-display-lg font-display font-medium text-navy leading-tight mb-14 max-w-xl">
-            Procurement, funding, partnerships and growth — matched to your business.
+          <h2 className="text-display-lg font-display font-medium text-navy leading-tight mb-14 max-w-2xl">
+            Matched to what your business can actually deliver.
           </h2>
-          <div className="grid md:grid-cols-4">
-            {["Procurement", "Funding", "Partnerships", "Growth"].map((title, i) => (
-              <div key={title} className={`py-8 pr-8 ${i > 0 ? "md:border-l border-line md:pl-8" : ""} ${i > 0 ? "border-t md:border-t-0 border-line" : ""}`}>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 rule border-t">
+            {OPPORTUNITIES.map((item, i) => (
+              <div
+                key={item.title}
+                className={`py-8 lg:pr-8 ${i > 0 ? "lg:border-l lg:pl-8" : ""} ${i % 2 === 1 ? "sm:border-l sm:pl-8 lg:pl-8" : ""} border-line ${i > 0 ? "border-t sm:border-t-0" : ""} ${i > 1 ? "sm:border-t lg:border-t-0" : ""}`}
+              >
                 <div className="text-eyebrow text-ink-500 mb-3">0{i + 1}</div>
-                <h3 className="font-display font-semibold text-navy text-lg">{title}</h3>
+                <h3 className="font-display font-semibold text-navy text-lg mb-2">{item.title}</h3>
+                <p className="text-sm text-ink-600 leading-relaxed">{item.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ================= THE BUSINESSES (photography-led) ================= */}
-      <section className="section">
-        <div className="container-editorial mb-14">
-          <div className="eyebrow mb-6">Meet the Businesses</div>
-          <h2 className="text-display-lg font-display font-medium text-navy leading-tight max-w-xl">
-            From the entrepreneur building her first company, to the business ready for its next contract.
+      {/* ================= THE BUSINESSES ================= */}
+      <section className="rule">
+        <div className="container-editorial section">
+          <div className="eyebrow mb-6">Who it&apos;s for</div>
+          <h2 className="text-display-lg font-display font-medium text-navy leading-tight max-w-2xl mb-14">
+            From a one-person workshop to a contractor ready for its next tender.
           </h2>
-        </div>
 
-        <div className="grid md:grid-cols-2 gap-1">
-          <div className="relative h-[420px] md:h-[520px]">
-            <Image
-              src="https://images.unsplash.com/photo-1692689383052-9fbf3d1c0969?auto=format&fit=crop&w=1400&q=80"
-              alt="A weekend market in Johannesburg, South Africa"
-              fill
-              sizes="(min-width: 768px) 50vw, 100vw"
-              className="object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(8,22,37,0.65) 0%, rgba(8,22,37,0) 45%)" }} />
-            <div className="absolute bottom-0 left-0 right-0 p-8">
-              <div className="eyebrow-on-dark mb-2">Emerging</div>
-              <p className="text-white font-display text-xl font-medium max-w-xs">Building visibility from the ground up.</p>
-            </div>
-          </div>
-          <div className="relative h-[420px] md:h-[520px]">
-            <Image
-              src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1400&q=80"
-              alt="Civil engineer at a construction site"
-              fill
-              sizes="(min-width: 768px) 50vw, 100vw"
-              className="object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(8,22,37,0.65) 0%, rgba(8,22,37,0) 45%)" }} />
-            <div className="absolute bottom-0 left-0 right-0 p-8">
-              <div className="eyebrow-on-dark mb-2">Established</div>
-              <p className="text-white font-display text-xl font-medium max-w-xs">Ready for its next contract.</p>
-            </div>
+          <div className="grid md:grid-cols-2 gap-x-8 gap-y-12">
+            <figure>
+              <div className="relative aspect-[3/2] overflow-hidden rounded-card bg-navy-900">
+                <Image
+                  src="/images/carpenter.jpg"
+                  alt="A carpenter in his workshop, smiling at good news on his phone"
+                  fill
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  className="object-cover"
+                />
+              </div>
+              <figcaption className="mt-5">
+                <div className="eyebrow mb-2">Emerging</div>
+                <p className="font-display text-xl font-medium text-navy">Your first contract shouldn&apos;t depend on who you know.</p>
+                <p className="text-xs text-ink-500 mt-3">A carpenter in Dar es Salaam. Photo: Ali Mkumbwa / Unsplash</p>
+              </figcaption>
+            </figure>
+            <figure>
+              <div className="relative aspect-[3/2] overflow-hidden rounded-card bg-navy-900">
+                <Image
+                  src="/images/engineer.jpg"
+                  alt="An electrical contractor in a hard hat standing beside a distribution board"
+                  fill
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  className="object-cover object-[30%_50%]"
+                />
+              </div>
+              <figcaption className="mt-5">
+                <div className="eyebrow mb-2">Established</div>
+                <p className="font-display text-xl font-medium text-navy">Years of good work, in a form a procurement officer can check.</p>
+                <p className="text-xs text-ink-500 mt-3">Photo: Unsplash</p>
+              </figcaption>
+            </figure>
           </div>
         </div>
       </section>
@@ -203,7 +233,7 @@ export default function LandingPage() {
       {/* ================= WHY SITHELO ================= */}
       <section className="rule bg-white">
         <div className="container-editorial section">
-          <div className="eyebrow mb-6">Why Sithelo</div>
+          <div className="eyebrow mb-10">Why Sithelo</div>
           <div className="grid md:grid-cols-2 gap-x-16 gap-y-12">
             {WHY.map((item) => (
               <div key={item.n} className="flex gap-6">
@@ -219,27 +249,21 @@ export default function LandingPage() {
       </section>
 
       {/* ================= FINAL CTA ================= */}
-      <section className="relative overflow-hidden bg-navy-900">
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1744604030401-b24c5975a574?auto=format&fit=crop&w=2000&q=70"
-            alt="South African skyline"
-            fill
-            sizes="100vw"
-            className="object-cover opacity-25"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-fade-navy-t" />
-        </div>
-        <div className="relative container-editorial py-24 md:py-32 text-center">
-          <h2 className="text-display-lg font-display font-medium text-white leading-tight max-w-2xl mx-auto mb-10">
+      <section className="bg-navy">
+        <div className="container-editorial py-24 md:py-28 grid md:grid-cols-[1fr_auto] gap-10 items-end">
+          <h2 className="text-display-lg font-display font-medium text-white leading-tight max-w-2xl">
             Your next opportunity starts with being ready for it.
           </h2>
-          <SitheloButton variant="on-dark" href="/register?role=entrepreneur">Build Your Business Profile</SitheloButton>
+          <div className="flex flex-wrap gap-3">
+            <SitheloButton variant="on-dark" href="/register?role=entrepreneur">Create your Business Passport</SitheloButton>
+            <SitheloButton variant="on-dark-ghost" href="/register?role=institution">Join as an institution</SitheloButton>
+          </div>
         </div>
       </section>
 
-      <SiteFooter />
+      <div className="border-t border-white/10">
+        <SiteFooter />
+      </div>
     </main>
   );
 }

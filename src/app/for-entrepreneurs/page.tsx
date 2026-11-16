@@ -35,8 +35,9 @@ export default function ForEntrepreneursPage() {
           <SitheloButton href="/register?role=entrepreneur">Create your Passport</SitheloButton>
         </div>
         <HeroPhoto
-          src="https://images.unsplash.com/photo-1531483245484-5ca8c23a880b?auto=format&fit=crop&w=1200&q=80"
-          alt="Entrepreneurs collaborating"
+          src="/images/carpenter.jpg"
+          alt="A carpenter in his workshop, smiling at good news on his phone"
+          caption="A carpenter in Dar es Salaam. Photo: Ali Mkumbwa / Unsplash"
         />
       </section>
 

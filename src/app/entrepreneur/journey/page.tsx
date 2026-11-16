@@ -6,12 +6,6 @@ import { snapshotToJourneyProfile, type AssessmentSnapshotRow } from "@/lib/asse
 import { READINESS_TIER_LABELS } from "@/lib/readiness/readiness";
 import type { EmploymentAttachment, OpportunityReadiness } from "@/lib/classification/types";
 
-const NAV_ITEMS = [
-  { label: "Home", href: "/entrepreneur/dashboard" },
-  { label: "Business Passport", href: "/entrepreneur/business" },
-  { label: "My Journey", href: "/entrepreneur/journey", active: true },
-  { label: "Opportunities", href: "/entrepreneur/opportunities" },
-];
 
 const EMPLOYMENT_LABELS: Record<EmploymentAttachment, string> = {
   full_time_employed: "Employed full-time",
@@ -68,7 +62,7 @@ export default async function JourneyPage() {
 
   if (!full && !persona) {
     return (
-      <PortalShell portalLabel="Entrepreneur" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Entrepreneur">
+      <PortalShell portal="entrepreneur" userName={profile.full_name}>
         <SitheloEmptyState
           title="Sithelo doesn't have a picture of your journey yet"
           body="Take a short assessment so Sithelo can understand where you are, what you're building, and which opportunities realistically fit."
@@ -87,7 +81,7 @@ export default async function JourneyPage() {
   };
 
   return (
-    <PortalShell portalLabel="Entrepreneur" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Entrepreneur">
+    <PortalShell portal="entrepreneur" userName={profile.full_name}>
       <div className="mb-10">
         <div className="eyebrow mb-3">Your current entrepreneurial journey</div>
         <h1 className="text-display-lg font-display font-medium text-navy leading-tight">

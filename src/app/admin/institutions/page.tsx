@@ -1,4 +1,7 @@
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { Notice } from "@/components/ui/Notice";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth/guards";
 import { PortalShell } from "@/components/ui/PortalShell";
@@ -22,11 +25,6 @@ import type { Institution } from "@/types/database";
 // same pattern as updateStatusAction on /institution/applications.
 // ====================================================================
 
-const NAV_ITEMS = [
-  { label: "Overview", href: "/admin/dashboard" },
-  { label: "Verification Queue", href: "/admin/verification" },
-  { label: "Institution Approvals", href: "/admin/institutions", active: true },
-];
 
 async function reviewInstitutionAction(formData: FormData) {
   "use server";
@@ -37,18 +35,24 @@ async function reviewInstitutionAction(formData: FormData) {
   await requireAdmin();
   const supabase = await createClient();
 
-  if (decision !== "approve" && decision !== "reject") return;
+  if (decision !== "approve" && decision !== "reject") redirect("/admin/institutions?error=failed");
 
-  await supabase.rpc("admin_review_institution", {
+  const { error } = await supabase.rpc("admin_review_institution", {
     p_institution_id: institutionId,
     p_decision: decision,
     p_notes: notes,
   });
 
   revalidatePath("/admin/institutions");
+  redirect(`/admin/institutions?${error ? "error=failed" : decision === "approve" ? "notice=institution_approved" : "notice=institution_rejected"}`);
 }
 
-export default async function InstitutionApprovalsPage() {
+export default async function InstitutionApprovalsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string; error?: string }>;
+}) {
+  const { notice, error: errorKey } = await searchParams;
   const { profile } = await requireAdmin();
   const supabase = await createClient();
 
@@ -59,13 +63,14 @@ export default async function InstitutionApprovalsPage() {
   const pending = (pendingRaw ?? []) as Institution[];
 
   return (
-    <PortalShell portalLabel="Admin" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Super Admin">
+    <PortalShell portal="admin" userName={profile.full_name}>
       <div className="mb-10 rule border-b pb-8">
         <div className="eyebrow mb-3">Admin</div>
         <h1 className="text-display-lg font-display font-medium text-navy leading-tight">Institution Approvals</h1>
         <p className="text-ink-600 mt-2">Review new institutions before they can publish opportunities.</p>
       </div>
 
+      <Notice notice={notice} error={errorKey} />
       {error && <p className="text-sm text-ink-600 text-center py-14">We couldn&apos;t load the approval queue right now. Please try again.</p>}
 
       {!error && (!pending || pending.length === 0) && (
@@ -120,22 +125,18 @@ export default async function InstitutionApprovalsPage() {
                   placeholder="Notes (shown to the institution if rejected)"
                   className="input flex-1 min-w-[200px] !py-1.5 !text-xs"
                 />
-                <button
-                  type="submit"
+                <SubmitButton
                   name="decision"
                   value="reject"
+                  confirm={`Reject ${inst.name}? They won't be able to publish opportunities.`}
+                  pendingLabel="Rejecting…"
                   className="text-xs font-semibold text-red-600 hover:text-red-700"
                 >
                   Reject
-                </button>
-                <button
-                  type="submit"
-                  name="decision"
-                  value="approve"
-                  className="btn-primary !py-1.5 !px-3 !text-xs"
-                >
+                </SubmitButton>
+                <SubmitButton name="decision" value="approve" pendingLabel="Approving…" className="btn-primary !py-1.5 !px-3 !text-xs">
                   Approve
-                </button>
+                </SubmitButton>
               </form>
             </div>
           ))}

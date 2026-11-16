@@ -5,12 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { SitheloLogo, SitheloAvatar } from "@/components/ui/sithelo";
 import { LogoutButton } from "@/components/ui/LogoutButton";
-
-interface NavItem {
-  label: string;
-  href: string;
-  active?: boolean;
-}
+import { activeHref, type PortalNavItem } from "@/lib/portalNav";
 
 // The portal sidebar (aside in PortalShell) is hidden below md and this
 // renders instead — same focus-trap / Escape / scroll-lock behaviour as
@@ -23,7 +18,7 @@ export function PortalMobileNav({
   userRole,
 }: {
   portalLabel: string;
-  navItems: NavItem[];
+  navItems: PortalNavItem[];
   userName: string;
   userRole: string;
 }) {
@@ -31,6 +26,7 @@ export function PortalMobileNav({
   const pathname = usePathname();
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const current = activeHref(navItems, pathname);
 
   // Close on route change — render-time state adjustment (React's
   // sanctioned alternative to setState-in-effect for "reset state when a
@@ -115,8 +111,8 @@ export function PortalMobileNav({
                 <Link
                   key={item.href}
                   href={item.href}
-                  aria-current={item.active ? "page" : undefined}
-                  className={item.active ? "sidebar-link-active" : "sidebar-link"}
+                  aria-current={item.href === current ? "page" : undefined}
+                  className={item.href === current ? "sidebar-link-active" : "sidebar-link"}
                 >
                   {item.label}
                 </Link>

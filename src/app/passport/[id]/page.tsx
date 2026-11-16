@@ -1,6 +1,12 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { PortalShell } from "@/components/ui/PortalShell";
+import { Notice } from "@/components/ui/Notice";
+import { SubmitButton } from "@/components/ui/SubmitButton";
+import { isUuid } from "@/lib/documents/rules";
+import { formatDate } from "@/lib/format";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { requireAuth } from "@/lib/auth/guards";
+import { requireAuth, requireInstitution } from "@/lib/auth/guards";
 import { DocumentViewer } from "@/components/ui/DocumentViewer";
 import { SitheloRing, SitheloBadge, SitheloButton, SitheloLogo } from "@/components/ui/sithelo";
 import { snapshotToJourneyProfile, type AssessmentSnapshotRow } from "@/lib/assessment/read";
@@ -40,6 +46,7 @@ interface PassportDetail {
   access_tier: "owner_admin" | "authorized_institution" | "discovery";
   annual_turnover?: number | null;
   business_health_score?: number;
+  owner_id?: string;
 }
 
 interface ActivityEntry {
@@ -59,12 +66,47 @@ const VERIFICATION_LABELS: Record<string, string> = {
   insurance: "Insurance verified", cidb: "CIDB registered", municipal_supplier: "Municipal supplier",
 };
 
-export default async function PassportPage({ params }: { params: Promise<{ id: string }> }) {
+// Shortlisting (institutions only). RLS (018) is the authority: the
+// insert policy requires the caller's own institution, created_by =
+// auth.uid(), and a PUBLISHED passport; delete is limited to the
+// caller's own institution. Ids from the form are never trusted beyond that.
+async function toggleShortlistAction(formData: FormData) {
+  "use server";
+  const { userId, profile } = await requireInstitution();
+  const passportId = String(formData.get("passport_id"));
+  if (!isUuid(passportId)) redirect("/institution/search");
+  if (!profile.institution_id) redirect(`/passport/${passportId}?error=failed`);
+  const supabase = await createClient();
+  const removing = formData.get("intent") === "remove";
+
+  const { error } = removing
+    ? await supabase.from("shortlists").delete()
+        .eq("institution_id", profile.institution_id)
+        .eq("passport_id", passportId)
+    : await supabase.from("shortlists").insert({
+        institution_id: profile.institution_id,
+        passport_id: passportId,
+        created_by: userId,
+      });
+  revalidatePath(`/passport/${passportId}`);
+  revalidatePath("/institution/search");
+  redirect(`/passport/${passportId}?${error ? "error=failed" : removing ? "notice=unshortlisted" : "notice=shortlisted"}`);
+}
+
+export default async function PassportPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ notice?: string; error?: string }>;
+}) {
   const { id } = await params;
+  const { notice, error: errorKey } = await searchParams;
+  if (!isUuid(id)) notFound();
   // Defense-in-depth: every other protected page calls a guard explicitly.
   // Layer 1 (middleware) and Layer 3 (get_passport_detail's own auth.uid()
   // tiering) also protect this route, but none of the three is redundant.
-  await requireAuth();
+  const { userId, profile } = await requireAuth();
   const supabase = await createClient();
 
   const { data: passport, error } = await supabase.rpc("get_passport_detail", { p_passport_id: id });
@@ -72,6 +114,18 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
 
   const detail = passport as unknown as PassportDetail;
   const showOwnerAdminData = detail.access_tier === "owner_admin";
+  const isOwner = detail.owner_id === userId;
+  const isInstitutionViewer = profile.role === "institution" && !!profile.institution_id;
+
+  const { data: shortlistRow } = isInstitutionViewer
+    ? await supabase
+        .from("shortlists")
+        .select("id")
+        .eq("institution_id", profile.institution_id!)
+        .eq("passport_id", id)
+        .maybeSingle()
+    : { data: null };
+  const isShortlisted = !!shortlistRow;
 
   const { data: activityData } = showOwnerAdminData
     ? await supabase.rpc("get_passport_activity", { p_passport_id: id })
@@ -111,7 +165,8 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
   const isVerified = detail.overall_verification_status === "verified";
 
   return (
-    <main id="main-content" className="min-h-screen bg-ivory px-6 md:px-8 py-10 max-w-[1080px] mx-auto">
+    <PortalShell portal={profile.role} userName={profile.full_name}>
+      <Notice notice={notice} error={errorKey} />
       {/* ---- Credential header — the digital business credential itself.
           A ring here is correct (unlike the dashboard, where it became a
           plain number): this page *is* the seal being presented. ---- */}
@@ -119,21 +174,21 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
         <div className="relative flex flex-wrap items-start justify-between gap-4 mb-10">
           <SitheloLogo height={28} variant="light" />
           <div className="flex flex-wrap gap-2">
-            {showOwnerAdminData && (
+            {isOwner && (
               <SitheloButton href="/entrepreneur/business/edit" variant="on-dark-ghost" className="!px-4 !py-2">Edit</SitheloButton>
             )}
-            {/* "Share Passport" removed: there was no share feature behind
-                it anywhere in the codebase (no route, no table, no edge
-                function) — it was a button that did nothing when clicked.
-                "Download PDF" disabled rather than removed: the PDF
-                generator (supabase/functions/generate-business-passport-pdf)
-                is real and callable, but the frontend was never wired to
-                call it or to fetch a signed URL for the private
-                'generated-pdfs' bucket it writes to. Re-enable once that
-                wiring exists — see AUDIT.md. */}
-            <SitheloButton variant="on-dark" disabled className="!px-4 !py-2">
-              Download PDF (coming soon)
-            </SitheloButton>
+            {isInstitutionViewer && (isShortlisted || detail.is_published) && (
+              <form action={toggleShortlistAction}>
+                <input type="hidden" name="passport_id" value={id} />
+                <input type="hidden" name="intent" value={isShortlisted ? "remove" : "add"} />
+                <SubmitButton
+                  className={`${isShortlisted ? "btn-on-dark-ghost" : "btn-on-dark"} !px-4 !py-2`}
+                  pendingLabel={isShortlisted ? "Removing…" : "Adding…"}
+                >
+                  {isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
+                </SubmitButton>
+              </form>
+            )}
           </div>
         </div>
 
@@ -201,8 +256,8 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
       {journey && (
         <div className="rule border-t pt-10 mb-10">
           <div className="flex items-baseline justify-between mb-6">
-            <h2 className="eyebrow">Your current entrepreneurial journey</h2>
-            <SitheloButton href="/entrepreneur/journey" variant="ghost" className="!px-4 !py-2">View full journey →</SitheloButton>
+            <h2 className="eyebrow">{isOwner ? "Your current entrepreneurial journey" : "Owner's current entrepreneurial journey"}</h2>
+            {isOwner && <SitheloButton href="/entrepreneur/journey" variant="ghost" className="!px-4 !py-2">View full journey →</SitheloButton>}
           </div>
           <div className="mb-4">
             <span className="text-2xl font-display font-medium text-navy">
@@ -220,7 +275,7 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
           </div>
           {journey.nextMoves.length > 0 && (
             <div className="mb-6">
-              <div className="text-xs text-ink-500 mb-2">Your next moves</div>
+              <div className="text-xs text-ink-500 mb-2">{isOwner ? "Your next moves" : "Next moves"}</div>
               <ol className="space-y-1.5">
                 {journey.nextMoves.map((m, i) => <li key={i} className="text-sm text-ink-600">{i + 1}. {m}</li>)}
               </ol>
@@ -245,7 +300,7 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
               011/015/019). The upload route re-checks passport
               ownership itself and returns 403 to anyone but the actual
               owner, so this is UX convenience, not the real gate. */}
-          <DocumentViewer passportId={id} canUpload={showOwnerAdminData} />
+          <DocumentViewer passportId={id} canUpload={isOwner} />
         </div>
 
         {showOwnerAdminData && (
@@ -256,7 +311,7 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
                 {activity.map((a) => (
                   <div key={a.id} className="text-sm border-t border-line pt-3 first:border-t-0 first:pt-0">
                     <div className="text-navy">{a.description}</div>
-                    <div className="text-xs text-ink-500 mt-0.5">{new Date(a.created_at).toLocaleDateString("en-ZA")}</div>
+                    <div className="text-xs text-ink-500 mt-0.5">{formatDate(a.created_at)}</div>
                   </div>
                 ))}
               </div>
@@ -286,7 +341,7 @@ export default async function PassportPage({ params }: { params: Promise<{ id: s
       <p className="text-xs text-ink-500 text-center mt-14 pb-6">
         Verification status shown above reflects information currently reviewed through Sithelo, not an automatic check against CIPC, SARS, CIDB, or B-BBEE systems. Sithelo connects institutions with businesses that have submitted this information for review.
       </p>
-    </main>
+    </PortalShell>
   );
 }
 

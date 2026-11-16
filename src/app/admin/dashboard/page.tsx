@@ -4,11 +4,6 @@ import { PortalShell } from "@/components/ui/PortalShell";
 import { SitheloStatus } from "@/components/ui/sithelo";
 import { computeEcosystemInsights, type SnapshotSummary } from "@/lib/ecosystem/insights";
 
-const NAV_ITEMS = [
-  { label: "Overview", href: "/admin/dashboard", active: true },
-  { label: "Verification Queue", href: "/admin/verification" },
-  { label: "Institution Approvals", href: "/admin/institutions" },
-];
 
 export default async function AdminDashboard() {
   const { profile } = await requireAdmin();
@@ -54,7 +49,7 @@ export default async function AdminDashboard() {
   const insights = computeEcosystemInsights(summaries);
 
   return (
-    <PortalShell portalLabel="Admin" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Super Admin">
+    <PortalShell portal="admin" userName={profile.full_name}>
       <div className="mb-10">
         <div className="eyebrow mb-3">Admin</div>
         <h1 className="text-display-lg font-display font-medium text-navy leading-tight">Overview</h1>

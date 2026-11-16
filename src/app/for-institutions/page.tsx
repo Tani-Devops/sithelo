@@ -33,8 +33,9 @@ export default function ForInstitutionsPage() {
           <SitheloButton href="/register?role=institution">Register your institution</SitheloButton>
         </div>
         <HeroPhoto
-          src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80"
-          alt="Civil engineer at a construction site"
+          src="/images/engineer.jpg"
+          alt="An electrical contractor in a hard hat standing beside a distribution board"
+          caption="Photo: Unsplash"
         />
       </section>
 

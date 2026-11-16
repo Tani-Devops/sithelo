@@ -1,3 +1,4 @@
+import { formatRand } from "@/lib/format";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requireEntrepreneur } from "@/lib/auth/guards";
@@ -40,15 +41,9 @@ export default async function OpportunitiesPage() {
     : { data: [] };
   const appliedIds = new Set((myApplications ?? []).map((a) => a.opportunity_id));
 
-  const NAV_ITEMS = [
-    { label: "Home", href: "/entrepreneur/dashboard" },
-    { label: "Business Passport", href: "/entrepreneur/business" },
-    { label: "My Journey", href: "/entrepreneur/journey" },
-    { label: "Opportunities", href: "/entrepreneur/opportunities", active: true },
-  ];
 
   return (
-    <PortalShell portalLabel="Entrepreneur" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Entrepreneur">
+    <PortalShell portal="entrepreneur" userName={profile.full_name}>
       <div className="mb-10">
         <div className="eyebrow mb-3">Opportunities</div>
         <h1 className="text-display-lg font-display font-medium text-navy leading-tight">Real opportunities, matched to real businesses.</h1>
@@ -95,7 +90,7 @@ export default async function OpportunitiesPage() {
                 <div className="flex items-center md:justify-end">
                   {opp.value_estimate ? (
                     <span className="text-lg font-display font-medium text-navy whitespace-nowrap">
-                      R{(opp.value_estimate / 1000000).toFixed(1)}M
+                      {formatRand(opp.value_estimate)}
                     </span>
                   ) : (
                     <span className="btn-text">View →</span>

@@ -100,7 +100,10 @@ export function SitheloMetric({ label, value, sublabel }: { label: string; value
 
 // Progress ring — the signature element: verification %, trust score,
 // profile completeness. Sky-to-cobalt gradient stroke on navy.
-export function SitheloRing({ value, max = 100, size = 96, label, sublabel }: { value: number; max?: number; size?: number; label?: string; sublabel?: string }) {
+// `surface="light"` for use on ivory/white backgrounds — the default
+// white text and track are only legible on navy.
+export function SitheloRing({ value, max = 100, size = 96, label, sublabel, surface = "dark" }: { value: number; max?: number; size?: number; label?: string; sublabel?: string; surface?: "dark" | "light" }) {
+  const onLight = surface === "light";
   const pct = Math.max(0, Math.min(1, value / max));
   const r = (size - 10) / 2;
   const circumference = 2 * Math.PI * r;
@@ -115,7 +118,7 @@ export function SitheloRing({ value, max = 100, size = 96, label, sublabel }: { 
             <stop offset="100%" stopColor="#0B1D33" />
           </linearGradient>
         </defs>
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(255,255,255,0.14)" strokeWidth="7" fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke={onLight ? "rgba(11,29,51,0.10)" : "rgba(255,255,255,0.14)"} strokeWidth="7" fill="none" />
         <circle
           cx={size / 2} cy={size / 2} r={r}
           stroke={`url(#${gradId})`} strokeWidth="7" fill="none"
@@ -123,8 +126,8 @@ export function SitheloRing({ value, max = 100, size = 96, label, sublabel }: { 
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display font-medium text-white" style={{ fontSize: size * 0.24 }}>{label ?? value}</span>
-        {sublabel && <span className="text-white/60" style={{ fontSize: size * 0.1 }}>{sublabel}</span>}
+        <span className={`font-display font-medium ${onLight ? "text-navy" : "text-white"}`} style={{ fontSize: size * 0.24 }}>{label ?? value}</span>
+        {sublabel && <span className={onLight ? "text-ink-500" : "text-white/60"} style={{ fontSize: size * 0.1 }}>{sublabel}</span>}
       </div>
     </div>
   );
@@ -161,28 +164,16 @@ export function SitheloErrorState({ title = "Something went wrong", body = "Plea
 
 // ---------- Photo frame ----------
 
-// Used for the marketing hero photos (for-entrepreneurs, for-institutions).
-// A plain rounded-rectangle photo reads as a hard sticker sitting on top of
-// the page; fading the edges with a mask lets the ivory/soft page
-// background show through at the border so the photo feels embedded in the
-// page rather than pasted on top of it.
-export function HeroPhoto({ src, alt }: { src: string; alt: string }) {
-  const fade =
-    "radial-gradient(ellipse 78% 82% at center, black 62%, transparent 100%)";
+// Marketing page photo (for-entrepreneurs, for-institutions): a plain
+// framed image with an honest caption, matching the landing page.
+export function HeroPhoto({ src, alt, caption }: { src: string; alt: string; caption?: string }) {
   return (
-    <div className="relative h-[360px] md:h-[440px]">
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes="(min-width: 768px) 40vw, 100vw"
-        className="object-cover rounded-card"
-        style={{
-          maskImage: fade,
-          WebkitMaskImage: fade,
-        }}
-      />
-    </div>
+    <figure>
+      <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-navy-900">
+        <Image src={src} alt={alt} fill priority sizes="(min-width: 768px) 45vw, 100vw" className="object-cover" />
+      </div>
+      {caption && <figcaption className="text-xs text-ink-500 mt-3">{caption}</figcaption>}
+    </figure>
   );
 }
 
@@ -194,7 +185,7 @@ export function SitheloLogo({ height = 40, variant = "default" }: { height?: num
       alt="Sithelo"
       width={height * 2.6}
       height={height}
-      style={{ height, width: "auto", filter: variant === "light" ? "brightness(0) invert(1)" : undefined }}
+      style={{ height, width: "auto", maxWidth: "none", filter: variant === "light" ? "brightness(0) invert(1)" : undefined }}
       priority
     />
   );

@@ -17,7 +17,7 @@ const securityHeaders = [
       "default-src 'self'",
       `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co",
+      "img-src 'self' data: blob: https://*.supabase.co",
       "font-src 'self'",
       `connect-src 'self' https://*.supabase.co wss://*.supabase.co${isDev ? " ws://localhost:*" : ""}`,
       "frame-ancestors 'none'",
@@ -30,9 +30,10 @@ const securityHeaders = [
 
 const nextConfig = {
   poweredByHeader: false,
+  // Stop `next dev` from writing an AGENTS.md into the repo root.
+  agentRules: false,
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "*.supabase.co" },
     ],
   },

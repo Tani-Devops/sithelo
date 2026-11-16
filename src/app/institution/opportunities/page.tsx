@@ -13,12 +13,6 @@ import { SitheloEmptyState, SitheloStatus, SitheloButton } from "@/components/ui
 // rows.
 // ====================================================================
 
-const NAV_ITEMS = [
-  { label: "Home", href: "/institution/dashboard" },
-  { label: "Discover Businesses", href: "/institution/search" },
-  { label: "Opportunities", href: "/institution/opportunities", active: true },
-  { label: "Applications", href: "/institution/applications" },
-];
 
 export default async function InstitutionOpportunitiesPage() {
   const { profile } = await requireInstitution();
@@ -31,7 +25,7 @@ export default async function InstitutionOpportunitiesPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Procurement Officer">
+    <PortalShell portal="institution" userName={profile.full_name}>
       <div className="mb-10 flex items-start justify-between gap-6 rule border-b pb-8">
         <div>
           <div className="eyebrow mb-3">Opportunities</div>

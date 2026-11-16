@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { Notice } from "@/components/ui/Notice";
+import { SubmitButton } from "@/components/ui/SubmitButton";
+import { humanize } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { requireInstitution } from "@/lib/auth/guards";
 import { PortalShell } from "@/components/ui/PortalShell";
@@ -39,12 +43,6 @@ import { SitheloEmptyState, SitheloStatus, SitheloButton } from "@/components/ui
 //     establishes (015). Nothing new needed for that; it's reused as-is.
 // ====================================================================
 
-const NAV_ITEMS = [
-  { label: "Home", href: "/institution/dashboard" },
-  { label: "Discover Businesses", href: "/institution/search" },
-  { label: "Opportunities", href: "/institution/opportunities" },
-  { label: "Applications", href: "/institution/applications", active: true },
-];
 
 const STATUS_FILTERS = ["all", "submitted", "under_review", "shortlisted", "awarded", "rejected", "withdrawn"] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
@@ -70,18 +68,31 @@ async function updateStatusAction(formData: FormData) {
   // back to opportunities.institution_id = the caller's own. A forged
   // application_id belonging to another institution's opportunity is
   // rejected by RLS, not by this check.
-  if (!profile.institution_id) return;
+  if (!profile.institution_id) redirect("/institution/applications?error=failed");
 
-  await supabase.from("applications").update({ status: nextStatus }).eq("id", applicationId);
+  // .select() so a write RLS silently filtered to zero rows is reported
+  // as a failure instead of looking like success.
+  const { data: updated } = await supabase
+    .from("applications")
+    .update({ status: nextStatus })
+    .eq("id", applicationId)
+    .select("id");
 
   revalidatePath("/institution/applications");
   if (opportunityId) revalidatePath(`/institution/opportunities/${opportunityId}`);
+  redirect(`/institution/applications?${updated?.length ? "notice=status_updated" : "error=failed"}`);
 }
+
+// Decisions an applicant is told about get a confirmation step.
+const CONFIRM: Record<string, string> = {
+  awarded: "Award this opportunity to this business? They will see the award straight away.",
+  rejected: "Reject this application? This can't be undone.",
+};
 
 export default async function InstitutionApplicationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; opportunity?: string }>;
+  searchParams: Promise<{ status?: string; opportunity?: string; notice?: string; error?: string }>;
 }) {
   const { profile } = await requireInstitution();
   const supabase = await createClient();
@@ -127,7 +138,7 @@ export default async function InstitutionApplicationsPage({
   }
 
   return (
-    <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Procurement Officer">
+    <PortalShell portal="institution" userName={profile.full_name}>
       <div className="mb-8 rule border-b pb-8">
         <div className="eyebrow mb-3">Applications</div>
         <h1 className="text-display-lg font-display font-medium text-navy leading-tight">
@@ -135,6 +146,7 @@ export default async function InstitutionApplicationsPage({
         </h1>
       </div>
 
+      <Notice notice={params.notice} error={params.error} />
       <div className="flex flex-wrap gap-2 mb-8">
         {STATUS_FILTERS.map((s) => (
           <Link
@@ -144,7 +156,7 @@ export default async function InstitutionApplicationsPage({
               statusFilter === s ? "bg-navy text-white border-navy" : "border-line text-ink-600 hover:border-navy/40"
             }`}
           >
-            {s === "all" ? "All" : s.replace(/_/g, " ")}
+            {s === "all" ? "All" : humanize(s)}
           </Link>
         ))}
       </div>
@@ -204,12 +216,19 @@ export default async function InstitutionApplicationsPage({
                             <input type="hidden" name="application_id" value={app.id} />
                             <input type="hidden" name="next_status" value={next} />
                             <input type="hidden" name="opportunity_id" value={app.opportunity_id} />
-                            <button
-                              type="submit"
-                              className="text-xs px-3 py-1.5 rounded-full border border-line text-ink-600 hover:border-navy/40 hover:text-navy transition-colors capitalize"
+                            <SubmitButton
+                              confirm={CONFIRM[next]}
+                              pendingLabel="Saving…"
+                              className={`text-xs px-3 py-1.5 rounded-sm border transition-colors ${
+                                next === "rejected"
+                                  ? "border-line text-red-600 hover:border-red-600/40"
+                                  : next === "awarded"
+                                    ? "border-navy bg-navy text-white hover:bg-navy-700"
+                                    : "border-line text-ink-600 hover:border-navy/40 hover:text-navy"
+                              }`}
                             >
-                              {next.replace(/_/g, " ")}
-                            </button>
+                              {next === "awarded" ? "Award" : next === "rejected" ? "Reject" : humanize(next)}
+                            </SubmitButton>
                           </form>
                         ))}
                       </div>

@@ -16,12 +16,6 @@ import { SitheloBadge } from "@/components/ui/sithelo";
 // by match-businesses — never fabricated here.
 // ====================================================================
 
-const NAV_ITEMS = [
-  { label: "Home", href: "/institution/dashboard" },
-  { label: "Discover Businesses", href: "/institution/search" },
-  { label: "Opportunities", href: "/institution/opportunities", active: true },
-  { label: "Applications", href: "/institution/applications" },
-];
 
 export default async function InstitutionOpportunityDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -60,7 +54,7 @@ export default async function InstitutionOpportunityDetail({ params }: { params:
     .filter((r): r is { match: typeof r.match; business: NonNullable<typeof r.business> } => Boolean(r.business));
 
   return (
-    <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Institution">
+    <PortalShell portal="institution" userName={profile.full_name}>
       <div className="mb-10 rule border-b pb-8">
         <SitheloBadge tone={opportunity.status === "active" ? "verified" : "pending"}>{opportunity.status}</SitheloBadge>
         <h1 className="text-display-lg font-display font-medium text-navy leading-tight mt-4">{opportunity.title}</h1>

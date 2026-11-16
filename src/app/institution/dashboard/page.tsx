@@ -4,12 +4,6 @@ import { requireInstitution } from "@/lib/auth/guards";
 import { PortalShell } from "@/components/ui/PortalShell";
 import { SitheloStatus, SitheloEmptyState } from "@/components/ui/sithelo";
 
-const NAV_ITEMS = [
-  { label: "Home", href: "/institution/dashboard", active: true },
-  { label: "Discover Businesses", href: "/institution/search" },
-  { label: "Opportunities", href: "/institution/opportunities" },
-  { label: "Applications", href: "/institution/applications" },
-];
 
 export default async function InstitutionDashboard() {
   const { profile } = await requireInstitution();
@@ -54,7 +48,7 @@ export default async function InstitutionDashboard() {
   const firstName = profile.full_name.split(" ")[0];
 
   return (
-    <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Procurement Officer">
+    <PortalShell portal="institution" userName={profile.full_name}>
       <div className="mb-10">
         <div className="eyebrow mb-3">Welcome back</div>
         <h1 className="text-display-lg font-display font-medium text-navy leading-tight">{firstName}.</h1>
@@ -78,13 +72,17 @@ export default async function InstitutionDashboard() {
         {[
           ["Active opportunities", activeCount ?? 0],
           ["Matches found", matchesCount ?? 0],
-          ["Shortlisted businesses", shortlistedCount ?? 0],
+          ["Shortlisted businesses", shortlistedCount ?? 0, "/institution/search?shortlisted=1"],
           ["Contracts awarded", contractsCount ?? 0],
           ["Total opportunities", opportunities?.length ?? 0],
-        ].map(([label, value], i) => (
+        ].map(([label, value, href], i) => (
           <div key={label as string} className={`py-6 pr-4 ${i > 0 ? "sm:border-l border-line sm:pl-6" : ""} ${i >= 2 ? "border-t sm:border-t-0 border-line" : ""}`}>
             <div className="text-2xl font-display font-medium text-navy">{value}</div>
-            <div className="text-eyebrow text-ink-500 mt-1.5">{label}</div>
+            {href ? (
+              <Link href={href as string} className="text-eyebrow text-blue-600 hover:text-navy mt-1.5 block">{label} →</Link>
+            ) : (
+              <div className="text-eyebrow text-ink-500 mt-1.5">{label}</div>
+            )}
           </div>
         ))}
       </div>

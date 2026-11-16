@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireEntrepreneur } from "@/lib/auth/guards";
@@ -7,6 +7,10 @@ import { SitheloBadge, SitheloButton } from "@/components/ui/sithelo";
 import { assembleMatchableEntrepreneur } from "@/lib/matching/assemble";
 import { readOpportunityRequirements } from "@/lib/matching/requirements";
 import { scoreOpportunity } from "@/lib/matching/score";
+import { isUuid } from "@/lib/documents/rules";
+import { formatRand } from "@/lib/format";
+import { Notice } from "@/components/ui/Notice";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 // ====================================================================
 // /entrepreneur/opportunities/[id]
@@ -38,6 +42,8 @@ const REQUIREMENT_LABELS: Record<string, string> = {
 async function applyAction(formData: FormData) {
   "use server";
   const opportunityId = String(formData.get("opportunity_id"));
+  if (!isUuid(opportunityId)) redirect("/entrepreneur/opportunities");
+  const back = (q: string) => redirect(`/entrepreneur/opportunities/${opportunityId}?${q}`);
   const coverNote = String(formData.get("cover_note") ?? "").slice(0, 2000);
 
   const { userId } = await requireEntrepreneur();
@@ -49,7 +55,7 @@ async function applyAction(formData: FormData) {
     .eq("owner_id", userId)
     .maybeSingle();
 
-  if (!passport) return; // no passport yet — UI already gates this, RLS would reject anyway
+  if (!passport) back("error=no_passport"); // UI already gates this, RLS would reject anyway
 
   // Business-rule check in addition to RLS: only ACTIVE opportunities
   // accept applications. The page's own read is RLS-filtered to active
@@ -63,38 +69,55 @@ async function applyAction(formData: FormData) {
     .eq("status", "active")
     .maybeSingle();
 
-  if (!opportunity) return;
+  if (!opportunity) back("error=not_open");
 
   // RLS ("applications: entrepreneur insert own") is the actual
   // authority here — it independently re-checks passport ownership,
   // forces status='submitted', and forbids reviewed_by/reviewed_at.
   // The unique(opportunity_id, passport_id) constraint prevents
   // duplicate applications; a 23505 here just means "already applied".
-  await supabase.from("applications").insert({
+  const { error } = await supabase.from("applications").insert({
     opportunity_id: opportunityId,
-    passport_id: passport.id,
+    passport_id: passport!.id,
     cover_note: coverNote || null,
   });
 
   revalidatePath(`/entrepreneur/opportunities/${opportunityId}`);
+  revalidatePath("/entrepreneur/applications");
+  if (error) back(error.code === "23505" ? "error=already_applied" : "error=failed");
+  back("notice=applied");
 }
 
 async function withdrawAction(formData: FormData) {
   "use server";
   const applicationId = String(formData.get("application_id"));
   const opportunityId = String(formData.get("opportunity_id"));
+  if (!isUuid(opportunityId)) redirect("/entrepreneur/applications");
   await requireEntrepreneur();
   const supabase = await createClient();
 
   // Owner-scoped by RLS ("applications: entrepreneur update own
   // limited") — the only transition it permits from this side is
   // -> 'withdrawn'.
-  await supabase.from("applications").update({ status: "withdrawn" }).eq("id", applicationId);
+  const { data: updated } = await supabase
+    .from("applications")
+    .update({ status: "withdrawn" })
+    .eq("id", applicationId)
+    .select("id");
   revalidatePath(`/entrepreneur/opportunities/${opportunityId}`);
+  revalidatePath("/entrepreneur/applications");
+  redirect(`/entrepreneur/opportunities/${opportunityId}?${updated?.length ? "notice=withdrawn" : "error=failed"}`);
 }
 
-export default async function OpportunityDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function OpportunityDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ notice?: string; error?: string }>;
+}) {
   const { id } = await params;
+  const { notice, error: errorKey } = await searchParams;
   const { userId, profile } = await requireEntrepreneur();
   const supabase = await createClient();
 
@@ -109,7 +132,7 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
 
   const { data: passport } = await supabase
     .from("business_passports")
-    .select("id, business_name, industry, overall_verification_status")
+    .select("id, business_name, industry, overall_verification_status, is_published")
     .eq("owner_id", userId)
     .maybeSingle();
 
@@ -149,15 +172,10 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
     : [];
   const requirementEntries = Object.entries((opportunity.requirements as Record<string, unknown>) ?? {});
 
-  const NAV_ITEMS = [
-    { label: "Home", href: "/entrepreneur/dashboard" },
-    { label: "Business Passport", href: "/entrepreneur/business" },
-    { label: "My Journey", href: "/entrepreneur/journey" },
-    { label: "Opportunities", href: "/entrepreneur/opportunities", active: true },
-  ];
 
   return (
-    <PortalShell portalLabel="Entrepreneur" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Entrepreneur">
+    <PortalShell portal="entrepreneur" userName={profile.full_name}>
+      <Notice notice={notice} error={errorKey} />
       <div className="mb-10 flex items-start justify-between gap-6 rule border-b pb-8">
         <div>
           <SitheloBadge tone="info">{OPPORTUNITY_TYPE_LABELS[opportunity.opportunity_type] ?? opportunity.opportunity_type}</SitheloBadge>
@@ -168,7 +186,7 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
         </div>
         {opportunity.value_estimate && (
           <div className="text-2xl font-display font-medium text-navy whitespace-nowrap">
-            R{(opportunity.value_estimate / 1000000).toFixed(1)}M
+            {formatRand(opportunity.value_estimate)}
           </div>
         )}
       </div>
@@ -215,7 +233,13 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
                 <form action={withdrawAction} className="mt-4">
                   <input type="hidden" name="application_id" value={application.id} />
                   <input type="hidden" name="opportunity_id" value={opportunity.id} />
-                  <button type="submit" className="text-sm text-red-600 font-medium">Withdraw application</button>
+                  <SubmitButton
+                    className="text-sm text-red-600 font-medium"
+                    pendingLabel="Withdrawing…"
+                    confirm="Withdraw this application? You won't be able to re-apply to this opportunity."
+                  >
+                    Withdraw application
+                  </SubmitButton>
                 </form>
               )}
             </div>
@@ -228,11 +252,16 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
                   <div className="text-xs text-ink-500 block mb-1">Business profile being submitted</div>
                   <div className="text-sm font-medium text-navy">{passport.business_name}</div>
                 </div>
+                {!passport.is_published && (
+                  <p className="text-sm text-ink-600 border-l-2 border-line pl-3">
+                    Your Business Passport isn&apos;t public yet. Applying shares it with this institution only, including your contact details and documents.
+                  </p>
+                )}
                 <div>
                   <label htmlFor="cover_note" className="text-xs text-ink-500 block mb-1">Cover note (optional)</label>
                   <textarea id="cover_note" name="cover_note" rows={4} className="input" />
                 </div>
-                <SitheloButton type="submit">Apply</SitheloButton>
+                <SubmitButton pendingLabel="Submitting…">Submit application</SubmitButton>
               </form>
             </div>
           )}

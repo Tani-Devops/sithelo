@@ -103,12 +103,6 @@ export default async function NewOpportunityPage({ searchParams }: { searchParam
   const { profile } = await requireInstitution();
   const supabase = await createClient();
 
-  const NAV_ITEMS = [
-    { label: "Home", href: "/institution/dashboard" },
-    { label: "Discover Businesses", href: "/institution/search" },
-    { label: "Opportunities", href: "/institution/opportunities", active: true },
-    { label: "Applications", href: "/institution/applications" },
-  ];
 
   let approvalStatus: string | null = null;
   if (profile.role === "institution" && profile.institution_id) {
@@ -122,7 +116,7 @@ export default async function NewOpportunityPage({ searchParams }: { searchParam
 
   if (approvalStatus && approvalStatus !== "approved") {
     return (
-      <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Institution">
+      <PortalShell portal="institution" userName={profile.full_name}>
         <div className="mb-10 rule border-b pb-8">
           <div className="eyebrow mb-3">Institution</div>
           <h1 className="text-display-lg font-display font-medium text-navy leading-tight">Post an opportunity</h1>
@@ -149,7 +143,7 @@ export default async function NewOpportunityPage({ searchParams }: { searchParam
   }
 
   return (
-    <PortalShell portalLabel="Institution" navItems={NAV_ITEMS} userName={profile.full_name} userRole="Institution">
+    <PortalShell portal="institution" userName={profile.full_name}>
       <div className="mb-10 rule border-b pb-8">
         <div className="eyebrow mb-3">Institution</div>
         <h1 className="text-display-lg font-display font-medium text-navy leading-tight">Post an opportunity</h1>

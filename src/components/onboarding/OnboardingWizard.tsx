@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SitheloButton } from "@/components/ui/sithelo";
 
@@ -56,6 +56,7 @@ const GOAL_OPTIONS = [
 ];
 
 const STEPS = ["You", "Your business", "How it's going", "Your reality", "Your challenge", "Your goal"];
+const DRAFT_KEY = "sithelo:onboarding-draft";
 
 interface FormState {
   province: string;
@@ -105,6 +106,35 @@ export function OnboardingWizard() {
   const [form, setForm] = useState<FormState>(initialState);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [restored, setRestored] = useState(false);
+
+  // Draft survives a refresh or a dropped connection. sessionStorage, not
+  // localStorage: the answers include household and income detail, so the
+  // draft must not outlive the tab on a shared device. Storage can be
+  // unavailable (private mode, blocked site data), so every access is guarded.
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const draft = JSON.parse(saved) as { step?: number; form?: Partial<FormState> };
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time restore after hydration
+        setForm({ ...initialState, ...(draft.form ?? {}) });
+        setStep(Math.min(Math.max(Number(draft.step) || 0, 0), STEPS.length - 1));
+      }
+    } catch {
+      // Ignore: an unreadable draft just means starting fresh.
+    }
+    setRestored(true);
+  }, []);
+
+  useEffect(() => {
+    if (!restored) return;
+    try {
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ step, form }));
+    } catch {
+      // Ignore: saving the draft is a convenience only.
+    }
+  }, [restored, step, form]);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -151,6 +181,11 @@ export function OnboardingWizard() {
         setError(data.error ?? "Something went wrong. Please try again.");
         setSubmitting(false);
         return;
+      }
+      try {
+        sessionStorage.removeItem(DRAFT_KEY);
+      } catch {
+        // Ignore.
       }
       router.push("/entrepreneur/onboarding/complete");
     } catch {

@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireEntrepreneur } from "@/lib/auth/guards";
 import { SitheloButton, SitheloLogo } from "@/components/ui/sithelo";
+import { refreshPassportScores } from "@/lib/passport/refreshScores";
 
 // ====================================================================
 // /entrepreneur/business/edit
@@ -76,7 +77,7 @@ async function updatePassportAction(formData: FormData) {
   // Explicit column list, matching exactly what migration 021 grants
   // `authenticated` on UPDATE — nothing scored/verification-related is
   // in this object, on purpose.
-  await supabase
+  const { data: updated } = await supabase
     .from("business_passports")
     .update({
       business_name: clean(formData.get("business_name")),
@@ -98,10 +99,20 @@ async function updatePassportAction(formData: FormData) {
       business_phone: clean(formData.get("business_phone")),
     })
     .eq("id", passportId)
-    .eq("owner_id", userId); // belt-and-braces; RLS ("passports: owner full access") is the real authority
+    .eq("owner_id", userId) // belt-and-braces; RLS ("passports: owner full access") is the real authority
+    .select("id");
+
+  // Only when a row the caller owns was actually updated: the service-role
+  // refresh must never run against a passport id taken from the form alone.
+  // Recomputes profile completeness, trust score and opportunity matches;
+  // the same write is what lets the auto-publish trigger (migration 035)
+  // see a newly completed profile.
+  if (updated && updated.length > 0) {
+    await refreshPassportScores(passportId);
+  }
 
   revalidatePath(`/passport/${passportId}`);
-  redirect(`/passport/${passportId}`);
+  redirect(`/passport/${passportId}?${updated && updated.length > 0 ? "notice=saved" : "error=failed"}`);
 }
 
 async function addCapabilityAction(formData: FormData) {

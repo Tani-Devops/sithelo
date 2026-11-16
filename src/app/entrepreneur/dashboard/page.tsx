@@ -4,12 +4,6 @@ import { requireEntrepreneur } from "@/lib/auth/guards";
 import { PortalShell } from "@/components/ui/PortalShell";
 import { SitheloButton, SitheloEmptyState, SitheloBadge } from "@/components/ui/sithelo";
 
-const NAV_ITEMS = [
-  { label: "Home", href: "/entrepreneur/dashboard", active: true },
-  { label: "Business Passport", href: "/entrepreneur/business" },
-  { label: "My Journey", href: "/entrepreneur/journey" },
-  { label: "Opportunities", href: "/entrepreneur/opportunities" },
-];
 
 function greeting() {
   const h = new Date().getHours();
@@ -28,7 +22,7 @@ export default async function EntrepreneurDashboard() {
   // pass's fix — only the presentation below changed for the rebrand.
   const { data: passport } = await supabase
     .from("business_passports")
-    .select("id, trust_score, overall_verification_status, business_name, industry, municipality, province, years_trading")
+    .select("id, trust_score, overall_verification_status, business_name, industry, municipality, province, years_trading, is_published")
     .eq("owner_id", user_id)
     .maybeSingle();
 
@@ -40,6 +34,11 @@ export default async function EntrepreneurDashboard() {
         .order("match_score", { ascending: false })
         .limit(3)
     : { data: [] };
+
+  // The cards below show the top 3; the headline figure is the real total.
+  const { count: matchCount } = passport
+    ? await supabase.from("matches").select("id", { count: "exact", head: true }).eq("passport_id", passport.id)
+    : { count: 0 };
 
   const { data: applications } = passport
     ? await supabase.from("applications").select("id, status").eq("passport_id", passport.id)
@@ -88,11 +87,15 @@ export default async function EntrepreneurDashboard() {
   };
 
   return (
-    <PortalShell portalLabel="Entrepreneur" navItems={NAV_ITEMS} userName={profile?.full_name ?? "—"} userRole="Entrepreneur">
+    <PortalShell portal="entrepreneur" userName={profile?.full_name ?? "—"}>
       <div className="mb-10">
         <div className="eyebrow mb-3">{greeting()}</div>
         <h1 className="text-display-lg font-display font-medium text-navy leading-tight">
-          {firstName}, {passport ? "your business is ready for its next opportunity." : "let\u2019s get your business ready."}
+          {firstName}, {!passport
+            ? "let\u2019s get your business ready."
+            : passport.is_published
+              ? "your business is visible to institutions."
+              : "let\u2019s get your business seen."}
         </h1>
       </div>
 
@@ -162,13 +165,29 @@ export default async function EntrepreneurDashboard() {
               </div>
               <div>
                 <div className="text-eyebrow text-ink-500 mb-2">Opportunities matched</div>
-                <div className="text-2xl font-display font-medium text-navy">{matches?.length ?? 0}</div>
+                <div className="text-2xl font-display font-medium text-navy">{matchCount ?? 0}</div>
               </div>
               <div>
-                <div className="text-eyebrow text-ink-500 mb-2">Applications in progress</div>
+                <Link href="/entrepreneur/applications" className="text-eyebrow text-blue-600 hover:text-navy mb-2 block">Applications in progress →</Link>
                 <div className="text-2xl font-display font-medium text-navy">{activeApplications}</div>
               </div>
             </div>
+          </div>
+
+          {/* Publication is automatic (migration 035) — say where the
+              business stands and exactly what gets it over the line. */}
+          <div className="border-l-2 border-line pl-5 mb-10">
+            <div className="text-eyebrow text-ink-500 mb-2">Visibility</div>
+            {passport.is_published ? (
+              <p className="text-sm text-ink-600 max-w-xl">
+                <span className="font-medium text-navy">Visible to institutions.</span> Your Business Passport appears in institution search and is matched to new opportunities.
+              </p>
+            ) : (
+              <p className="text-sm text-ink-600 max-w-xl">
+                <span className="font-medium text-navy">Not yet visible to institutions.</span> Your Business Passport is published automatically once it has an industry, province and description, and one of your documents has been verified.{" "}
+                <Link href={`/passport/${passport.id}`} className="btn-text inline">Upload a document →</Link>
+              </p>
+            )}
           </div>
 
           <div className="flex items-baseline justify-between mb-3">
