@@ -114,9 +114,15 @@ export const auditLogSchema = z.object({
   metadata: z.record(z.unknown()).nullable(),
 }).strict();
 
+// Exactly one of the two: match one opportunity against every published
+// passport, or one passport against every active opportunity.
 export const matchBusinessesSchema = z.object({
-  opportunity_id: uuid,
-}).strict();
+  opportunity_id: uuid.optional(),
+  passport_id: uuid.optional(),
+}).strict().refine(
+  (v) => (v.opportunity_id ? 1 : 0) + (v.passport_id ? 1 : 0) === 1,
+  "Provide exactly one of opportunity_id or passport_id"
+);
 
 export const calculateTrustScoreSchema = z.object({
   passport_id: uuid,

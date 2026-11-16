@@ -124,7 +124,26 @@ Deno.serve(async (req) => {
       .eq("id", passport_id);
     if (updateErr) throw updateErr;
 
-    await supabase.from("trust_score_history").insert({ passport_id, score: trustScore });
+    // History records movement only — this function now also runs after
+    // profile edits, which usually leave the score unchanged.
+    if (passport.trust_score !== trustScore) {
+      await supabase.from("trust_score_history").insert({ passport_id, score: trustScore });
+    }
+
+    // Re-match against every active opportunity. Matching used to run
+    // only when an opportunity was created, so a business that published
+    // or improved afterwards was never matched to it. A matching failure
+    // must not fail the score update that already succeeded.
+    try {
+      const matchRes = await fetch(`${supabaseUrl}/functions/v1/match-businesses`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${serviceRoleKey}` },
+        body: JSON.stringify({ passport_id }),
+      });
+      if (!matchRes.ok) console.error(`calculate-trust-score: re-match failed with status ${matchRes.status}`);
+    } catch (matchErr) {
+      console.error("calculate-trust-score: re-match request failed:", matchErr);
+    }
 
     return json({
       passport_id,

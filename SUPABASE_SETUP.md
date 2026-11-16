@@ -96,6 +96,11 @@ This is the exact misconfiguration that broke `signUp()` in production on an ear
 
 Before going live, in the Supabase dashboard:
 
+- **Auth > Providers > Email > Confirm email**: turn this **on**. With it off, anyone can register with an address they don't own. The register page already handles it: when no session comes back from sign-up it sends the user to `/register/check-email`.
+- **Password reset**: `/forgot-password` sends the reset email and the link returns through `/auth/callback?next=/reset-password`. It only works if the `/auth/callback` redirect URLs in step 7 are allow-listed for every domain you serve from.
+- **Migrations 036–037 + functions**: apply both in order (036 must commit before 037 runs), then redeploy `verify-business-passport`. After 037, an application shares an unpublished passport with the institution applied to.
+- **Migration 035 + functions**: apply `035_close_the_verification_and_publication_loop.sql`, then redeploy `match-businesses` and `calculate-trust-score` (both changed with it). The migration adds a unique index on `verifications (passport_id, verification_type)` and will stop if duplicate rows already exist — remove duplicates first if it does.
+
 - **Auth > Providers > Email**: enable CAPTCHA protection (hCaptcha/Turnstile). This is the effective rate limiter for public register/login, because those calls go directly from the browser to Supabase Auth and never touch the Next.js app — page-level rate limiting would be theater. Supabase Auth also applies built-in per-email rate limits; leave them at defaults.
 - **Auth > URL Configuration**: confirm Site URL and redirect URLs (step 7 above).
 - **Database**: `supabase db push` to apply migrations 032–034 (institution read-surface narrowing, client-write locks, onboarding role guard), then run the pgTAP suite (`supabase test db`, see `SECURITY_TESTS.md`) against a staging project before production.

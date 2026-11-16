@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
 
     const { data: passport } = await supabase
       .from("business_passports")
-      .select("owner_id, is_published")
+      .select("owner_id")
       .eq("id", passport_id)
       .single();
     if (!passport) return json({ error: "Passport not found" }, 404);
@@ -62,7 +62,9 @@ Deno.serve(async (req) => {
     const isAdmin = auth.user.role === "admin";
 
     let isAuthorizedInstitution = false;
-    if (auth.user.role === "institution" && auth.user.institutionId && passport.is_published) {
+    // Not conditional on publication: an application shares an unpublished
+    // passport with that institution (migration 037).
+    if (auth.user.role === "institution" && auth.user.institutionId) {
       const { data: hasRelationship } = await supabase.rpc("has_passport_relationship", {
         p_institution_id: auth.user.institutionId,
         p_passport_id: passport_id,
