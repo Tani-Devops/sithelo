@@ -1,72 +1,39 @@
 // ====================================================================
 // POST /api/documents/upload
 //
-// The ONLY sanctioned way to add a document to the private
-// passport-documents bucket + the `documents` table. Mirrors the
-// authorization shape of /api/documents/[id]/signed-url: authenticate
-// with the session-bound client, then do every real check against the
-// service client ourselves rather than leaning on RLS/grants alone —
-// this route is the boundary that matters if something upstream has a
-// bug (see guards.ts's four-layer model).
+// Step 2 of 2 for adding a passport document (step 1 is
+// /api/documents/upload-url, which hands out a signed upload URL for a
+// server-chosen path). By the time this runs the bytes are already in
+// the private passport-documents bucket; this route decides whether
+// they may stay.
 //
 // Flow: authenticate -> rate limit -> validate inputs -> confirm the
-// caller owns the target passport -> upload the file -> insert the
-// metadata row -> audit-log -> return the new row.
+// caller owns the passport AND the path is inside that passport's folder
+// -> read the stored object -> check size and sniff the real content
+// type -> insert the metadata row -> audit-log. Anything that fails after
+// the object exists removes the object, so a rejected file never lingers.
+//
+// Body: { passport_id, document_type, path, file_name, issued_date?, expiry_date? }
 //
 // `status` is never accepted from the client and never included in the
-// insert. Migration 005/021 revoke INSERT/UPDATE on `documents.status`
-// from `authenticated` at the grant level specifically so a document
-// always starts `pending_review` regardless of what a client sends —
-// this route honors that same intent even though the service client
-// technically bypasses the grant.
+// insert, so a document always starts 'pending_review'. The insert fires
+// trg_document_requests_verification (migration 035), which opens the
+// verification request the admin queue reviews.
 // ====================================================================
 import { NextResponse } from "next/server";
-import { randomUUID } from "crypto";
 import { requireAuth } from "@/lib/auth/guards";
 import { enforceRateLimit } from "@/lib/auth/rateLimit";
 import { createServiceClient } from "@/lib/supabase/service";
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // matches passport-documents bucket file_size_limit
-const ALLOWED_MIME_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
-
-// Server-side content sniffing: the client-declared MIME type is checked
-// as a first pass but never trusted for what actually gets stored — a
-// browser only knows what the uploader's OS/UA said. Without this, an
-// HTML/JS payload labelled `application/pdf` would pass the allow-list,
-// be stored in the private bucket, and later be rendered by a sniffing
-// browser from the signed URL (stored-XSS-in-document-pipeline).
-function sniffContentType(bytes: Uint8Array): string | null {
-  // PDF header: "%PDF-"
-  if (bytes.length >= 5 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46 && bytes[4] === 0x2d) {
-    return "application/pdf";
-  }
-  // PNG signature: 89 50 4E 47 0D 0A 1A 0A
-  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47
-    && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a) {
-    return "image/png";
-  }
-  // JPEG SOI marker: FF D8 FF
-  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
-    return "image/jpeg";
-  }
-  return null;
-}
-
-// Kept in sync with the labels DocumentViewer/passport page display.
-// Free-text at the DB level, but constrained here so every document in
-// the system is one of a known set the admin verification screen can
-// reason about.
-const ALLOWED_DOCUMENT_TYPES = new Set([
-  "cipc_certificate",
-  "tax_clearance",
-  "vat_certificate",
-  "bbbee_certificate",
-  "cidb_certificate",
-  "insurance_certificate",
-  "bank_confirmation",
-  "municipal_supplier_certificate",
-  "other",
-]);
+import {
+  ALLOWED_DOCUMENT_TYPES,
+  DOCUMENTS_BUCKET,
+  EXTENSION_FOR_TYPE,
+  MAX_FILE_SIZE,
+  cleanDate,
+  isOwnStoragePath,
+  isUuid,
+  sniffContentType,
+} from "@/lib/documents/rules";
 
 export async function POST(req: Request) {
   const { userId } = await requireAuth();
@@ -74,84 +41,66 @@ export async function POST(req: Request) {
 
   const limitResponse = await enforceRateLimit(
     supabase,
-    `documents-upload:${userId}`,
-    20,
+    `documents-upload-complete:${userId}`,
+    40,
     3600,
     "Too many uploads. Please wait a moment and try again."
   );
   if (limitResponse) return limitResponse;
 
-  let formData: FormData;
+  let body: Record<string, unknown>;
   try {
-    formData = await req.formData();
+    body = await req.json();
   } catch {
-    return NextResponse.json({ error: "Invalid form data." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  const file = formData.get("file");
-  const passportId = formData.get("passport_id");
-  const documentType = formData.get("document_type");
-  const issuedDate = formData.get("issued_date");
-  const expiryDate = formData.get("expiry_date");
+  const passportId = body.passport_id;
+  const documentType = body.document_type;
+  const path = body.path;
+  const fileName = typeof body.file_name === "string" ? body.file_name.trim().slice(0, 255) : "";
 
-  if (!(file instanceof File)) {
-    return NextResponse.json({ error: "No file was provided." }, { status: 400 });
-  }
-  if (typeof passportId !== "string" || !passportId) {
+  if (!isUuid(passportId)) {
     return NextResponse.json({ error: "Missing passport_id." }, { status: 400 });
   }
   if (typeof documentType !== "string" || !ALLOWED_DOCUMENT_TYPES.has(documentType)) {
     return NextResponse.json({ error: "Invalid document type." }, { status: 400 });
   }
-  if (!ALLOWED_MIME_TYPES.has(file.type)) {
-    return NextResponse.json({ error: "Only PDF, JPEG, and PNG files are accepted." }, { status: 400 });
-  }
-  if (file.size > MAX_FILE_SIZE) {
-    return NextResponse.json({ error: "File is too large. Maximum size is 10MB." }, { status: 400 });
-  }
-  if (file.size === 0) {
-    return NextResponse.json({ error: "The selected file is empty." }, { status: 400 });
+  // Checked before anything touches storage: a caller can only ever
+  // claim (or cause the removal of) an object in their own folder.
+  if (!isOwnStoragePath(path, userId, passportId)) {
+    return NextResponse.json({ error: "Invalid upload reference." }, { status: 400 });
   }
 
-  // Ownership check: the caller must own the passport they're uploading
-  // to. Institutions/admins never upload here — this route is
-  // entrepreneur-only in practice, enforced by ownership rather than
-  // role, since that's the check that actually matters.
-  const { data: passport, error: passportErr } = await supabase
+  const { data: passport } = await supabase
     .from("business_passports")
-    .select("id, owner_id")
+    .select("owner_id")
     .eq("id", passportId)
-    .single();
-
-  if (passportErr || !passport || passport.owner_id !== userId) {
+    .maybeSingle();
+  if (!passport || passport.owner_id !== userId) {
     return NextResponse.json({ error: "Not authorized to upload documents to this passport." }, { status: 403 });
   }
 
-  const arrayBuffer = await file.arrayBuffer();
-  const bytes = new Uint8Array(arrayBuffer);
-
-  // The stored content type and extension come from the BYTES, not from
-  // anything the client declared. Reject anything that isn't genuinely
-  // PDF/JPEG/PNG — including HTML/JS mislabelled as PDF.
-  const sniffedType = sniffContentType(bytes);
-  if (!sniffedType || !ALLOWED_MIME_TYPES.has(sniffedType)) {
-    return NextResponse.json(
-      { error: "The file contents do not match an accepted document type (PDF, JPEG, or PNG)." },
-      { status: 400 }
-    );
+  const { data: existing } = await supabase.from("documents").select("id").eq("file_path", path).maybeSingle();
+  if (existing) {
+    return NextResponse.json({ error: "This upload has already been saved." }, { status: 409 });
   }
-  const storedExtension = sniffedType === "application/pdf" ? "pdf" : sniffedType === "image/png" ? "png" : "jpg";
-  const storagePath = `${userId}/${passportId}/${randomUUID()}.${storedExtension}`;
 
-  const { error: uploadErr } = await supabase.storage
-    .from("passport-documents")
-    .upload(storagePath, Buffer.from(arrayBuffer), {
-      contentType: sniffedType,
-      upsert: false,
-    });
+  const discard = async (message: string, status: number) => {
+    await supabase.storage.from(DOCUMENTS_BUCKET).remove([path]);
+    return NextResponse.json({ error: message }, { status });
+  };
 
-  if (uploadErr) {
-    return NextResponse.json({ error: "Could not upload the file. Please try again." }, { status: 500 });
+  const { data: blob, error: downloadErr } = await supabase.storage.from(DOCUMENTS_BUCKET).download(path);
+  if (downloadErr || !blob) {
+    return NextResponse.json({ error: "We couldn't find the uploaded file. Please try again." }, { status: 400 });
+  }
+  if (blob.size === 0) return discard("The selected file is empty.", 400);
+  if (blob.size > MAX_FILE_SIZE) return discard("File is too large. Maximum size is 10MB.", 400);
+
+  const sniffedType = sniffContentType(new Uint8Array(await blob.slice(0, 8).arrayBuffer()));
+  if (!sniffedType || !path.toLowerCase().endsWith(`.${EXTENSION_FOR_TYPE[sniffedType]}`)) {
+    return discard("The file contents do not match an accepted document type (PDF, JPEG, or PNG).", 400);
   }
 
   const { data: document, error: insertErr } = await supabase
@@ -159,22 +108,17 @@ export async function POST(req: Request) {
     .insert({
       passport_id: passportId,
       document_type: documentType,
-      file_path: storagePath,
-      file_name: file.name,
-      issued_date: typeof issuedDate === "string" && issuedDate ? issuedDate : null,
-      expiry_date: typeof expiryDate === "string" && expiryDate ? expiryDate : null,
+      file_path: path,
+      file_name: fileName || `document.${EXTENSION_FOR_TYPE[sniffedType]}`,
+      issued_date: cleanDate(body.issued_date),
+      expiry_date: cleanDate(body.expiry_date),
       uploaded_by: userId,
     })
     .select("id, document_type, file_name, status, issued_date, expiry_date, created_at")
     .single();
 
   if (insertErr || !document) {
-    // Compensating cleanup: a file with no metadata row is invisible
-    // and harmless (nothing references its path), but a row with no
-    // file would be a broken "View" button forever. Prefer the failure
-    // mode that's silent over the one that's visibly broken.
-    await supabase.storage.from("passport-documents").remove([storagePath]);
-    return NextResponse.json({ error: "Could not save the document record. Please try again." }, { status: 500 });
+    return discard("Could not save the document record. Please try again.", 500);
   }
 
   await supabase.from("audit_logs").insert({

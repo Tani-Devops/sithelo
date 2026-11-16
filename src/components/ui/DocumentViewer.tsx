@@ -134,17 +134,44 @@ export function DocumentViewer({ passportId, canUpload = false }: { passportId: 
         return;
       }
 
-      const body = new FormData();
-      body.append("file", selectedFile);
-      body.append("passport_id", passportId);
-      body.append("document_type", documentType);
-      if (issuedDate) body.append("issued_date", issuedDate);
-      if (expiryDate) body.append("expiry_date", expiryDate);
+      // Two steps so the file goes straight to storage instead of through
+      // a serverless function (see /api/documents/upload-url).
+      const prep = await fetch("/api/documents/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          passport_id: passportId,
+          document_type: documentType,
+          content_type: selectedFile.type,
+          size: selectedFile.size,
+        }),
+      });
+      if (!prep.ok) {
+        const payload = await prep.json().catch(() => null);
+        setUploadError(payload?.error ?? "Something went wrong uploading this document.");
+        return;
+      }
+      const { path, token } = await prep.json();
+
+      const { error: storageError } = await supabase.storage
+        .from("passport-documents")
+        .uploadToSignedUrl(path, token, selectedFile, { contentType: selectedFile.type });
+      if (storageError) {
+        setUploadError("The file couldn't be uploaded. Check your connection and try again.");
+        return;
+      }
 
       const res = await fetch("/api/documents/upload", {
         method: "POST",
-        headers: { Authorization: `Bearer ${session.access_token}` },
-        body,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          passport_id: passportId,
+          document_type: documentType,
+          path,
+          file_name: selectedFile.name,
+          issued_date: issuedDate || null,
+          expiry_date: expiryDate || null,
+        }),
       });
 
       if (!res.ok) {

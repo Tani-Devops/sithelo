@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { SitheloLogo, SitheloButton } from "@/components/ui/sithelo";
+import { safeNextPath } from "@/lib/auth/safeNext";
 
 export default function LoginPage() {
   return (
@@ -36,14 +37,10 @@ function LoginForm() {
     }
 
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
-    // SECURITY: only honor `next` when it's a plain absolute path — an
-    // unvalidated value passed to router.push() would perform a full
-    // external navigation (`https://evil.com` or `//evil.com`). Matches
-    // the validation in /auth/callback.
-    const requestedNext = params.get("next");
-    const safeNext = requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//")
-      ? requestedNext
-      : null;
+    // SECURITY: only honor `next` when it resolves to a same-origin path —
+    // an unvalidated value passed to router.push() would perform a full
+    // external navigation. Same helper as /auth/callback.
+    const safeNext = safeNextPath(params.get("next"));
     const destination =
       safeNext ?? (profile?.role === "institution" ? "/institution/dashboard"
         : profile?.role === "admin" ? "/admin/dashboard"
@@ -65,9 +62,18 @@ function LoginForm() {
             <input id="email" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="input" />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-navy mb-1.5">Password</label>
+            <div className="flex items-baseline justify-between mb-1.5">
+              <label htmlFor="password" className="block text-sm font-medium text-navy">Password</label>
+              <Link href="/forgot-password" className="text-xs text-cobalt font-medium">Forgot password?</Link>
+            </div>
             <input id="password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" className="input" />
           </div>
+          {!error && params.get("reset") === "done" && (
+            <p role="status" className="text-sm text-verified">Your password has been updated. Log in with your new password.</p>
+          )}
+          {!error && params.get("error") === "auth_callback_failed" && (
+            <p role="alert" className="text-sm text-red-600">That link has expired or was already used. Please request a new one.</p>
+          )}
           {error && (
             <p role="alert" aria-live="polite" className="text-sm text-red-600">
               {error}

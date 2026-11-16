@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { safeNextPath } from "@/lib/auth/safeNext";
 
 // Handles the redirect after Supabase email verification / magic link.
 // Exchanges the code for a session, then routes by role. Requiring this
@@ -10,16 +11,10 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
 
   // SECURITY: `next` is attacker-controllable (it's a query param) and is
-  // concatenated onto `origin`. Anything that isn't a plain absolute path
-  // is rejected — this blocks both `//evil.com` protocol-relative jumps
-  // and the `@evil.com` userinfo trick (`https://oursite.com@evil.com`
-  // resolves to host evil.com), which a bare `origin + next` would
-  // happily produce. Same validation exists on /login.
-  const requestedNext = searchParams.get("next");
-  const next =
-    requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//")
-      ? requestedNext
-      : "/entrepreneur/dashboard";
+  // concatenated onto `origin`. safeNextPath() accepts it only if it
+  // resolves to a same-origin path — see that helper for the bypasses a
+  // plain prefix check misses. Same validation on /login.
+  const next = safeNextPath(searchParams.get("next")) ?? "/entrepreneur/dashboard";
 
   if (code) {
     const supabase = await createClient();

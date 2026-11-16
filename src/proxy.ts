@@ -5,6 +5,7 @@ const PUBLIC_PREFIXES = [
   "/",
   "/login",
   "/register",
+  "/forgot-password",
   "/about",
   "/resources",
   "/for-entrepreneurs",

@@ -62,20 +62,15 @@ function RegisterForm() {
       return;
     }
 
-    // Sithelo currently has "Confirm email" disabled in Supabase Auth
-    // settings for this flow, so signUp() already returns a live
-    // session and we can go straight into the product. If that project
-    // setting is ever turned back on, data.session will come back null
-    // here and this sign-in call will surface a clear error instead of
-    // silently landing on a page the (unconfirmed) session can't load.
+    // With "Confirm email" enabled in Supabase Auth (required for
+    // production — see SUPABASE_SETUP.md), signUp() returns no session:
+    // the account exists but cannot sign in until the emailed link is
+    // clicked, so send the user to the check-email screen. If the
+    // setting is off (local development), a session comes back and we
+    // go straight into the product.
     if (!data.session) {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) {
-        setError("Your account was created, but we couldn't sign you in automatically. Please log in.");
-        setLoading(false);
-        router.push("/login");
-        return;
-      }
+      router.push("/register/check-email");
+      return;
     }
 
     router.push(role === "institution" ? "/institution/dashboard" : "/entrepreneur/dashboard");
