@@ -4,7 +4,6 @@ import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
 import "@fontsource/inter/700.css";
 import "@fontsource-variable/fraunces/standard.css";
-import "@fontsource-variable/fraunces/standard-italic.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

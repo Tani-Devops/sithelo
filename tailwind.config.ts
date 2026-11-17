@@ -23,6 +23,19 @@ const config: Config = {
         // badge-pending text it's used for) to #8F5D1B (~5.6:1 on white).
         // Same gold/amber family, just enough contrast at badge text size.
         pending: "#8F5D1B",
+        // ---- Sithelo 2.0 public-site palette (Warm African Editorial) ----
+        // Used by the marketing pages only; the signed-in app keeps the
+        // navy/ivory tokens above. Contrast (WCAG 2.2) was checked per pair:
+        //  - midnight on linen 13.3:1, on paper 15.1:1
+        //  - copper #B47C54 is 2.9:1 on linen: rules, accents and large
+        //    display only. Small copper text uses copper-ink (5.1:1 on
+        //    linen). On midnight, copper itself passes (4.5:1).
+        //  - olive is decorative only (3.5:1); olive-ink for any text.
+        midnight: { DEFAULT: "#102333", 800: "#0C1B28", 700: "#183247" },
+        linen: { DEFAULT: "#EEE9DF", deep: "#E4DDD0" },
+        paper: "#FAF8F3",
+        copper: { DEFAULT: "#B47C54", ink: "#8A5530", light: "#D4A27C" },
+        olive: { DEFAULT: "#777F65", ink: "#5A6149" },
         // ---- Legacy token aliases ----
         // The rest of the app (dashboards, passport, admin) still references
         // these class names. Aliasing them to the new palette means every
@@ -43,6 +56,12 @@ const config: Config = {
         hero: ["clamp(2.5rem, 5vw, 4.25rem)", { lineHeight: "1.04", letterSpacing: "-0.02em" }],
         "display-lg": ["clamp(2rem, 3.4vw, 3rem)", { lineHeight: "1.08", letterSpacing: "-0.01em" }],
         eyebrow: ["0.75rem", { lineHeight: "1", letterSpacing: "0.14em" }],
+        // Public-site scale. Hero: ~38px at 320–390, 72px from ~1360.
+        // Section: ~30px on phones, ~52px on desktop. Lead: 17–19px.
+        "m-hero": ["clamp(2.375rem, 1.2rem + 4vw, 4.5rem)", { lineHeight: "1.02", letterSpacing: "-0.022em" }],
+        "m-section": ["clamp(1.875rem, 1.1rem + 2.6vw, 3.25rem)", { lineHeight: "1.06", letterSpacing: "-0.015em" }],
+        "m-title": ["clamp(1.375rem, 1.05rem + 0.9vw, 1.75rem)", { lineHeight: "1.18", letterSpacing: "-0.01em" }],
+        "m-lead": ["clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem)", { lineHeight: "1.6" }],
       },
       borderRadius: { sm: "3px", DEFAULT: "4px", card: "6px", pill: "999px" },
       transitionTimingFunction: {

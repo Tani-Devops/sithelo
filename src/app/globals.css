@@ -85,6 +85,63 @@
   }
 }
 
+/* ==================================================================
+   Sithelo 2.0 public site (marketing pages only)
+   ================================================================== */
+@layer components {
+  /* Semantic roles for the public site, so components name intent
+     rather than colours. */
+  .m-container { @apply mx-auto w-full max-w-[1240px] px-5 sm:px-8; }
+  .m-section { @apply py-20 md:py-28 lg:py-32; }
+  .m-eyebrow { @apply text-[0.8125rem] font-semibold uppercase tracking-[0.14em] text-copper-ink; }
+  .m-eyebrow-on-dark { @apply text-[0.8125rem] font-semibold uppercase tracking-[0.14em] text-copper-light; }
+  .m-heading { @apply font-display font-medium text-m-section text-midnight [text-wrap:balance]; }
+  .m-lead { @apply text-m-lead text-ink-700 [text-wrap:pretty]; }
+
+  /* Buttons: 48px tall, 6px radius, colour + underline-free states. */
+  .m-btn {
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-[6px] px-6 py-3 text-center leading-snug text-[0.9375rem] font-semibold
+           transition-colors duration-150 ease-brand
+           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px];
+  }
+  .m-btn-primary { @apply m-btn bg-midnight text-paper hover:bg-midnight-700 focus-visible:outline-midnight; }
+  .m-btn-on-dark { @apply m-btn bg-paper text-midnight hover:bg-linen focus-visible:outline-paper; }
+  .m-btn-outline-on-dark { @apply m-btn border border-paper/40 text-paper hover:border-paper hover:bg-paper/[0.06] focus-visible:outline-paper; }
+  .m-link {
+    @apply inline-flex min-h-[44px] items-center gap-1.5 text-[0.9375rem] font-semibold text-midnight underline decoration-copper
+           decoration-2 underline-offset-[6px] transition-colors duration-150 hover:text-copper-ink
+           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-midnight rounded-sm;
+  }
+  .m-link-on-dark { @apply m-link text-paper hover:text-copper-light focus-visible:outline-paper; }
+  .m-rule { @apply h-px w-12 bg-copper; }
+}
+
+/* Quiet entrance for section content as it scrolls into view. Scroll-
+   driven, CSS only: browsers without view timelines (and anyone with
+   reduced motion) simply see the content, with nothing hidden first. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .m-reveal {
+      animation: m-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 30%;
+    }
+  }
+}
+@keyframes m-reveal {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Hero photograph settles in on load (transform only: never hidden). */
+@media (prefers-reduced-motion: no-preference) {
+  .m-hero-settle { animation: m-settle 900ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+}
+@keyframes m-settle {
+  from { transform: scale(1.035); }
+  to { transform: none; }
+}
+
 /* Respect the OS-level motion preference for every animation/transition
    this project adds — including the WAAPI calls in src/lib/motion, which
    check this same media query in JS before running. */
