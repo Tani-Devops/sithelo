@@ -64,7 +64,7 @@ function LoginForm() {
           <div>
             <div className="flex items-baseline justify-between mb-1.5">
               <label htmlFor="password" className="block text-sm font-medium text-navy">Password</label>
-              <Link href="/forgot-password" className="text-xs text-cobalt font-medium">Forgot password?</Link>
+              <Link href="/forgot-password" className="inline-flex min-h-[24px] items-center text-xs text-cobalt font-medium">Forgot password?</Link>
             </div>
             <input id="password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" className="input" />
           </div>

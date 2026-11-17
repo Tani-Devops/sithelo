@@ -20,8 +20,9 @@ const STEPS = [
 
 export default function ForEntrepreneursPage() {
   return (
-    <main id="main-content">
+    <>
       <SiteNav />
+      <main id="main-content">
       <section className="container-editorial pt-6 pb-16 grid md:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
         <div>
           <div className="eyebrow mb-4">For Entrepreneurs</div>
@@ -83,7 +84,8 @@ export default function ForEntrepreneursPage() {
           </div>
         </div>
       </section>
+      </main>
       <SiteFooter />
-    </main>
+    </>
   );
 }

@@ -11,8 +11,9 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <main id="main-content">
+    <>
       <SiteNav />
+      <main id="main-content">
       <section className="max-w-[820px] mx-auto px-8 pt-6 pb-20">
         <div className="text-xs font-semibold tracking-wider uppercase text-teal mb-4">About Sithelo</div>
         <h1 className="text-4xl font-display font-medium tracking-tight text-navy mb-6">
@@ -69,7 +70,8 @@ export default function AboutPage() {
           <SitheloButton variant="ghost" href="/register?role=institution">I&apos;m an Institution</SitheloButton>
         </div>
       </section>
+      </main>
       <SiteFooter />
-    </main>
+    </>
   );
 }

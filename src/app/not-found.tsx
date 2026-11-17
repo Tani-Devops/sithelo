@@ -9,8 +9,9 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <main id="main-content">
+    <>
       <SiteNav />
+      <main id="main-content">
       <section className="max-w-[600px] mx-auto px-8 py-32 text-center">
         <div className="text-xs font-semibold tracking-wider uppercase text-teal mb-4">404</div>
         <h1 className="text-3xl font-display font-medium tracking-tight text-navy mb-3">
@@ -24,7 +25,8 @@ export default function NotFound() {
           <SitheloButton href="/resources" variant="ghost">Browse Resources</SitheloButton>
         </div>
       </section>
+      </main>
       <SiteFooter />
-    </main>
+    </>
   );
 }

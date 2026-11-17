@@ -18,8 +18,9 @@ const CAPABILITIES = [
 
 export default function ForInstitutionsPage() {
   return (
-    <main id="main-content">
+    <>
       <SiteNav />
+      <main id="main-content">
       <section className="container-editorial pt-6 pb-16 grid md:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
         <div>
           <div className="eyebrow mb-4">For Institutions</div>
@@ -63,7 +64,8 @@ export default function ForInstitutionsPage() {
           </p>
         </div>
       </section>
+      </main>
       <SiteFooter />
-    </main>
+    </>
   );
 }

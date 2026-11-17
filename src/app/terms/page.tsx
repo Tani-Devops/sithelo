@@ -22,8 +22,9 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   const c = LEGAL_CONFIG;
   return (
-    <main id="main-content">
+    <>
       <SiteNav />
+      <main id="main-content">
       <section className="max-w-[760px] mx-auto px-8 pt-6 pb-20">
         <h1 className="text-3xl font-display font-medium tracking-tight text-navy mb-2">Terms of Service</h1>
         <p className="text-sm text-ink-600 mb-10">
@@ -102,7 +103,8 @@ export default function TermsPage() {
           </section>
         </div>
       </section>
+      </main>
       <SiteFooter />
-    </main>
+    </>
   );
 }
