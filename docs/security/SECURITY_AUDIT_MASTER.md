@@ -1,6 +1,6 @@
 # Zenzele — Security Audit, Fourth Pass (Master Audit)
 
-Addendum to `AUDIT.md` and `SECURITY_AUDIT.md`. Covers Parts 6, 8, 9, 14, 17, 24, 25 of the master directive — the genuinely new work. Parts 1–5, 7, 10–13, 15–16, 18–21 were re-verified against the actual current migration state (not re-derived from the directive's description) and confirmed still intact; see the verification command output at the start of this session for the specific greps run.
+Addendum to `docs/security/AUDIT.md` and `docs/security/SECURITY_AUDIT.md`. Covers Parts 6, 8, 9, 14, 17, 24, 25 of the master directive — the genuinely new work. Parts 1–5, 7, 10–13, 15–16, 18–21 were re-verified against the actual current migration state (not re-derived from the directive's description) and confirmed still intact; see the verification command output at the start of this session for the specific greps run.
 
 **Naming note:** this directive addressed "the Sithelo platform" — everything else about it (stack, history, roles, Business Passport) matches Zenzele exactly. Treated as a naming slip; all work below is against the Zenzele repository.
 
@@ -8,7 +8,7 @@ Addendum to `AUDIT.md` and `SECURITY_AUDIT.md`. Covers Parts 6, 8, 9, 14, 17, 24
 
 Migration 006's fix (WITH CHECK + column revoke) was correct but left a general UPDATE grant with a narrow carve-out — a shape that's easy to accidentally widen later. `010_message_read_function.sql` removes UPDATE access to `messages` from `authenticated` **entirely** and replaces it with `mark_message_read(message_id)`, which checks `recipient_id = auth.uid()` inside the function body. There is no UPDATE surface left on the table for a future migration to accidentally reopen.
 
-**Frontend impact:** any code calling `supabase.from("messages").update(...)` directly will now fail — must call `supabase.rpc("mark_message_read", { p_message_id })` instead. No messaging UI exists yet (per `ROADMAP.md`), so nothing in the current codebase needed updating for this.
+**Frontend impact:** any code calling `supabase.from("messages").update(...)` directly will now fail — must call `supabase.rpc("mark_message_read", { p_message_id })` instead. No messaging UI exists yet (per `docs/product/ROADMAP.md`), so nothing in the current codebase needed updating for this.
 
 ## Part 8 — document viewer UI
 
@@ -19,7 +19,7 @@ Two real gaps closed:
 
 ## Part 9 — graduated Business Passport access
 
-Previously left as an explicit open question (`DATA_CLASSIFICATION.md`) rather than guessed at. This directive explicitly instructs implementing it, so a decision was made and documented rather than deferred again: `011_graduated_passport_access.sql`, `get_passport_detail()` — three tiers (discovery / authorized-institution / owner-admin), gated by the same shortlist-or-application relationship test used for documents, so "authorized institution" means one consistent thing everywhere in the product rather than two checks that could drift apart. Every non-owner access is audit-logged.
+Previously left as an explicit open question (`docs/architecture/DATA_CLASSIFICATION.md`) rather than guessed at. This directive explicitly instructs implementing it, so a decision was made and documented rather than deferred again: `011_graduated_passport_access.sql`, `get_passport_detail()` — three tiers (discovery / authorized-institution / owner-admin), gated by the same shortlist-or-application relationship test used for documents, so "authorized institution" means one consistent thing everywhere in the product rather than two checks that could drift apart. Every non-owner access is audit-logged.
 
 ## Part 14 — CSV import atomicity
 
@@ -32,7 +32,7 @@ The one irreducible partial-state case: an auth user gets invited, then the data
 
 ## Part 17 — RLS master audit
 
-`RLS_MASTER_AUDIT.md` — every table, actual final policy state (verified by grep against real migration content, not written from memory). Found and fixed one new issue in the process: `notifications`' UPDATE policy had a `WITH CHECK` but it only re-asserted `recipient_id`, not content fields — same bug class as the messages issue, lower severity. Fixed in `014_fix_notifications_tampering.sql`.
+`docs/security/RLS_MASTER_AUDIT.md` — every table, actual final policy state (verified by grep against real migration content, not written from memory). Found and fixed one new issue in the process: `notifications`' UPDATE policy had a `WITH CHECK` but it only re-asserted `recipient_id`, not content fields — same bug class as the messages issue, lower severity. Fixed in `014_fix_notifications_tampering.sql`.
 
 ## Part 24 — regression tests
 
@@ -52,7 +52,7 @@ Found something real by actually checking rather than re-asserting the prior wor
 
 # Zenzele — Security Audit, Fifth Pass (Authorization Consistency)
 
-Addendum to `AUDIT.md`, `SECURITY_AUDIT.md`, `SECURITY_AUDIT_MASTER.md`. This pass's directive addressed "Sithelo" — treated as a naming slip and continued against Zenzele, per its own explicit instruction not to rename anything. Primary objective: **the security model must be consistent throughout the application** — a secure function existing is worthless if the UI bypasses it.
+Addendum to `docs/security/AUDIT.md`, `docs/security/SECURITY_AUDIT.md`, `docs/security/SECURITY_AUDIT_MASTER.md`. This pass's directive addressed "Sithelo" — treated as a naming slip and continued against Zenzele, per its own explicit instruction not to rename anything. Primary objective: **the security model must be consistent throughout the application** — a secure function existing is worthless if the UI bypasses it.
 
 ## SECURITY ISSUE 1: Passport page bypassed the graduated-access model entirely
 
@@ -121,7 +121,7 @@ Addendum to `AUDIT.md`, `SECURITY_AUDIT.md`, `SECURITY_AUDIT_MASTER.md`. This pa
 
 **STATUS:** FIXED — NOT EXECUTED
 **ROOT CAUSE:** The Zod regex `/^[a-zA-Z0-9_\-./]+$/` allows dots and slashes freely — every character in `"../../etc/passwd"` or `"admin/../../secret"` is in that allowed set. The function is admin-only, which reduces severity, but "admin-only" isn't a reason to skip input validation — an admin session being compromised, or an admin's own tooling having a bug that constructs a bad path, are both real scenarios this should still guard against.
-**FIX:** Added explicit rejection of `..`, leading `/`, and `//`, plus a required `imports/` path-namespace prefix (documented in `EDGE_FUNCTIONS.md`, previously undocumented).
+**FIX:** Added explicit rejection of `..`, leading `/`, and `//`, plus a required `imports/` path-namespace prefix (documented in `docs/architecture/EDGE_FUNCTIONS.md`, previously undocumented).
 **FILES:** `supabase/functions/_shared/schemas.ts`
 **TEST:** Not pgTAP-testable (Zod validation is JS logic, not database policy) — would need a Deno unit test, which doesn't exist for this repo yet. Flagged as a real testing gap, not silently left uncovered.
 **TEST STATUS:** NOT EXECUTED — NO TEST HARNESS EXISTS FOR THIS LAYER YET
@@ -146,8 +146,8 @@ Addendum to `AUDIT.md`, `SECURITY_AUDIT.md`, `SECURITY_AUDIT_MASTER.md`. This pa
 
 - **No Deno-level typecheck in CI.** Issue 9 exists specifically because `tsc --noEmit` doesn't cover `supabase/functions/**`. The CI workflow (`security-gate.yml`) doesn't run `deno check` either. This is a real gap — a future edge function change could reintroduce a syntax error that nothing catches until deploy time.
 - CSV path validation (Issue 8) has no automated test coverage at all — first testing gap of its kind identified (everything else has at least a documented "not executed" pgTAP test; this has no test to not-execute).
-- Business Passport tier-2/tier-3 boundary is now enforced by `get_passport_detail()`, but the entrepreneur-facing "My Business" edit form (not yet built, per `ROADMAP.md`) will need to respect the same field classification when it exists — not a current bypass since the form doesn't exist yet, but worth remembering when it's built.
-- Everything flagged as a remaining risk in `AUDIT.md`, `SECURITY_AUDIT.md`, and `SECURITY_AUDIT_MASTER.md`'s prior passes still applies and isn't repeated here.
+- Business Passport tier-2/tier-3 boundary is now enforced by `get_passport_detail()`, but the entrepreneur-facing "My Business" edit form (not yet built, per `docs/product/ROADMAP.md`) will need to respect the same field classification when it exists — not a current bypass since the form doesn't exist yet, but worth remembering when it's built.
+- Everything flagged as a remaining risk in `docs/security/AUDIT.md`, `docs/security/SECURITY_AUDIT.md`, and `docs/security/SECURITY_AUDIT_MASTER.md`'s prior passes still applies and isn't repeated here.
 
 ---
 
@@ -155,7 +155,7 @@ Addendum to `AUDIT.md`, `SECURITY_AUDIT.md`, `SECURITY_AUDIT_MASTER.md`. This pa
 
 This pass's directive asked me to act as an adversarial engineer rather than mechanically implement a checklist, and explicitly warned not to trust prior "fixed" claims. I took that literally: before writing any fix, I grepped the actual current migration/grant state for each phase's specific concern. Six of eight phases investigated turned up real, confirmed, previously-unnoticed gaps — not re-statements of already-fixed issues.
 
-**Scope note:** Phase 0 asked for a `SECURITY_SURFACE_MAP.md` inventory before changing anything. I did not produce it as a separate file this pass — `RLS_MASTER_AUDIT.md` already covers the same ground table-by-table, and given limited passes, I judged that actually finding and fixing six real vulnerabilities was more valuable than a second inventory document covering mostly the same tables. Flagging this as a deliberate scope choice, not an oversight. Phase 9 (CSV) was cut off in the source directive before any content — nothing to act on there.
+**Scope note:** Phase 0 asked for a `SECURITY_SURFACE_MAP.md` inventory before changing anything. I did not produce it as a separate file this pass — `docs/security/RLS_MASTER_AUDIT.md` already covers the same ground table-by-table, and given limited passes, I judged that actually finding and fixing six real vulnerabilities was more valuable than a second inventory document covering mostly the same tables. Flagging this as a deliberate scope choice, not an oversight. Phase 9 (CSV) was cut off in the source directive before any content — nothing to act on there.
 
 ## FINDING 1 (Phase 1 — CRITICAL): graduated Passport access was never enforced for SELECT at the database layer
 
@@ -240,7 +240,7 @@ Per this pass's explicit instruction not to call Zenzele "secure" without substa
 ## Remaining risks (carried forward + new)
 
 - **No Deno-level typecheck or test harness in CI** — found a real syntax bug this way once already (prior pass); this pass added manual structural checks as a stopgap, not a substitute for `deno check` actually running in CI.
-- `SECURITY_SURFACE_MAP.md` was not produced as a standalone file this pass (see Scope note above) — `RLS_MASTER_AUDIT.md` covers overlapping ground but not the exact format requested (routes, edge functions, and non-RLS authorization sources aren't tabulated there).
+- `SECURITY_SURFACE_MAP.md` was not produced as a standalone file this pass (see Scope note above) — `docs/security/RLS_MASTER_AUDIT.md` covers overlapping ground but not the exact format requested (routes, edge functions, and non-RLS authorization sources aren't tabulated there).
 - Rate limiter fail-open/closed policy has no automated test.
 - CSV path-traversal fix (prior pass) still has no automated test.
 - Every remaining risk listed in the fifth-pass section above still applies.
@@ -271,7 +271,7 @@ This pass's directive named specific, checkable claims rather than general categ
 
 ## PART 3 — Documentation reconciliation
 
-Done inline as part of every fix above and below, not as a separate pass — `RLS_MASTER_AUDIT.md` and `SECURITY_TESTS.md` updated with this pass's actual current state (column revokes, shortlist policy split, opportunity trigger, verification actor-integrity, assertion counts). This document uses the four-category labeling requested: **VERIFIED — EXECUTED** (none this pass — nothing was actually run against a live instance), **VERIFIED — STATIC REVIEW** (every finding below, confirmed by reading real code), **NOT EXECUTED — REQUIRES LIVE/STAGING SUPABASE** (every test), **KNOWN PRODUCT DECISION** (storage UPDATE/DELETE absence, flagged not resolved).
+Done inline as part of every fix above and below, not as a separate pass — `docs/security/RLS_MASTER_AUDIT.md` and `docs/security/SECURITY_TESTS.md` updated with this pass's actual current state (column revokes, shortlist policy split, opportunity trigger, verification actor-integrity, assertion counts). This document uses the four-category labeling requested: **VERIFIED — EXECUTED** (none this pass — nothing was actually run against a live instance), **VERIFIED — STATIC REVIEW** (every finding below, confirmed by reading real code), **NOT EXECUTED — REQUIRES LIVE/STAGING SUPABASE** (every test), **KNOWN PRODUCT DECISION** (storage UPDATE/DELETE absence, flagged not resolved).
 
 ## PART 4 — Storage audit
 
@@ -393,7 +393,7 @@ No attack from either list was found to still succeed after this pass's fixes, *
 
 ## FINAL SECURITY REPORT
 
-**1. Files changed this pass:** `src/app/passport/[id]/page.tsx`, `src/app/entrepreneur/dashboard/page.tsx` (prior pass), `RLS_MASTER_AUDIT.md`, `SECURITY_TESTS.md`, `SECURITY_AUDIT_MASTER.md`
+**1. Files changed this pass:** `src/app/passport/[id]/page.tsx`, `src/app/entrepreneur/dashboard/page.tsx` (prior pass), `docs/security/RLS_MASTER_AUDIT.md`, `docs/security/SECURITY_TESTS.md`, `docs/security/SECURITY_AUDIT_MASTER.md`
 **2. Migrations added:** `017_close_passport_select_bypass.sql`, `018_adversarial_findings.sql`, `019_bypass_and_integrity_fixes.sql` (19 total in the repository)
 **3. RPCs/functions changed:** `get_passport_detail()`, `list_passport_documents()` (fail-closed added), `has_passport_relationship()` (revoked from authenticated), `has_my_passport_relationship()` (new), `get_passport_activity()` (new), `get_passport_trust_history()` (new), `set_verification_review_metadata()` (new trigger), `enforce_opportunity_created_by()` (corrected — service-role bug)
 **4. RLS policies changed:** `business_passports` (column SELECT revoke), `business_references` (column SELECT revoke), `shortlists` (split + hardened), `opportunities` (created_by trigger), `verifications` (verified_by/verified_at trigger + column revoke)
@@ -495,7 +495,7 @@ Not executed — genuinely requires GitHub Actions, which this environment canno
 
 ## Item 11 — this section, plus the corrections below, constitute the rebuild from final (24-migration) state
 
-`RLS_MASTER_AUDIT.md` and `SECURITY_ACCESS_MATRIX.md` updated to describe the corrected enforcement mechanism (table-revoke-then-column-grant, not column-revoke-only) for every affected table.
+`docs/security/RLS_MASTER_AUDIT.md` and `docs/security/SECURITY_ACCESS_MATRIX.md` updated to describe the corrected enforcement mechanism (table-revoke-then-column-grant, not column-revoke-only) for every affected table.
 
 ## Item 12 — freezing the security schema
 
@@ -525,4 +525,4 @@ New surface added this pass, evaluated against the same bar as everything above.
 
 **Baseline note:** the prior "frozen" baseline (migration `024`, 116/116 verified pgTAP) is unaffected — migration 025 is additive only and touches no existing table, policy, or function. The overall project baseline moves to **25 migrations, 132 pgTAP assertions total (116 previously verified + 16 new, not yet executed)** — that composite number should not be read as "132 verified," only as "132 exist, 116 are independently confirmed to pass, 16 are new and unverified." Whoever runs `supabase test db` next should update this line to reflect the real post-execution count.
 
-**Post-025 note (security-fix pass, 2026):** migrations 026–033 now exist (33 total): 026/027 onboarding, 028 institution approval, 029 application transitions, 030/031 entrepreneurial intelligence, and 032/033 the audit-fix pass (institution read-surface narrowing + client-write locks on `documents.uploaded_by` and `opportunities.status`). See `RLS_MASTER_AUDIT.md` (updated to 33 migrations) and `AUDIT.md` for the current authorization state.
+**Post-025 note (security-fix pass, 2026):** migrations 026–033 now exist (33 total): 026/027 onboarding, 028 institution approval, 029 application transitions, 030/031 entrepreneurial intelligence, and 032/033 the audit-fix pass (institution read-surface narrowing + client-write locks on `documents.uploaded_by` and `opportunities.status`). See `docs/security/RLS_MASTER_AUDIT.md` (updated to 33 migrations) and `docs/security/AUDIT.md` for the current authorization state.

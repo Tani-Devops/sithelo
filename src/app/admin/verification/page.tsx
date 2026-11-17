@@ -30,7 +30,7 @@ import { ViewDocumentButton } from "@/components/ui/ViewDocumentButton";
 // function via VerificationActions (client component) — never a direct
 // Supabase update from here. The admin's identity is derived from their
 // own session token inside the edge function, never sent as a body
-// parameter (see AUDIT.md for why that distinction is load-bearing).
+// parameter (see docs/security/AUDIT.md for why that distinction is load-bearing).
 // ====================================================================
 
 // Mirrors verification_type_for_document() in migration 035.

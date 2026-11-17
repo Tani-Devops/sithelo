@@ -1,4 +1,4 @@
-# IMPLEMENTATION_SUMMARY.md — Sithelo MVP build pass (Aug 2026)
+# docs/product/IMPLEMENTATION_SUMMARY.md — Sithelo MVP build pass (Aug 2026)
 
 Scope: SITHELO_MASTER_MVP_BUILD_DIRECTIVE.txt + the institutional/UX addendum. Built against the existing, previously-audited Zenzele/Sithelo repository (24 migrations, 10 edge functions, working auth/dashboard/passport/discovery UI going in). Nothing existing was rewritten from scratch; everything below is additive.
 
@@ -6,7 +6,7 @@ Scope: SITHELO_MASTER_MVP_BUILD_DIRECTIVE.txt + the institutional/UX addendum. B
 
 1. **Repository audit (directive §1)** — read every route, migration, RLS policy, and edge function before writing anything. Confirmed: no `entrepreneur_profiles`/reality/needs/goals/capabilities/assets tables existed, no persona engine, no Next Step engine, no `/entrepreneur/journey`, no `/entrepreneur/opportunities/[id]`, no `/institution/opportunities/new`. Legacy "Zenzele" naming remains in migration file headers/comments only — confirmed zero user-facing leaks in `src/`.
 
-2. **Migration `025_entrepreneur_reality_persona.sql`** — the human-reality schema (directive §6): `entrepreneur_profiles`, `entrepreneur_financial_snapshots`, `entrepreneur_needs`, `entrepreneur_goals`, `business_capabilities`, `business_assets`, `entrepreneur_persona_state`. RLS follows the codebase's existing owner/admin pattern; reality tables have zero institution policy (not a narrower one — none); persona_state has zero `authenticated` write grant of any kind. See SECURITY_AUDIT_MASTER.md's Aug 2026 section for the full reasoning.
+2. **Migration `025_entrepreneur_reality_persona.sql`** — the human-reality schema (directive §6): `entrepreneur_profiles`, `entrepreneur_financial_snapshots`, `entrepreneur_needs`, `entrepreneur_goals`, `business_capabilities`, `business_assets`, `entrepreneur_persona_state`. RLS follows the codebase's existing owner/admin pattern; reality tables have zero institution policy (not a narrower one — none); persona_state has zero `authenticated` write grant of any kind. See docs/security/SECURITY_AUDIT_MASTER.md's Aug 2026 section for the full reasoning.
 
 3. **Persona + Next Step engines** — `src/lib/persona/determinePersona.ts`, `src/lib/nextStep/determineNextStep.ts`: pure, deterministic, no AI, every output field traceable to an input field (directive §7–9, §12, §33). `src/lib/persona/recompute.ts` assembles real Supabase data and calls both, shared by two Route Handlers.
 
@@ -32,12 +32,12 @@ Scope: SITHELO_MASTER_MVP_BUILD_DIRECTIVE.txt + the institutional/UX addendum. B
 
 14. **pgTAP tests** (`supabase/tests/database/008_reality_persona_layer_security.test.sql`, 16 assertions) — written and reasoned against the actual migration 025 text, covering owner isolation, zero institution access to the five reality/persona tables, the persona-table write-block, and the capabilities `verified`-field write-block. **Not executed** — no Postgres available in this build environment.
 
-15. **Documentation** — DATA_CLASSIFICATION.md (new Tier 0 section), DATABASE_SCHEMA.md (7 new tables), ROADMAP.md (rewritten Next list), SYSTEM_ARCHITECTURE.md (persona engine architecture note), PRODUCT_REQUIREMENTS.md (PERSON+BUSINESS+REALITY+JOURNEY section), DESIGN_SYSTEM.md (wizard pattern notes), SECURITY_AUDIT_MASTER.md (dated addendum, honest about execution status).
+15. **Documentation** — docs/architecture/DATA_CLASSIFICATION.md (new Tier 0 section), docs/architecture/DATABASE_SCHEMA.md (7 new tables), docs/product/ROADMAP.md (rewritten Next list), docs/architecture/SYSTEM_ARCHITECTURE.md (persona engine architecture note), docs/product/PRODUCT_REQUIREMENTS.md (PERSON+BUSINESS+REALITY+JOURNEY section), docs/design/DESIGN_SYSTEM.md (wizard pattern notes), docs/security/SECURITY_AUDIT_MASTER.md (dated addendum, honest about execution status).
 
 ## What was actually run, in this environment
 
-`npm install` (clean), `npx tsc --noEmit` (zero errors, run twice — once after the first batch of routes, once after the dashboard/edit-page changes), `npx next build` (clean, all 22 routes, run twice for the same reason). This is real verification of the TypeScript/Next.js layer. See MVP_STATUS.md for the complete BUILT/TESTED/NOT EXECUTED breakdown, and SECURITY_AUDIT_MASTER.md for why the database layer specifically remains unverified.
+`npm install` (clean), `npx tsc --noEmit` (zero errors, run twice — once after the first batch of routes, once after the dashboard/edit-page changes), `npx next build` (clean, all 22 routes, run twice for the same reason). This is real verification of the TypeScript/Next.js layer. See docs/product/MVP_STATUS.md for the complete BUILT/TESTED/NOT EXECUTED breakdown, and docs/security/SECURITY_AUDIT_MASTER.md for why the database layer specifically remains unverified.
 
 ## What was deliberately not built
 
-Messaging UI, notification bell/centre, institution applications review UI, entrepreneur applications list, admin verification queue UI, PDF pipeline upgrade — all pre-existing gaps from before this pass, still open, listed in ROADMAP.md in priority order. None of these were in the directive's five core entrepreneur experiences + one institutional experience, so building them wasn't in scope for "the smallest product that makes the thesis true" (directive §43).
+Messaging UI, notification bell/centre, institution applications review UI, entrepreneur applications list, admin verification queue UI, PDF pipeline upgrade — all pre-existing gaps from before this pass, still open, listed in docs/product/ROADMAP.md in priority order. None of these were in the directive's five core entrepreneur experiences + one institutional experience, so building them wasn't in scope for "the smallest product that makes the thesis true" (directive §43).

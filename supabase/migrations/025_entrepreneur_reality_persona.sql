@@ -36,7 +36,7 @@ create table public.entrepreneur_profiles (
   municipality text,
   primary_income_source boolean,
 
-  -- reality (sensitive personal/economic — see DATA_CLASSIFICATION.md)
+  -- reality (sensitive personal/economic — see docs/architecture/DATA_CLASSIFICATION.md)
   dependants_count int,
   household_income_dependency dependency_level,
   operating_location_type text, -- 'home','street','premises','mobile','online'
@@ -242,7 +242,7 @@ grant update (capability_type, name, description, capacity) on public.business_c
 revoke insert, update on public.entrepreneur_persona_state from authenticated;
 
 comment on table public.entrepreneur_profiles is
-  'SENSITIVE PERSONAL/ECONOMIC data per DATA_CLASSIFICATION.md. Owner + admin only. Never exposed to institution_business_directory or any institution-facing view/RPC.';
+  'SENSITIVE PERSONAL/ECONOMIC data per docs/architecture/DATA_CLASSIFICATION.md. Owner + admin only. Never exposed to institution_business_directory or any institution-facing view/RPC.';
 comment on table public.entrepreneur_financial_snapshots is
   'SENSITIVE PERSONAL/ECONOMIC data. Self-reported ranges only, append-only. Owner + admin only.';
 comment on table public.business_capabilities is

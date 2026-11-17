@@ -1,6 +1,6 @@
 -- ====================================================================
 -- Fix notifications UPDATE policy — found during the RLS master audit
--- (RLS_MASTER_AUDIT.md), same bug class as the messages fix but lower
+-- (docs/security/RLS_MASTER_AUDIT.md), same bug class as the messages fix but lower
 -- severity (notifications are one-way system messages, not a two-party
 -- record where tampering could rewrite a paper trail). Fixing it anyway
 -- rather than leaving a known gap on the books.
@@ -21,4 +21,4 @@ create policy "notifications: recipient mark read only" on public.notifications
 revoke update (title, body, category, channel, metadata) on public.notifications from authenticated;
 
 comment on table public.notifications is
-  'Only is_read is writable by the recipient after insert (column-level revoke, migration 014). Same pattern as messages — see AUDIT.md / RLS_MASTER_AUDIT.md.';
+  'Only is_read is writable by the recipient after insert (column-level revoke, migration 014). Same pattern as messages — see docs/security/AUDIT.md / docs/security/RLS_MASTER_AUDIT.md.';

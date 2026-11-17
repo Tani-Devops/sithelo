@@ -11,7 +11,7 @@ supabase link --project-ref YOUR_PROJECT_REF
 supabase db push
 ```
 
-This applies, in order: `001_core_schema.sql` → `002_rls_policies.sql` → `003_storage_buckets.sql` → `004_fix_role_escalation.sql`. The fourth migration is a security fix (see `AUDIT.md`) — profile creation now happens via a database trigger on signup, not a client-side insert, and clamps role to `entrepreneur`/`institution` only.
+This applies, in order: `001_core_schema.sql` → `002_rls_policies.sql` → `003_storage_buckets.sql` → `004_fix_role_escalation.sql`. The fourth migration is a security fix (see `docs/security/AUDIT.md`) — profile creation now happens via a database trigger on signup, not a client-side insert, and clamps role to `entrepreneur`/`institution` only.
 
 ## Provisioning the first admin account
 
@@ -34,7 +34,7 @@ await supabase.rpc("admin_promote_user", { target_user_id: "<uuid of an existing
 await supabase.rpc("admin_demote_user", { target_user_id: "<uuid>", new_role: "entrepreneur" });
 ```
 
-Both are audited automatically (`audit_logs`, action `admin.promoted` / `admin.demoted`). There's no UI for this yet — see `ROADMAP.md` for the admin user-management screen that should wrap these calls.
+Both are audited automatically (`audit_logs`, action `admin.promoted` / `admin.demoted`). There's no UI for this yet — see `docs/product/ROADMAP.md` for the admin user-management screen that should wrap these calls.
 
 ## 3. Environment variables
 
@@ -103,6 +103,6 @@ Before going live, in the Supabase dashboard:
 
 - **Auth > Providers > Email**: enable CAPTCHA protection (hCaptcha/Turnstile). This is the effective rate limiter for public register/login, because those calls go directly from the browser to Supabase Auth and never touch the Next.js app — page-level rate limiting would be theater. Supabase Auth also applies built-in per-email rate limits; leave them at defaults.
 - **Auth > URL Configuration**: confirm Site URL and redirect URLs (step 7 above).
-- **Database**: `supabase db push` to apply migrations 032–034 (institution read-surface narrowing, client-write locks, onboarding role guard), then run the pgTAP suite (`supabase test db`, see `SECURITY_TESTS.md`) against a staging project before production.
+- **Database**: `supabase db push` to apply migrations 032–034 (institution read-surface narrowing, client-write locks, onboarding role guard), then run the pgTAP suite (`supabase test db`, see `docs/security/SECURITY_TESTS.md`) against a staging project before production.
 - **Edge Functions**: redeploy the functions changed in the audit-fix pass — `audit-logger`, `notification-engine`, `admin-verification`, `bulk-import`, `compliance-monitor` (see step 4). Note `notification-engine` now requires a `context` field in its payload; no existing callers are affected (it had none).
 - **Resend**: verify `notifications@sithelo.co.za` (or your chosen sender address) is verified as a sending domain, or notification emails silently fail.

@@ -10,7 +10,7 @@
 --     practical fit / readiness / friction)
 --   - outcomes/event architecture for future validation
 --
--- Security posture (mirrors migration 025 + DATA_CLASSIFICATION.md):
+-- Security posture (mirrors migration 025 + docs/architecture/DATA_CLASSIFICATION.md):
 --   - assessment/response/snapshot/history tables are Tier 0 — owner + admin
 --     only, and there is NO institution policy on any of them.
 --   - snapshots + history are backend-only writes (no `authenticated`

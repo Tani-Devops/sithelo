@@ -2,7 +2,7 @@
 -- Admin provisioning: promote/demote functions for admins
 -- ====================================================================
 -- The bootstrap admin (the very first one) is provisioned out-of-band —
--- direct SQL against the database, documented in SUPABASE_SETUP.md —
+-- direct SQL against the database, documented in docs/architecture/SUPABASE_SETUP.md —
 -- because there's no admin yet to authorize it through the app, and a
 -- stored bootstrap secret/token is itself a standing risk ("no
 -- permanent bootstrap secret should remain active"). Every admin AFTER

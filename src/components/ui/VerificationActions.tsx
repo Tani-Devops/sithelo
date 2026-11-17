@@ -6,7 +6,7 @@
 // current session's Authorization header — the admin's identity is
 // derived server-side from that token inside the edge function itself,
 // never sent as a body parameter. No direct Supabase table update from
-// here, by design (see AUDIT.md / SECURITY_AUDIT_MASTER.md on why
+// here, by design (see docs/security/AUDIT.md / docs/security/SECURITY_AUDIT_MASTER.md on why
 // admin_id-in-body was a real, previously-exploitable bug in an earlier
 // version of this exact function).
 // ====================================================================

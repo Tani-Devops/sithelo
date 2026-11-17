@@ -1,6 +1,6 @@
 # Edge Functions Reference
 
-All functions live in `supabase/functions/<name>/index.ts`, Deno runtime, service-role Supabase client. Every function now enforces its own authorization — see `AUDIT.md` for why this changed and `_shared/auth.ts` for the shared `requireRole()` helper.
+All functions live in `supabase/functions/<name>/index.ts`, Deno runtime, service-role Supabase client. Every function now enforces its own authorization — see `docs/security/AUDIT.md` for why this changed and `_shared/auth.ts` for the shared `requireRole()` helper.
 
 ## Authorization model
 

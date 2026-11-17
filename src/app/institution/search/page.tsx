@@ -8,12 +8,12 @@ import Link from "next/link";
 // DATA SOURCE: public.institution_business_directory (migration 007) —
 // NOT business_passports directly. This view already excludes
 // head_office_address/business_email/business_phone/key_clients/
-// annual_turnover at the column level (see DATA_CLASSIFICATION.md).
+// annual_turnover at the column level (see docs/architecture/DATA_CLASSIFICATION.md).
 // Filters (industry, province) are real column filters against this
 // view, not invented — every filter here maps to an actual column that
 // exists in the view. "Business requirements"/"opportunity type"
 // filters from the brief are NOT built: there's no capability/asset
-// model in the schema to filter businesses by yet (see ROADMAP.md),
+// model in the schema to filter businesses by yet (see docs/product/ROADMAP.md),
 // so adding those controls would be exactly the "invented feature"
 // the brief prohibits.
 // ====================================================================

@@ -1,6 +1,6 @@
 # Zenzele — Security Audit (Third Pass)
 
-This covers the ten items from the latest hardening directive, in order. Each fix cites the exact file/migration. Tests are labeled by what actually happened — run, or **NOT EXECUTED — REQUIRES LIVE/STAGING SUPABASE** — per the explicit instruction not to claim a pass I didn't generate. See `AUDIT.md` for the first two hardening passes (role escalation, admin impersonation, institution_id, Business Passport self-verification, etc.) — this document doesn't repeat those.
+This covers the ten items from the latest hardening directive, in order. Each fix cites the exact file/migration. Tests are labeled by what actually happened — run, or **NOT EXECUTED — REQUIRES LIVE/STAGING SUPABASE** — per the explicit instruction not to claim a pass I didn't generate. See `docs/security/AUDIT.md` for the first two hardening passes (role escalation, admin impersonation, institution_id, Business Passport self-verification, etc.) — this document doesn't repeat those.
 
 ## 1. Application authorization
 
@@ -26,7 +26,7 @@ This covers the ten items from the latest hardening directive, in order. Each fi
 
 **Gap found** (not a live vulnerability — the base table's RLS already required `is_published = true` and institution/admin role — but a real over-exposure once that bar was met): institutions querying `business_passports` directly get every column, including `head_office_address`, `business_email`, `business_phone`, `key_clients`, and exact `annual_turnover`. "Published for matching" was never a deliberate decision to also mean "published for full disclosure."
 
-**Remediation:** `supabase/migrations/007_institution_discovery_view.sql` — `public.institution_business_directory`, a `security_invoker = true` view exposing only the discovery-appropriate column set. Institutions/admins should query this for search, not the base table. Full classification documented in `DATA_CLASSIFICATION.md`, including an explicit **open question** I did not resolve unilaterally: whether/how an "authorized interaction" (shortlist, application) should unlock tier-2 data. I built the document access route (item 4) to answer this for *documents* specifically, but the equivalent for plain contact/financial fields on the passport itself isn't built — flagged, not guessed at.
+**Remediation:** `supabase/migrations/007_institution_discovery_view.sql` — `public.institution_business_directory`, a `security_invoker = true` view exposing only the discovery-appropriate column set. Institutions/admins should query this for search, not the base table. Full classification documented in `docs/architecture/DATA_CLASSIFICATION.md`, including an explicit **open question** I did not resolve unilaterally: whether/how an "authorized interaction" (shortlist, application) should unlock tier-2 data. I built the document access route (item 4) to answer this for *documents* specifically, but the equivalent for plain contact/financial fields on the passport itself isn't built — flagged, not guessed at.
 
 **Tests added:** `002_applications_messages_security.test.sql`, group 6 (2 assertions: the view's column list, checked via `information_schema.columns`, excludes the five sensitive fields + `owner_id`; the view isn't so restrictive that legitimate discovery breaks).
 
@@ -38,7 +38,7 @@ This covers the ten items from the latest hardening directive, in order. Each fi
 
 **Remediation:** `src/app/api/documents/[id]/signed-url/route.ts` — a Next.js Route Handler that: authenticates via `requireAuth()`, loads the document + its passport's `owner_id` via the service-role client (bypassing RLS deliberately, because it's about to apply its own stricter, more specific authorization than table RLS can express), authorizes (owner, or admin, or an institution with a **real relationship** to the passport — an existing `shortlists` row or `applications` row tying that specific institution to that specific business, not just "the passport is published"), mints a 60-second signed URL via `createSignedUrl()`, logs the access to `audit_logs` (action `document.accessed`, including which basis granted access), and returns the URL. Rate-limited (30/hour/user) — see item 5.
 
-**Not yet done:** no frontend document viewer calls this route yet (no UI exists to browse a passport's documents at all — see `ROADMAP.md`). The route is real and callable but currently only reachable via direct API call, not a button in the product.
+**Not yet done:** no frontend document viewer calls this route yet (no UI exists to browse a passport's documents at all — see `docs/product/ROADMAP.md`). The route is real and callable but currently only reachable via direct API call, not a button in the product.
 
 **Executed:** NOT EXECUTED — REQUIRES LIVE/STAGING SUPABASE. This is a Next.js Route Handler, not a pgTAP-testable unit; it needs either a running dev server + real session cookies, or a Playwright test. Neither was run here.
 
@@ -50,7 +50,7 @@ This covers the ten items from the latest hardening directive, in order. Each fi
 
 **Deliberately not reimplemented:** login, registration, password reset, OTP/email verification — Supabase Auth already rate-limits these at the platform level (documented, not configurable per-project beyond what Supabase exposes). Building a second, app-level limiter on top would just create two systems that can disagree about the same thing.
 
-**Not yet applied:** AI requests (no AI-calling edge function exists yet to attach it to — `src/lib/ai/index.ts` is a library, not an endpoint, so there's no anonymous-facing surface to protect yet), messaging (no dedicated send-message edge function exists — see item 6's note on the same gap), search (no search endpoint exists yet, per `ROADMAP.md`).
+**Not yet applied:** AI requests (no AI-calling edge function exists yet to attach it to — `src/lib/ai/index.ts` is a library, not an endpoint, so there's no anonymous-facing surface to protect yet), messaging (no dedicated send-message edge function exists — see item 6's note on the same gap), search (no search endpoint exists yet, per `docs/product/ROADMAP.md`).
 
 **Executed:** NOT EXECUTED — REQUIRES LIVE/STAGING SUPABASE.
 
@@ -76,7 +76,7 @@ This covers the ten items from the latest hardening directive, in order. Each fi
 
 **Remediation:** `supabase/migrations/009_admin_provisioning.sql` — `admin_promote_user(target_user_id)` and `admin_demote_user(target_user_id, new_role)`, both `SECURITY DEFINER`, both self-check `is_admin()` internally and `raise exception` if the caller isn't one, both audit-logged. `admin_demote_user` refuses to demote the last remaining admin (`select count(*) ... where role = 'admin'`, blocks if `<= 1`).
 
-**Bootstrap (first admin):** documented in `SUPABASE_SETUP.md` as a direct SQL `UPDATE` run with database-owner credentials. No stored secret or token exists for this — direct database access *is* the bootstrap mechanism, which means there's nothing that could later leak, satisfying "no permanent bootstrap secret should remain active" by not having one at all rather than by expiring one.
+**Bootstrap (first admin):** documented in `docs/architecture/SUPABASE_SETUP.md` as a direct SQL `UPDATE` run with database-owner credentials. No stored secret or token exists for this — direct database access *is* the bootstrap mechanism, which means there's nothing that could later leak, satisfying "no permanent bootstrap secret should remain active" by not having one at all rather than by expiring one.
 
 **Every admin after the first must go through `admin_promote_user`** — there is no other path; public registration clamps to `entrepreneur`/`institution` only (migration 004), and there's no other function or policy that writes `role = 'admin'`.
 
@@ -90,7 +90,7 @@ This covers the ten items from the latest hardening directive, in order. Each fi
 
 **Coverage gap, stated plainly:** this is still not the full 12-table × 4-operation × 6-identity matrix the original directive asked for. `matches`, `shortlists`, `notifications`, and storage-object-level access are not yet covered by dedicated tests (storage access is *architecturally* covered — the signed-URL route in item 4 is the only path, and direct storage RLS denies everyone else — but there's no automated test proving that, since it's an HTTP/Storage-API concern pgTAP can't reach). Added `scripts/test-edge-function-auth.sh` (item 4/6's HTTP-layer complement) in the prior pass; not extended this pass beyond what already existed.
 
-**Playwright route authorization tests:** not added. This remains the one layer (Layer 1/2 — middleware + `guards.ts` route redirects) with zero automated coverage; `SECURITY_TESTS.md` already flagged this as lower priority than RLS since RLS is the layer that actually stops data exposure if the others have a bug, and that reasoning still holds, but it means "an entrepreneur hitting `/admin/dashboard` gets redirected, not shown data" is currently only true because I read the code, not because a test proves it.
+**Playwright route authorization tests:** not added. This remains the one layer (Layer 1/2 — middleware + `guards.ts` route redirects) with zero automated coverage; `docs/security/SECURITY_TESTS.md` already flagged this as lower priority than RLS since RLS is the layer that actually stops data exposure if the others have a bug, and that reasoning still holds, but it means "an entrepreneur hitting `/admin/dashboard` gets redirected, not shown data" is currently only true because I read the code, not because a test proves it.
 
 **Executed:** NOT EXECUTED — REQUIRES LIVE/STAGING SUPABASE, for all of the above.
 
@@ -108,7 +108,7 @@ Every fix in items 1–8 is grounded in reading the actual current policy/functi
 
 ## Remaining risks (carried forward + new)
 
-- Business Passport tier-2 data (contact/financial fields) has no "authorized interaction unlocks it" mechanism — currently binary (owner+admin only), not the graduated access the directive implied should exist. Real product decision needed, not guessed at (see `DATA_CLASSIFICATION.md`).
+- Business Passport tier-2 data (contact/financial fields) has no "authorized interaction unlocks it" mechanism — currently binary (owner+admin only), not the graduated access the directive implied should exist. Real product decision needed, not guessed at (see `docs/architecture/DATA_CLASSIFICATION.md`).
 - No frontend document viewer exists to actually call the new signed-URL route — the backend is real, the UI isn't built.
 - CSV import lacks true transactional atomicity (see item 7).
 - AI request endpoints have no rate limiting because no AI-calling endpoint exists yet.

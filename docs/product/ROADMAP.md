@@ -16,11 +16,11 @@ The two-layer profiling + matching evolution (directive §1–§24). Determinist
 - **Ecosystem intelligence** (`src/lib/ecosystem/insights.ts` + admin dashboard): real-data-gated, never seeded.
 - **Tests**: Vitest added (`npm test`) — 33 tests across classification, matching, branching, ecosystem insights. `tsc --noEmit`, `next build`, `next lint` all clean.
 
-**Not executed:** migration 031 and pgTAP `011` have not run against a live Postgres instance (same environment limitation as migration 025 — see MVP_STATUS.md).
+**Not executed:** migration 031 and pgTAP `011` have not run against a live Postgres instance (same environment limitation as migration 025 — see docs/product/MVP_STATUS.md).
 
 ## Built this pass (Aug 2026 — Sithelo MVP directive)
 
-Onboarding wizard (`/entrepreneur/business/new`) → Business Passport creation → reality/needs/goals capture → first Persona computed in the same request → "We see you" magic moment (`/entrepreneur/onboarding/complete`) → dashboard now shows Persona + reality + next-step cards → `/entrepreneur/journey` (full persona explainer) → opportunity detail with real match reasons + apply/withdraw → institution opportunity creation (`/institution/opportunities/new`) → institution "potential matches" view. Passport edit form + capabilities/assets manager (`/entrepreneur/business/edit`). See IMPLEMENTATION_SUMMARY.md and MVP_STATUS.md for the full breakdown, including what's NOT executed (nothing has run against real Postgres — no Supabase/Docker available in the build environment).
+Onboarding wizard (`/entrepreneur/business/new`) → Business Passport creation → reality/needs/goals capture → first Persona computed in the same request → "We see you" magic moment (`/entrepreneur/onboarding/complete`) → dashboard now shows Persona + reality + next-step cards → `/entrepreneur/journey` (full persona explainer) → opportunity detail with real match reasons + apply/withdraw → institution opportunity creation (`/institution/opportunities/new`) → institution "potential matches" view. Passport edit form + capabilities/assets manager (`/entrepreneur/business/edit`). See docs/product/IMPLEMENTATION_SUMMARY.md and docs/product/MVP_STATUS.md for the full breakdown, including what's NOT executed (nothing has run against real Postgres — no Supabase/Docker available in the build environment).
 
 ## Next (highest leverage first)
 
@@ -43,7 +43,7 @@ Onboarding wizard (`/entrepreneur/business/new`) → Business Passport creation 
 - **CIPC/SARS/CIDB live verification.** Right now verification is a human admin decision. Automating it needs API access agreements with those institutions — a legal/business step, not just engineering.
 - **PDF rendering approach** — pdf-lib (fast, lower fidelity) vs. headless-browser HTML render (slower, matches design system exactly). See `generate-business-passport-pdf/index.ts` header.
 - **SMS provider** for `notification-engine` (Clickatell vs. Twilio vs. other).
-- **Tier-2 institution unlock condition** — resolved for `business_passports` contact/financial fields (see DATA_CLASSIFICATION.md), but the equivalent question hasn't been asked yet for whether an authorized institution (post-shortlist/application) should ever see anything from the tier-0 reality layer. Current answer is a hard no, and directive §9 explicitly forbids it — flagging only so nobody "fixes" this later without re-reading why.
+- **Tier-2 institution unlock condition** — resolved for `business_passports` contact/financial fields (see docs/architecture/DATA_CLASSIFICATION.md), but the equivalent question hasn't been asked yet for whether an authorized institution (post-shortlist/application) should ever see anything from the tier-0 reality layer. Current answer is a hard no, and directive §9 explicitly forbids it — flagging only so nobody "fixes" this later without re-reading why.
 
 ## Testing debt
 

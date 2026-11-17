@@ -27,7 +27,7 @@ Full source: `supabase/migrations/001_core_schema.sql`. This is the human-readab
 | `business_capabilities` | What the business can do — institution-safe once published | `passport_id` → business_passports |
 | `business_assets` | What the business owns — institution-safe once published | `passport_id` → business_passports |
 
-Migration `025_entrepreneur_reality_persona.sql` (Aug 2026 pass) — see DATA_CLASSIFICATION.md's "Tier 0" section for the sensitivity model behind these seven tables.
+Migration `025_entrepreneur_reality_persona.sql` (Aug 2026 pass) — see docs/architecture/DATA_CLASSIFICATION.md's "Tier 0" section for the sensitivity model behind these seven tables.
 
 Migration `031_entrepreneurial_intelligence.sql` — the "Entrepreneurial Intelligence & Opportunity Matching" evolution. Adds:
 
@@ -52,7 +52,7 @@ The assessment engine (`src/lib/assessment/*`), two-layer classifier (`src/lib/c
 
 `trust_score`, `business_health_score`, `readiness_score`, `profile_completeness` on `business_passports` are written exclusively by the `calculate-trust-score` edge function. No UI should ever expose a direct edit control for these fields — if a number looks wrong, fix the underlying verification/document data and recalculate.
 
-The same rule now applies to `entrepreneur_persona_state` in full — it isn't just UI convention there, it's enforced at the grant level (no `authenticated` INSERT/UPDATE at all). Persona is recomputed, from real stored data, via `src/lib/persona/recompute.ts` — called by both `/api/persona/recompute` and `/api/onboarding/complete` — never hand-edited and never computed by AI (see PRODUCT_REQUIREMENTS.md).
+The same rule now applies to `entrepreneur_persona_state` in full — it isn't just UI convention there, it's enforced at the grant level (no `authenticated` INSERT/UPDATE at all). Persona is recomputed, from real stored data, via `src/lib/persona/recompute.ts` — called by both `/api/persona/recompute` and `/api/onboarding/complete` — never hand-edited and never computed by AI (see docs/product/PRODUCT_REQUIREMENTS.md).
 
 ## RLS summary
 

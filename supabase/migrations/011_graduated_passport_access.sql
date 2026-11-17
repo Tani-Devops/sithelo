@@ -1,7 +1,7 @@
 -- ====================================================================
 -- Business Passport graduated access
 -- ====================================================================
--- Resolves the open question left in DATA_CLASSIFICATION.md. Three
+-- Resolves the open question left in docs/architecture/DATA_CLASSIFICATION.md. Three
 -- tiers, decided explicitly rather than left binary:
 --
 -- TIER 1 (discovery) — any authenticated institution/admin, published
@@ -136,6 +136,6 @@ end;
 $$;
 
 comment on function public.get_passport_detail is
-  'The sanctioned way to read a single Business Passport''s detail with graduated field exposure. Institutions/admins should call this, not query business_passports or institution_business_directory directly for a single-record detail view. See DATA_CLASSIFICATION.md.';
+  'The sanctioned way to read a single Business Passport''s detail with graduated field exposure. Institutions/admins should call this, not query business_passports or institution_business_directory directly for a single-record detail view. See docs/architecture/DATA_CLASSIFICATION.md.';
 
 grant execute on function public.get_passport_detail(uuid) to authenticated;

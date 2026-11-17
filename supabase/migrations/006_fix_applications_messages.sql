@@ -124,4 +124,4 @@ create policy "messages: recipient mark read only" on public.messages
 revoke update (sender_id, recipient_id, opportunity_id, body) on public.messages from authenticated;
 
 comment on table public.messages is
-  'Only is_read is writable after insert (column-level revoke, migration 006) — a recipient marking a message read cannot rewrite its content or reassign it. See AUDIT.md / SECURITY_AUDIT.md.';
+  'Only is_read is writable after insert (column-level revoke, migration 006) — a recipient marking a message read cannot rewrite its content or reassign it. See docs/security/AUDIT.md / docs/security/SECURITY_AUDIT.md.';

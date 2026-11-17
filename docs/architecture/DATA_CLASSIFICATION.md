@@ -32,7 +32,7 @@ Raw uploaded documents (CIPC certificates, bank confirmation letters, insurance 
 
 ## Tier 0 — Entrepreneur reality layer (migration 025, Aug 2026 pass)
 
-Added for the "understand the person, not just the business" MVP (see PRODUCT_REQUIREMENTS.md). This is **more sensitive than tier 2** — it's personal/economic, not business — and is treated accordingly:
+Added for the "understand the person, not just the business" MVP (see docs/product/PRODUCT_REQUIREMENTS.md). This is **more sensitive than tier 2** — it's personal/economic, not business — and is treated accordingly:
 
 `entrepreneur_profiles` (dependants, household income dependency, transport/electricity/internet access, premises status), `entrepreneur_financial_snapshots` (self-reported revenue/expense/draw ranges — never exact figures, see onboarding wizard), `entrepreneur_needs`, `entrepreneur_goals`, `entrepreneur_persona_state` (the explanation of where someone is in their journey, which itself references the reality data above).
 
@@ -46,6 +46,6 @@ The adaptive assessment + two-layer profiling layer is **Tier 0** — more sensi
 
 The matching engine *uses* this tier-0 context internally to compute practical fit and friction for the entrepreneur's own view. It never exposes raw tier-0 answers to institutions — providers only ever receive derived, non-sensitive signals (e.g. "weekday attendance constraint"), never "has two children and supports their mother" (directive §17). `opportunity_matches` (which institutions can read) therefore contains only the derived breakdown, not the underlying context.
 
-See `supabase/tests/database/011_entrepreneurial_intelligence_security.test.sql` for the RLS regression coverage (not yet executed against live Postgres — see MVP_STATUS.md).
+See `supabase/tests/database/011_entrepreneurial_intelligence_security.test.sql` for the RLS regression coverage (not yet executed against live Postgres — see docs/product/MVP_STATUS.md).
 
-See `supabase/tests/database/008_reality_persona_layer_security.test.sql` for the RLS regression coverage (not yet executed against live Postgres — see MVP_STATUS.md).
+See `supabase/tests/database/008_reality_persona_layer_security.test.sql` for the RLS regression coverage (not yet executed against live Postgres — see docs/product/MVP_STATUS.md).

@@ -1,6 +1,6 @@
-# SECURITY_AUDIT_MVP.md — Sithelo MVP build pass (Aug 2026)
+# docs/security/SECURITY_AUDIT_MVP.md — Sithelo MVP build pass (Aug 2026)
 
-Scope note: this document is the MVP-directive-required deliverable (§42). The detailed reasoning lives in SECURITY_AUDIT_MASTER.md's "Aug 2026 pass" section — this is the condensed version for someone deciding whether to ship.
+Scope note: this document is the MVP-directive-required deliverable (§42). The detailed reasoning lives in docs/security/SECURITY_AUDIT_MASTER.md's "Aug 2026 pass" section — this is the condensed version for someone deciding whether to ship.
 
 ## New attack surface introduced this pass
 
@@ -35,8 +35,8 @@ Institution read access to `business_capabilities`/`business_assets` is scoped t
 
 ## What "addressed" means here, honestly
 
-Every row in the table above reflects design-time review against the actual migration 025 SQL and the actual calling code in the new Route Handlers/pages — not execution. See MVP_STATUS.md's NOT EXECUTED section: none of this has been confirmed by running it against real Postgres. The pgTAP file (`008_reality_persona_layer_security.test.sql`) encodes 16 of the checks above as executable assertions for whoever runs it next.
+Every row in the table above reflects design-time review against the actual migration 025 SQL and the actual calling code in the new Route Handlers/pages — not execution. See docs/product/MVP_STATUS.md's NOT EXECUTED section: none of this has been confirmed by running it against real Postgres. The pgTAP file (`008_reality_persona_layer_security.test.sql`) encodes 16 of the checks above as executable assertions for whoever runs it next.
 
 ## Recommendation
 
-Do not treat this document as a substitute for running `supabase test db` on staging. It documents what was *designed* to hold and *reasoned through* against the codebase's established security patterns — the same bar as reading code carefully, not the bar the project's prior security passes eventually reached (genuine `pg_prove` execution, 116/116, per SECURITY_AUDIT_MASTER.md). Reaching that same bar for migration 025 is the single highest-value next step before any further UI work builds on top of these tables.
+Do not treat this document as a substitute for running `supabase test db` on staging. It documents what was *designed* to hold and *reasoned through* against the codebase's established security patterns — the same bar as reading code carefully, not the bar the project's prior security passes eventually reached (genuine `pg_prove` execution, 116/116, per docs/security/SECURITY_AUDIT_MASTER.md). Reaching that same bar for migration 025 is the single highest-value next step before any further UI work builds on top of these tables.

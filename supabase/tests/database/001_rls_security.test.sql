@@ -6,7 +6,7 @@
 -- This tests the DATABASE layer only — the actual authorization ground
 -- truth. It does not test edge function auth (HTTP concern — see
 -- scripts/test-edge-function-auth.sh) or middleware routing (see
--- SECURITY_TESTS.md for how to exercise that manually / via Playwright).
+-- docs/security/SECURITY_TESTS.md for how to exercise that manually / via Playwright).
 --
 -- IMPORTANT on assertion choice: an RLS `USING` clause that excludes a
 -- row makes an UPDATE/DELETE silently affect zero rows — it does NOT
@@ -283,7 +283,7 @@ select test_helpers.act_as(null, 'anon');
 
 select is_empty(
   $$ select 1 from public.business_passports $$,
-  'Anonymous users see zero business_passports — Zenzele is permissioned search, not a public directory (see PRODUCT_REQUIREMENTS.md)'
+  'Anonymous users see zero business_passports — Zenzele is permissioned search, not a public directory (see docs/product/PRODUCT_REQUIREMENTS.md)'
 );
 
 select is_empty(

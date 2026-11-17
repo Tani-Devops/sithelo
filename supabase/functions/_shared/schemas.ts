@@ -78,7 +78,7 @@ export const bulkImportSchema = z.object({
 // recipient actually relates to that entity (e.g. the entrepreneur who
 // owns the matched passport, the institution member of the institution
 // being notified) — a caller cannot just point at any UUID, which is the
-// residual spam risk documented in AUDIT.md.
+// residual spam risk documented in docs/security/AUDIT.md.
 export const notificationRequestSchema = z.object({
   recipient_id: uuid,
   category: z.enum(["verification", "invitation", "application", "approval", "document_expiry", "trust_score"]),

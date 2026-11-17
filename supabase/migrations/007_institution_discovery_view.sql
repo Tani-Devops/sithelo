@@ -17,7 +17,7 @@
 -- shortlisting or a submitted application) to grant institutions
 -- broader access; that's a real product decision to make deliberately,
 -- not something this migration should invent unasked. Documented as
--- open in DATA_CLASSIFICATION.md rather than silently either exposing
+-- open in docs/architecture/DATA_CLASSIFICATION.md rather than silently either exposing
 -- or permanently withholding it.
 
 create view public.institution_business_directory
@@ -49,7 +49,7 @@ from public.business_passports
 where is_published = true;
 
 comment on view public.institution_business_directory is
-  'Institution/admin search surface — deliberately excludes head_office_address, business_email, business_phone, key_clients, and annual_turnover. See DATA_CLASSIFICATION.md. `security_invoker = true` means this view still runs under the querying user''s own RLS on the base table, so it narrows what''s exposed on top of RLS, it does not substitute for RLS.';
+  'Institution/admin search surface — deliberately excludes head_office_address, business_email, business_phone, key_clients, and annual_turnover. See docs/architecture/DATA_CLASSIFICATION.md. `security_invoker = true` means this view still runs under the querying user''s own RLS on the base table, so it narrows what''s exposed on top of RLS, it does not substitute for RLS.';
 
 -- security_invoker views don't get their own separate RLS policy set —
 -- they inherit the base table's. The existing "passports: published

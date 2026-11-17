@@ -57,7 +57,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   // relationship with the business — a shortlist entry, or an
   // application to one of the institution's opportunities. Being
   // published alone is NOT sufficient (that's the whole point of this
-  // route existing — see DATA_CLASSIFICATION.md tier 3).
+  // route existing — see docs/architecture/DATA_CLASSIFICATION.md tier 3).
   //
   // Uses has_passport_relationship() (migration 015) — the single shared
   // primitive also used by get_passport_detail() and

@@ -63,7 +63,7 @@ function RegisterForm() {
     }
 
     // With "Confirm email" enabled in Supabase Auth (required for
-    // production — see SUPABASE_SETUP.md), signUp() returns no session:
+    // production — see docs/architecture/SUPABASE_SETUP.md), signUp() returns no session:
     // the account exists but cannot sign in until the emailed link is
     // clicked, so send the user to the check-email screen. If the
     // setting is off (local development), a session comes back and we

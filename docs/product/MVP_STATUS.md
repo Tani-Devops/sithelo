@@ -1,4 +1,4 @@
-# MVP_STATUS.md — Sithelo (Aug 2026 build pass)
+# docs/product/MVP_STATUS.md — Sithelo (Aug 2026 build pass)
 
 Format per directive §42: BUILT / NOT BUILT / TESTED / NOT EXECUTED / KNOWN LIMITATIONS / NEXT RECOMMENDED STEP.
 
@@ -26,7 +26,7 @@ Format per directive §42: BUILT / NOT BUILT / TESTED / NOT EXECUTED / KNOWN LIM
 - Entrepreneur applications list (`/entrepreneur/applications` — currently only reachable per-opportunity)
 - Admin verification queue UI (pre-existing gap, function exists, no UI)
 - Institution onboarding flow (`requireInstitution()` redirects to `/institution/onboarding`, which doesn't exist — pre-existing gap, not introduced this pass)
-- A notification fired specifically for "your persona/next-step changed" (directive doesn't require this explicitly; flagged as a decision point in ROADMAP.md)
+- A notification fired specifically for "your persona/next-step changed" (directive doesn't require this explicitly; flagged as a decision point in docs/product/ROADMAP.md)
 
 ## TESTED (executed for real, in this build environment)
 
@@ -45,14 +45,14 @@ Both typecheck and build were run twice across this session (after the first rou
 - `deno lint` / `deno check` — not applicable this pass (no edge functions were added or changed)
 - Any end-to-end/browser test of the onboarding → persona → opportunity → application flow
 
-This is a materially different state from the prior security pass documented in SECURITY_AUDIT_MASTER.md, which achieved genuine `pg_prove`-verified execution (116/116) using a hand-built Postgres approximation. That approximation environment was not available to this session — this pass's database-layer claims are therefore "written and reasoned through," not "verified," and are represented as such throughout.
+This is a materially different state from the prior security pass documented in docs/security/SECURITY_AUDIT_MASTER.md, which achieved genuine `pg_prove`-verified execution (116/116) using a hand-built Postgres approximation. That approximation environment was not available to this session — this pass's database-layer claims are therefore "written and reasoned through," not "verified," and are represented as such throughout.
 
 ## KNOWN LIMITATIONS
 
 - `get_passport_detail()` (migration 015) doesn't return `registration_number` even to the owner — a pre-existing gap, not introduced this pass. The new edit form can write it but can't prefill it.
-- The Business Passport edit page and capabilities/assets manager are functionally complete but plainly styled (no `SitheloRing`/hero treatment) — see DESIGN_SYSTEM.md.
+- The Business Passport edit page and capabilities/assets manager are functionally complete but plainly styled (no `SitheloRing`/hero treatment) — see docs/design/DESIGN_SYSTEM.md.
 - No notification fires when a fresh Persona computation produces a meaningfully different Next Step — the entrepreneur only sees the update by revisiting the dashboard/journey page.
-- The persona/next-step engines have no automated unit tests yet, despite being the easiest code in the repo to test (pure functions, no DB) — flagged in ROADMAP.md as the recommended first automated-test investment.
+- The persona/next-step engines have no automated unit tests yet, despite being the easiest code in the repo to test (pure functions, no DB) — flagged in docs/product/ROADMAP.md as the recommended first automated-test investment.
 
 ## NEXT RECOMMENDED STEP
 

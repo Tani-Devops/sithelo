@@ -1,12 +1,12 @@
 // ====================================================================
 // Centralized authorization utilities for Server Components and Route
 // Handlers. Every protected page/route should call one of these instead
-// of hand-rolling its own `if (!user) redirect(...)` — see AUDIT.md for
+// of hand-rolling its own `if (!user) redirect(...)` — see docs/security/AUDIT.md for
 // why duplicated authorization logic is itself a security risk (it's
 // easy to get right nine times and wrong once).
 //
 // These are Layer 2 of the four-layer model documented in
-// SYSTEM_ARCHITECTURE.md:
+// docs/architecture/SYSTEM_ARCHITECTURE.md:
 //   Layer 1: middleware.ts       — coarse authenticated/public routing
 //   Layer 2: these functions     — role-correct routing + data fetch
 //   Layer 3: Postgres RLS        — the actual authorization ground truth

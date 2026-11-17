@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 // ====================================================================
 // This page describes how the platform actually classifies and
-// protects data today (see DATA_CLASSIFICATION.md and the RLS policies
+// protects data today (see docs/architecture/DATA_CLASSIFICATION.md and the RLS policies
 // it documents), not aspirational or invented policy. Where a fact
 // hasn't been confirmed anywhere in the codebase or environment
 // (registered entity, retention period specifics, a monitored contact

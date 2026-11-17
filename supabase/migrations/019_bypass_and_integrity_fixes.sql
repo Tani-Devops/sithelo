@@ -36,7 +36,7 @@ create policy "logos: institution write" on storage.objects
 -- than mutate/replace in place. That's restrictive-by-omission, not a
 -- vulnerability (nothing is over-exposed), so left unchanged rather than
 -- expanding capability that wasn't asked for. Flagged as a known product
--- decision in SECURITY_AUDIT_MASTER.md, not silently resolved either way.
+-- decision in docs/security/SECURITY_AUDIT_MASTER.md, not silently resolved either way.
 
 -- --------------------------------------------------------------------
 -- PART 5: fail-closed authorization when the caller has no profile row

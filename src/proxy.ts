@@ -17,7 +17,7 @@ const PUBLIC_PREFIXES = [
 
 // Next 16 proxy convention (formerly middleware.ts) — session refresh +
 // coarse route protection. Layer 1 of the four-layer model (see
-// SYSTEM_ARCHITECTURE.md).
+// docs/architecture/SYSTEM_ARCHITECTURE.md).
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 

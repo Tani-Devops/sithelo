@@ -3,7 +3,7 @@
 -- ====================================================================
 -- Every finding below was confirmed by reading the actual current
 -- policy/grant SQL before writing a fix — not assumed from a directive's
--- description. See SECURITY_AUDIT_MASTER.md for the full writeup of
+-- description. See docs/security/SECURITY_AUDIT_MASTER.md for the full writeup of
 -- each.
 
 -- --------------------------------------------------------------------

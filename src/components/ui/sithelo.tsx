@@ -1,6 +1,6 @@
 // ====================================================================
 // Sithelo component library. Every screen should compose these rather
-// than one-off styling — see DESIGN_SYSTEM.md for usage guidance.
+// than one-off styling — see docs/design/DESIGN_SYSTEM.md for usage guidance.
 // ====================================================================
 import Image from "next/image";
 import Link from "next/link";

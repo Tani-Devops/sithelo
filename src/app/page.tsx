@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-// Content rules for this page (see SITHELO_2_UI_IMPLEMENTATION_REPORT.md):
+// Content rules for this page (see docs/reports/SITHELO_2_UI_IMPLEMENTATION_REPORT.md):
 // - No user counts, partner logos, testimonials or success stories: none
 //   are backed by real data yet.
 // - Every product claim matches what the app does today.

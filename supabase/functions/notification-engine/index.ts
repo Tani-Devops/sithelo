@@ -22,7 +22,7 @@
 // passport owner for passports/verifications/applications, institution
 // member for institutions) before writing anything — a caller holding
 // the service key cannot notify an arbitrary recipient_id without a
-// real relationship (the residual spam risk documented in AUDIT.md).
+// real relationship (the residual spam risk documented in docs/security/AUDIT.md).
 // ====================================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { notificationRequestSchema, parseBody } from "../_shared/schemas.ts";

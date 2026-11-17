@@ -15,7 +15,7 @@ Supabase
   ├─ Auth — email/password, magic link via /auth/callback
   ├─ Storage — 5 buckets (passport-documents, passport-images,
   │             institution-logos, generated-pdfs, bulk-imports)
-  └─ Edge Functions (Deno) — see EDGE_FUNCTIONS.md for all 10
+  └─ Edge Functions (Deno) — see docs/architecture/EDGE_FUNCTIONS.md for all 10
 
 AI abstraction layer (src/lib/ai)
   └─ complete({system, prompt, ...}) — provider chosen by AI_PROVIDER env var,
@@ -46,7 +46,7 @@ The service role key (`SUPABASE_SERVICE_ROLE_KEY`) must never reach a Client Com
 
 `src/lib/persona/determinePersona.ts` and `src/lib/nextStep/determineNextStep.ts` are pure functions — no DB, no network, no AI. They take a plain object of already-fetched data and return a deterministic result; the same input always produces the same output, and every field in that output traces back to an input field (directive §7-9, §12: no fabricated explanations, no opaque scoring). `src/lib/persona/recompute.ts` is the one place that assembles their inputs from real Supabase rows and persists the result — called from two Route Handlers (`/api/persona/recompute`, `/api/onboarding/complete`) rather than duplicated between them.
 
-This is also a second real example of the Route-Handler-with-service-role pattern described below (the first being `/api/documents/[id]/signed-url`): authenticate with the session-bound client first, then use the service client for the privileged write, because `entrepreneur_persona_state` has no `authenticated` INSERT/UPDATE grant at all (see DATA_CLASSIFICATION.md tier 0).
+This is also a second real example of the Route-Handler-with-service-role pattern described below (the first being `/api/documents/[id]/signed-url`): authenticate with the session-bound client first, then use the service client for the privileged write, because `entrepreneur_persona_state` has no `authenticated` INSERT/UPDATE grant at all (see docs/architecture/DATA_CLASSIFICATION.md tier 0).
 
 ## Two-layer profiling + matching engines (migration 031)
 
@@ -62,4 +62,4 @@ All intelligence modules are pure functions (no DB, no AI) and are unit-tested w
 
 ## Design system enforcement
 
-`DESIGN_SYSTEM.md` is the single source of truth for colors/type/spacing/components, extracted from the reference screens. Tailwind config (`tailwind.config.ts`) encodes the color tokens directly (`forest`, `gold`, `cream`, `ink`, `line`) so new screens can't accidentally drift to ad-hoc hex values.
+`docs/design/DESIGN_SYSTEM.md` is the single source of truth for colors/type/spacing/components, extracted from the reference screens. Tailwind config (`tailwind.config.ts`) encodes the color tokens directly (`forest`, `gold`, `cream`, `ink`, `line`) so new screens can't accidentally drift to ad-hoc hex values.

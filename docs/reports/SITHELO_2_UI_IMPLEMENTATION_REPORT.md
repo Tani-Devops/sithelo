@@ -87,7 +87,7 @@ Headings use `text-wrap: balance`, paragraphs `text-wrap: pretty`.
 | `src/app/{about,for-entrepreneurs,for-institutions,privacy,resources,terms}/page.tsx`, `src/app/error.tsx`, `src/app/not-found.tsx` | Header and footer moved outside `<main>` (correct landmarks; skip link now skips the nav) |
 | `src/app/login/page.tsx` | "Forgot password?" link given a 24px minimum target |
 | `docs/sithelo-2-qa/*.jpg` | Before/after screenshots |
-| `SITHELO_2_UI_IMPLEMENTATION_REPORT.md` | This report |
+| `docs/reports/SITHELO_2_UI_IMPLEMENTATION_REPORT.md` | This report |
 
 ## 4. Desktop implementation
 

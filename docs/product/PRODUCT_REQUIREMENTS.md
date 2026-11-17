@@ -12,13 +12,13 @@ Not LinkedIn, not a CRM/ERP, not a chatbot, not a generic business directory. Si
 
 ## Core entity: the Business Passport
 
-Everything in the product orbits this record. See `DATABASE_SCHEMA.md` for the `business_passports` table and its related tables (verifications, documents, references, activity, trust score history).
+Everything in the product orbits this record. See `docs/architecture/DATABASE_SCHEMA.md` for the `business_passports` table and its related tables (verifications, documents, references, activity, trust score history).
 
 Fields that matter most to trust: `trust_score`, `overall_verification_status`, the eight verification types (CIPC, SARS, VAT, Bank, B-BBEE, Insurance, CIDB, Municipal Supplier). Trust Score is never hand-set — it's always derived by `calculate-trust-score` from actual verification/document/track-record state, so it can't drift from reality.
 
 ## The fundamental unit: PERSON + BUSINESS + REALITY + JOURNEY (Aug 2026 pass)
 
-The Business Passport establishes business identity. Alongside it, `entrepreneur_profiles`/`entrepreneur_financial_snapshots`/`entrepreneur_needs`/`entrepreneur_goals` establish the entrepreneur's everyday reality, needs, and goals — collected once, in the "Tell Us About Yourself" onboarding wizard (`/entrepreneur/business/new`), using approximate ranges rather than exact figures and never gating on formal registration. From that data, a deterministic (non-AI) rules engine computes a **Sithelo Persona** — one of ten journey stages from Starter to Economic Builder — with an explanation, strengths, constraints, and a recommended next step, all traceable to real stored data. This is never a wealth ranking and never used to gate opportunity eligibility; household/reality data shapes recommendation framing only, and is never institution-visible (see DATA_CLASSIFICATION.md tier 0). See `/entrepreneur/journey` and the onboarding "We see you" screen.
+The Business Passport establishes business identity. Alongside it, `entrepreneur_profiles`/`entrepreneur_financial_snapshots`/`entrepreneur_needs`/`entrepreneur_goals` establish the entrepreneur's everyday reality, needs, and goals — collected once, in the "Tell Us About Yourself" onboarding wizard (`/entrepreneur/business/new`), using approximate ranges rather than exact figures and never gating on formal registration. From that data, a deterministic (non-AI) rules engine computes a **Sithelo Persona** — one of ten journey stages from Starter to Economic Builder — with an explanation, strengths, constraints, and a recommended next step, all traceable to real stored data. This is never a wealth ranking and never used to gate opportunity eligibility; household/reality data shapes recommendation framing only, and is never institution-visible (see docs/architecture/DATA_CLASSIFICATION.md tier 0). See `/entrepreneur/journey` and the onboarding "We see you" screen.
 
 ## Primary flows
 
@@ -28,7 +28,7 @@ The Business Passport establishes business identity. Alongside it, `entrepreneur
 
 ## South African context requirements
 
-CIPC, SARS, VAT, B-BBEE, CIDB, and Municipal Supplier Database are first-class verification types, not generic "compliance docs." Province/municipality fields use the nine actual provinces (`sa_province` enum). None of CIPC/SARS/CIDB have live API integrations yet — see `ROADMAP.md`.
+CIPC, SARS, VAT, B-BBEE, CIDB, and Municipal Supplier Database are first-class verification types, not generic "compliance docs." Province/municipality fields use the nine actual provinces (`sa_province` enum). None of CIPC/SARS/CIDB have live API integrations yet — see `docs/product/ROADMAP.md`.
 
 ## Non-goals for v1
 

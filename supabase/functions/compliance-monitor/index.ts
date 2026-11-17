@@ -6,7 +6,7 @@
 //
 // Invoke: POST {}  (no body needed — scans the whole table)
 // Schedule via `supabase functions deploy compliance-monitor --no-verify-jwt`
-// and a pg_cron job calling it, documented in SUPABASE_SETUP.md.
+// and a pg_cron job calling it, documented in docs/architecture/SUPABASE_SETUP.md.
 // ====================================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { safeErrorMessage } from "../_shared/errors.ts";

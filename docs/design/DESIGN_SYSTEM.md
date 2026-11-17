@@ -99,5 +99,5 @@ Per the brief's explicit example, the entrepreneur home leads with one floating 
 
 Built to the design system: onboarding wizard, "We see you" completion screen (navy full-bleed, matching the Business Passport header treatment), `/entrepreneur/journey`, opportunity detail (entrepreneur + institution sides), institution opportunity creation, Business Passport edit page. All reuse `SitheloButton`/`SitheloBadge`/`.card`/`.input` rather than one-off Tailwind.
 
-**Not built this pass:** the passport edit page and capability/asset manager are functional but plain-form styled (no `SitheloRing`/hero treatment) — lower priority than closing the functional gap first. See ROADMAP.md.
+**Not built this pass:** the passport edit page and capability/asset manager are functional but plain-form styled (no `SitheloRing`/hero treatment) — lower priority than closing the functional gap first. See docs/product/ROADMAP.md.
 
