@@ -17,8 +17,9 @@ export const metadata: Metadata = {
 //   are backed by real data yet.
 // - Every product claim matches what the app does today.
 // - Photographs are South African only, each with its location confirmed
-//   on its Unsplash page, self-hosted under the Unsplash License, and
-//   captioned with where it was taken. None are presented as Sithelo users.
+//   on its Unsplash page, self-hosted under the Unsplash License (which
+//   does not require on-page credit; sources are listed in the UI report).
+//   None are presented as Sithelo users.
 
 const STEPS = [
   {
@@ -123,9 +124,6 @@ export default function LandingPage() {
                   />
                   <div className="absolute inset-0 bg-midnight/10" aria-hidden="true" />
                 </div>
-                <figcaption className="absolute right-4 top-3 lg:top-auto lg:right-6 lg:bottom-5 rounded-[6px] bg-midnight/70 px-2 py-0.5 text-[0.75rem] text-paper backdrop-blur-sm">
-                  Parktown, Johannesburg · Mark Potterton / Unsplash
-                </figcaption>
               </figure>
 
               <div className="relative z-10 -mt-36 sm:-mt-48 px-5 pb-14 sm:px-8 lg:absolute lg:inset-y-0 lg:left-0 lg:mt-0 lg:pb-0 lg:px-0 lg:flex lg:items-center lg:pl-[4%]">
@@ -233,9 +231,6 @@ export default function LandingPage() {
                   className="object-cover object-[35%_50%]"
                 />
               </div>
-              <figcaption className="absolute left-4 bottom-10 lg:left-6 lg:bottom-5 rounded-[6px] bg-midnight/70 px-2 py-0.5 text-[0.75rem] text-paper backdrop-blur-sm">
-                Rosebank, Johannesburg · Vije Vijendranath / Unsplash
-              </figcaption>
             </figure>
             <div className="px-5 sm:px-8 lg:pl-14 lg:pr-[max(2rem,calc((100vw-1240px)/2+2rem))] pt-10 pb-20 md:pb-28 lg:py-28 flex flex-col justify-center m-reveal">
               <p className="m-eyebrow">For entrepreneurs</p>
@@ -301,9 +296,6 @@ export default function LandingPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-b from-linen-deep/0 via-midnight/25 to-midnight" aria-hidden="true" />
             <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-linen-deep to-transparent" aria-hidden="true" />
-            <figcaption className="absolute right-4 top-20 lg:right-6 rounded-[6px] bg-midnight/70 px-2 py-0.5 text-[0.75rem] text-paper backdrop-blur-sm">
-              Cape Town · Tobias Reich / Unsplash
-            </figcaption>
           </figure>
           <div className="m-container relative -mt-24 sm:-mt-28 pb-20 md:pb-28 grid md:grid-cols-[1fr_auto] gap-8 md:gap-16 items-end">
             <div>

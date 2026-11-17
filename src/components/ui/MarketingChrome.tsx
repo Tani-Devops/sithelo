@@ -105,7 +105,6 @@ export function SiteFooter() {
       </div>
       <div className="m-container py-6 border-t border-paper/10 flex flex-wrap gap-x-6 gap-y-2 text-[0.8125rem] text-paper/60">
         <span>© {new Date().getFullYear()} {LEGAL_CONFIG.companyName ?? "Sithelo"}. All rights reserved.</span>
-        <span>Photography under the Unsplash License, credited where shown.</span>
       </div>
     </footer>
   );

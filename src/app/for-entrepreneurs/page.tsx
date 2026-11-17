@@ -38,7 +38,6 @@ export default function ForEntrepreneursPage() {
         <HeroPhoto
           src="/images/jhb-rosebank-crafts.jpg"
           alt="Handmade bags, fabrics and hats with South African prints on a market table"
-          caption="Rosebank, Johannesburg. Photo: Vije Vijendranath / Unsplash"
         />
       </section>
 

@@ -353,3 +353,7 @@ The near-white `paper` sections are now warm `linen`, alternating with `linen-de
 | Transferred, desktop | 790 KB (was 569 KB): the full-width Cape Town photo, lazy-loaded below the fold |
 
 Screenshots in `docs/sithelo-2-qa/after-*.jpg` were replaced with revision 2 captures.
+
+### Revision 2.1: photo credits removed
+
+At the owner's request, the on-page photo credits and the footer's "Photography under the Unsplash License" line were removed. The Unsplash License does not require attribution, so no licence condition is affected. Photographers and source links remain recorded in the revision 2 table above. Accessibility recheck on the homepage at 390 and 1440: 0 violations.

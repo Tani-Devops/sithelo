@@ -36,7 +36,6 @@ export default function ForInstitutionsPage() {
         <HeroPhoto
           src="/images/jhb-construction.jpg"
           alt="A site team and two reviewers in hard hats on a building reconstruction in Parktown, Johannesburg"
-          caption="Parktown, Johannesburg. Photo: Mark Potterton / Unsplash"
         />
       </section>
 
