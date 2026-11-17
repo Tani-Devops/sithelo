@@ -55,7 +55,9 @@ const CAPABILITIES = ["Civil works", "Paving", "Stormwater", "Plant hire"];
 export function PassportCredential() {
   return (
     <figure className="relative">
-      <div className="relative overflow-hidden rounded-[10px] bg-midnight text-paper shadow-[0_30px_60px_-30px_rgba(16,35,51,0.55)]">
+      <div className="relative overflow-hidden rounded-[12px] bg-midnight text-paper ring-1 ring-white/10 shadow-[0_2px_4px_rgba(16,35,51,0.18),0_24px_48px_-18px_rgba(16,35,51,0.55),0_60px_90px_-40px_rgba(16,35,51,0.45)]">
+        {/* A faint sheen across the top third: reads as a laminated card. */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/[0.07] to-transparent" aria-hidden="true" />
         {/* Copper rule along the top edge: the credential's one accent. */}
         <div className="h-[3px] bg-copper" aria-hidden="true" />
 
@@ -104,7 +106,7 @@ export function PassportCredential() {
           </div>
         </div>
       </div>
-      <figcaption className="text-[0.8125rem] text-ink-600 mt-3">
+      <figcaption className="mt-3 inline-block rounded-[6px] border border-white/60 bg-white/70 px-2.5 py-1 text-[0.8125rem] text-ink-700 backdrop-blur-md">
         Illustrative example. Karabo Civils is not a real business.
       </figcaption>
     </figure>

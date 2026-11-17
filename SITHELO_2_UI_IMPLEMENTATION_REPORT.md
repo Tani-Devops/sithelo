@@ -235,12 +235,7 @@ All ten widths (320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1920) were captu
 
 ## 11. Outstanding issues and limitations
 
-1. **Photography is not South African.** Both photos by Ali Mkumbwa were taken in Dar es Salaam; the contractor photo has no stated location. They are captioned honestly. The brief prioritises South African environments, so these assets are still missing:
-   - a South African retailer or spaza shop owner (hero);
-   - a South African workshop or manufacturer (entrepreneurs section);
-   - a South African contractor or site team (final section).
-
-   All three are drop-in replacements in `public/images`.
+1. **Photography:** resolved in revision 2 (below). All photos are now South African. Portraits of individual South African entrepreneurs are still missing; see revision 2 for why.
 2. **"Free" claim.** "Create your free Business Passport" matches the current app (there is no billing), but it is a commercial commitment the owner should confirm before launch.
 3. **Inner public pages** (for-entrepreneurs, for-institutions, about, resources, terms, privacy) received the new header and footer only. Their bodies still use the previous ivory/navy styling and should get the same treatment in a follow-up.
 4. **No accessibility statement or contact page exists.** The footer shows a contact email only once `NEXT_PUBLIC_LEGAL_CONTACT_EMAIL` is set.
@@ -298,3 +293,63 @@ All ten widths (320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1920) were captu
 | No unauthorised backend changes | PASS |
 | No production deployment | PASS |
 | Markdown report produced | PASS |
+
+---
+
+## Revision 2 (owner feedback, 17 Nov 2026)
+
+Requested: South African photographs only; a subtle South Africa map silhouette instead of plain backgrounds; floating, lightly glassmorphic buttons; the Business Passport made the hero and given depth.
+
+### Photography: South African only
+
+All three previous photos were removed from `public/images`: two were taken in Dar es Salaam and the third had no stated location. The replacements' locations were checked on each photo's own Unsplash page; all are free under the Unsplash License.
+
+| File | Where used | Location (stated on Unsplash) | Photographer | Source |
+|---|---|---|---|---|
+| `jhb-construction.jpg` | Hero (behind the Passport), for-institutions page | Parktown, Johannesburg | Mark Potterton | unsplash.com/photos/sNVkn3507Oo |
+| `jhb-rosebank-crafts.jpg` | For entrepreneurs section, for-entrepreneurs page | Rosebank, Johannesburg | Vije Vijendranath | unsplash.com/photos/lcPbyRE-xzY |
+| `cape-town.jpg` | Final conversion section | Cape Town | Tobias Reich | unsplash.com/photos/1GgWbP74phY |
+
+**Limitation:** free, location-verified South African photos of an individual entrepreneur at work (a spaza owner, tailor, mechanic and so on) were not found. Searches covered Unsplash and Pexels for Soweto, Johannesburg, Cape Town, Durban, townships and spaza shops. The site therefore uses a South African construction site, South African-made goods and Cape Town. A commissioned shoot or a licensed South African stock library is the way to add portraits.
+
+### South Africa map
+
+`src/components/marketing/SouthAfricaMap.tsx` is generated from Natural Earth 1:50m boundaries (public domain): mainland outline with Lesotho cut out, and the Prince Edward Islands omitted. It is not hand-drawn, and it is decorative, so hidden from assistive technology.
+
+It appears twice:
+- behind the hero headline (midnight at 5% opacity);
+- in the Business Passport section (copper at 8%, from 768px up).
+
+### Buttons
+
+- **Primary:** midnight gradient with a top highlight and a layered "floating" shadow; lifts 2px on hover.
+- **Secondary, light backgrounds:** new `m-btn-glass`, frosted (white at 45%, medium backdrop blur, fine white border).
+- **Secondary, dark backgrounds:** new `m-btn-glass-dark`.
+- Radius 8px; 48–52px tall. The lift is a transform, so it never shifts layout.
+
+### Business Passport as the hero
+
+- The credential now sits in the hero, floating across the seam between the linen and the Johannesburg photo.
+- Layered shadow, a fine light ring and a faint top sheen give it depth. Its caption is a frosted chip so it stays readable over the photo.
+- A slow 8px drift runs every 7s. It is a transform, and it is off when reduced motion is requested.
+- On phones it overlaps the bottom of the photo, after the headline and CTAs.
+- The Passport section further down now explains the four parts of a Passport instead of repeating the card.
+
+### Backgrounds
+
+The near-white `paper` sections are now warm `linen`, alternating with `linen-deep`.
+
+### QA for revision 2 (executed)
+
+| Check | Result |
+|---|---|
+| Typecheck, lint, unit tests (39), production build | **PASS** (lint: the same 2 old warnings) |
+| axe-core, home + for-entrepreneurs + for-institutions at 390 and 1440 | **PASS** (0 violations) |
+| Overflow / clipped text, 3 pages × 10 widths | **PASS** (30/30) |
+| Mobile menu keyboard test | **PASS** |
+| Photo caption contrast (computed, worst case: over pure white) | **FIXED**: 2.63:1 at the first 45% backing; raised to 70% for 5.64:1 |
+| LCP mobile / desktop (median of 5) | 664 ms / 188 ms, **PASS** (≤ 2500 ms) |
+| CLS mobile / desktop | 0 / 0.004, **PASS** |
+| Transferred, desktop | 790 KB (was 569 KB): the full-width Cape Town photo, lazy-loaded below the fold |
+
+Screenshots in `docs/sithelo-2-qa/after-*.jpg` were replaced with revision 2 captures.

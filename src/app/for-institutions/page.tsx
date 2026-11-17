@@ -34,9 +34,9 @@ export default function ForInstitutionsPage() {
           <SitheloButton href="/register?role=institution">Register your institution</SitheloButton>
         </div>
         <HeroPhoto
-          src="/images/engineer.jpg"
-          alt="An electrical contractor in a hard hat standing beside a distribution board"
-          caption="Photo: Unsplash"
+          src="/images/jhb-construction.jpg"
+          alt="A site team and two reviewers in hard hats on a building reconstruction in Parktown, Johannesburg"
+          caption="Parktown, Johannesburg. Photo: Mark Potterton / Unsplash"
         />
       </section>
 
