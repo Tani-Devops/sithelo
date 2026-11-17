@@ -52,7 +52,13 @@ const RECORDS: { name: string; detail: string; status: Status }[] = [
 
 const CAPABILITIES = ["Civil works", "Paving", "Stormwater", "Plant hire"];
 
-export function PassportCredential() {
+/**
+ * compactOnDesktop: hide the capabilities row between the lg and 2xl
+ * breakpoints, where the card shares the hero with a photograph and must
+ * stay short enough not to cover it. Phones and very wide screens show
+ * the full card.
+ */
+export function PassportCredential({ compactOnDesktop = false }: { compactOnDesktop?: boolean }) {
   return (
     <figure className="relative">
       <div className="relative overflow-hidden rounded-[12px] bg-midnight text-paper ring-1 ring-white/10 shadow-[0_2px_4px_rgba(16,35,51,0.18),0_24px_48px_-18px_rgba(16,35,51,0.55),0_60px_90px_-40px_rgba(16,35,51,0.45)]">
@@ -62,7 +68,7 @@ export function PassportCredential() {
         <div className="h-[3px] bg-copper" aria-hidden="true" />
 
         <div className="px-6 sm:px-8 pt-6 pb-7">
-          <div className="flex flex-col min-[400px]:flex-row min-[400px]:items-start justify-between gap-3">
+          <div className="flex flex-col min-[400px]:flex-row min-[400px]:items-start lg:flex-col 2xl:flex-row justify-between gap-3">
             <div>
               <p className="m-eyebrow-on-dark">Business Passport</p>
               <p className="text-[0.8125rem] text-paper/60 mt-1.5 tabular-nums whitespace-nowrap">SIT-2026-04817</p>
@@ -96,7 +102,7 @@ export function PassportCredential() {
             })}
           </ul>
 
-          <div className="mt-5">
+          <div className={`mt-5 ${compactOnDesktop ? "lg:hidden 2xl:block" : ""}`}>
             <p className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-paper/60 mb-2.5">Capabilities</p>
             <ul className="flex flex-wrap gap-2">
               {CAPABILITIES.map((c) => (

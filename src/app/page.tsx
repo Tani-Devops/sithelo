@@ -83,8 +83,8 @@ export default function LandingPage() {
           {/* South Africa, faintly, behind the headline. */}
           <SouthAfricaMap className="pointer-events-none absolute -z-10 text-midnight/[0.05] w-[560px] -left-24 top-24 sm:w-[720px] sm:-left-32 lg:w-[760px] lg:left-[max(-6rem,calc((100vw-1240px)/2-9rem))] lg:top-10" />
 
-          <div className="lg:grid lg:grid-cols-[minmax(0,50fr)_minmax(0,50fr)] lg:min-h-[clamp(680px,calc(100vh-84px),800px)]">
-            <div className="flex flex-col justify-center px-5 sm:px-8 lg:pr-16 lg:pl-[max(2rem,calc((100vw-1240px)/2+2rem))] pt-12 pb-10 sm:pt-16 lg:py-20">
+          <div className="lg:grid lg:grid-cols-[minmax(0,46fr)_minmax(0,54fr)] lg:min-h-[clamp(680px,calc(100vh-84px),800px)]">
+            <div className="flex flex-col justify-center px-5 sm:px-8 lg:pr-10 lg:pl-[max(2rem,calc((100vw-1240px)/2+2rem))] pt-12 pb-10 sm:pt-16 lg:py-20">
               <p className="m-eyebrow">The Sithelo Business Passport</p>
               <h1 id="hero-heading" className="font-display font-medium text-m-hero text-midnight mt-5 max-w-[12ch] [text-wrap:balance]">
                 Turning effort into opportunity.
@@ -93,7 +93,7 @@ export default function LandingPage() {
                 Your business deserves to be seen. Build one trusted profile that helps institutions
                 understand what you can deliver.
               </p>
-              <div className="mt-9 flex flex-col sm:flex-row sm:items-center lg:flex-col lg:items-start xl:flex-row xl:items-center gap-3 sm:gap-4">
+              <div className="mt-9 flex flex-col sm:flex-row sm:items-center lg:flex-col lg:items-start 2xl:flex-row 2xl:items-center gap-3 sm:gap-4">
                 <Link href="/register?role=entrepreneur" className="m-btn-primary w-full sm:w-auto sm:whitespace-nowrap !min-h-[52px] !px-7 !text-base">
                   Create your free Business Passport
                 </Link>
@@ -119,16 +119,16 @@ export default function LandingPage() {
                     alt="A site team and two reviewers in hard hats on a building reconstruction in Parktown, Johannesburg"
                     fill
                     priority
-                    sizes="(min-width: 1024px) 50vw, 100vw"
-                    className="object-cover object-[60%_40%] m-hero-settle"
+                    sizes="(min-width: 1024px) 54vw, 100vw"
+                    className="object-cover object-[60%_40%] lg:object-[0%_40%] m-hero-settle"
                   />
                   <div className="absolute inset-0 bg-midnight/10" aria-hidden="true" />
                 </div>
               </figure>
 
-              <div className="relative z-10 -mt-36 sm:-mt-48 px-5 pb-14 sm:px-8 lg:absolute lg:inset-y-0 lg:left-0 lg:mt-0 lg:pb-0 lg:px-0 lg:flex lg:items-center lg:pl-[4%]">
-                <div className="m-float mx-auto w-full max-w-[420px] lg:w-[420px]">
-                  <PassportCredential />
+              <div className="relative z-10 -mt-36 sm:-mt-48 px-5 pb-14 sm:px-8 lg:absolute lg:inset-y-0 lg:left-0 lg:mt-0 lg:pb-0 lg:px-0 lg:flex lg:items-center lg:pl-[3%]">
+                <div className="m-float mx-auto w-full max-w-[420px] lg:mx-0 lg:w-[340px] xl:w-[370px] 2xl:w-[400px]">
+                  <PassportCredential compactOnDesktop />
                 </div>
               </div>
             </div>
