@@ -64,7 +64,7 @@ export function SiteFooter() {
   const contact = LEGAL_CONFIG.contactEmail;
   return (
     <footer className="bg-midnight text-paper">
-      <div className="m-container py-16 md:py-20 grid gap-12 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div className="m-container py-16 md:py-20 grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <SitheloLogo height={56} variant="light" />
           <p className="text-[0.9375rem] text-paper/70 mt-5 max-w-xs leading-relaxed">

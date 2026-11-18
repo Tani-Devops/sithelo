@@ -46,8 +46,8 @@ const STATUS: Record<Status, { label: string; className: string; icon: React.Rea
 const RECORDS: { name: string; detail: string; status: Status }[] = [
   { name: "CIPC registration", detail: "Company documents on file", status: "verified" },
   { name: "SARS tax compliance", detail: "Valid until 30 Jun 2027", status: "verified" },
-  { name: "B-BBEE certificate", detail: "Level 2 · expires 14 Jan 2027", status: "expiring" },
-  { name: "CIDB grading", detail: "Grade 6 CE · submitted 3 Nov", status: "review" },
+  { name: "B-BBEE certificate", detail: "Level 2, expires 14 Jan 2027", status: "expiring" },
+  { name: "CIDB grading", detail: "Grade 6 CE, submitted 3 Nov", status: "review" },
 ];
 
 const CAPABILITIES = ["Civil works", "Paving", "Stormwater", "Plant hire"];
@@ -61,9 +61,7 @@ const CAPABILITIES = ["Civil works", "Paving", "Stormwater", "Plant hire"];
 export function PassportCredential({ compactOnDesktop = false }: { compactOnDesktop?: boolean }) {
   return (
     <figure className="relative">
-      <div className="relative overflow-hidden rounded-[12px] bg-midnight text-paper ring-1 ring-white/10 shadow-[0_2px_4px_rgba(16,35,51,0.18),0_24px_48px_-18px_rgba(16,35,51,0.55),0_60px_90px_-40px_rgba(16,35,51,0.45)]">
-        {/* A faint sheen across the top third: reads as a laminated card. */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/[0.07] to-transparent" aria-hidden="true" />
+      <div className="relative overflow-hidden rounded-[12px] bg-midnight text-paper ring-1 ring-white/10 shadow-[0_2px_4px_theme(colors.midnight.DEFAULT/18%),0_24px_48px_-18px_theme(colors.midnight.DEFAULT/55%),0_60px_90px_-40px_theme(colors.midnight.DEFAULT/45%)]">
         {/* Copper rule along the top edge: the credential's one accent. */}
         <div className="h-[3px] bg-copper" aria-hidden="true" />
 
@@ -74,14 +72,13 @@ export function PassportCredential({ compactOnDesktop = false }: { compactOnDesk
               <p className="text-[0.8125rem] text-paper/60 mt-1.5 tabular-nums whitespace-nowrap">SIT-2026-04817</p>
             </div>
             <p className="self-start inline-flex items-center gap-1.5 whitespace-nowrap rounded-[4px] border border-paper/25 px-2.5 py-1 text-[0.75rem] font-semibold text-paper">
-              <span className="w-1.5 h-1.5 rounded-full bg-copper-light" aria-hidden="true" />
               Visible to institutions
             </p>
           </div>
 
           <div className="mt-7 pb-6 border-b border-paper/15">
             <p className="font-display text-[1.625rem] sm:text-[1.875rem] leading-tight">Karabo Civils (Pty) Ltd</p>
-            <p className="text-[0.9375rem] text-paper/70 mt-1.5">Construction · Ekurhuleni, Gauteng</p>
+            <p className="text-[0.9375rem] text-paper/70 mt-1.5">Construction, Ekurhuleni, Gauteng</p>
           </div>
 
           <ul className="divide-y divide-paper/10" aria-label="Compliance records">
@@ -103,7 +100,7 @@ export function PassportCredential({ compactOnDesktop = false }: { compactOnDesk
           </ul>
 
           <div className={`mt-5 ${compactOnDesktop ? "lg:hidden 2xl:block" : ""}`}>
-            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-paper/60 mb-2.5">Capabilities</p>
+            <p className="text-[0.8125rem] font-semibold text-paper/70 mb-2.5">Capabilities</p>
             <ul className="flex flex-wrap gap-2">
               {CAPABILITIES.map((c) => (
                 <li key={c} className="rounded-[4px] bg-paper/[0.08] px-2.5 py-1 text-[0.8125rem] text-paper/90">{c}</li>

@@ -1,6 +1,10 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { SiteNav, SiteFooter } from "@/components/ui/MarketingChrome";
-import { SitheloButton, HeroPhoto } from "@/components/ui/sithelo";
+import { DirectorySearchExample } from "@/components/marketing/DirectorySearchExample";
+import { PassportCredential } from "@/components/marketing/PassportCredential";
+import { SouthAfricaMap } from "@/components/marketing/SouthAfricaMap";
+import { LEGAL_CONFIG } from "@/lib/legal/config";
 
 export const metadata: Metadata = {
   title: "For Institutions | Sithelo",
@@ -9,60 +13,121 @@ export const metadata: Metadata = {
   alternates: { canonical: "/for-institutions" },
 };
 
-const CAPABILITIES = [
-  { title: "Search verified businesses", body: "Filter by industry, province, municipality and verification status instead of starting due diligence from a blank page." },
-  { title: "Due diligence built in", body: "Every Passport surfaces real verification status across CIPC, SARS, VAT, B-BBEE, CIDB and more." },
-  { title: "Post opportunities", body: "Create funding, procurement or enterprise development opportunities and receive applications from eligible, verified businesses." },
-  { title: "Shortlist with confidence", body: "Compare businesses on trust score and verification status, not self-reported claims." },
+// Claims on this page match /institution/search and the institution
+// portal as built: search by name, industry and province; verification
+// status per record; shortlisting; opportunities published once Sithelo
+// approves the institution. "Talk to us" appears only when a monitored
+// contact address is configured (LEGAL_CONFIG.contactEmail).
+
+const PROVINCES = [
+  "Eastern Cape", "Free State", "Gauteng", "KwaZulu-Natal", "Limpopo",
+  "Mpumalanga", "North West", "Northern Cape", "Western Cape",
 ];
 
+const VERIFICATIONS = ["CIPC", "SARS", "VAT", "B-BBEE", "CIDB", "Municipal supplier"];
+
 export default function ForInstitutionsPage() {
+  const contact = LEGAL_CONFIG.contactEmail;
   return (
     <>
       <SiteNav />
-      <main id="main-content">
-      <section className="container-editorial pt-6 pb-16 grid md:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
-        <div>
-          <div className="eyebrow mb-4">For Institutions</div>
-          <h1 className="text-display-lg font-display font-medium text-navy leading-tight mb-5">
-            Find capacity-ready businesses you can trust.
-          </h1>
-          <p className="text-base text-ink-600 leading-relaxed max-w-xl mb-8">
-            Sithelo gives funders, enterprise development programmes, procurement teams and corporate
-            partners a faster path to verified, ready-to-work South African businesses.
-          </p>
-          <SitheloButton href="/register?role=institution">Register your institution</SitheloButton>
-        </div>
-        <HeroPhoto
-          src="/images/jhb-construction.jpg"
-          alt="A site team and two reviewers in hard hats on a building reconstruction in Parktown, Johannesburg"
-        />
-      </section>
-
-      <section className="container-editorial py-16">
-        <div className="rule border-t">
-          {CAPABILITIES.map((c, i) => (
-            <div key={c.title} className="grid md:grid-cols-[auto_1fr] gap-x-8 gap-y-2 py-7 border-b border-line">
-              <div className="text-eyebrow text-ink-500">{String(i + 1).padStart(2, "0")}</div>
-              <div>
-                <h3 className="text-base font-display font-medium text-navy mb-1.5">{c.title}</h3>
-                <p className="text-sm text-ink-600 leading-relaxed max-w-md">{c.body}</p>
+      <main id="main-content" className="bg-linen text-midnight">
+        {/* ================= HERO: the search itself ================= */}
+        <section aria-labelledby="hero-heading" className="m-container pt-12 pb-20 lg:py-16 lg:min-h-[clamp(620px,calc(100svh-84px),760px)] lg:flex lg:items-center">
+          <div className="w-full grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] gap-12 lg:gap-16 items-center">
+            <div>
+              <h1 id="hero-heading" className="font-display font-medium text-m-hero text-midnight max-w-[11ch] [overflow-wrap:break-word] min-w-0">
+                Find businesses you can verify.
+              </h1>
+              <p className="m-lead mt-6 max-w-[30rem]">
+                Search South African businesses by industry, province and name, then see what has been checked.
+              </p>
+              <div className="mt-9 flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <Link href="/register?role=institution" className="m-btn-primary w-full sm:w-auto whitespace-nowrap !min-h-[52px] !px-7 !text-base">
+                  Register your institution
+                </Link>
+                {contact && (
+                  <a href={`mailto:${contact}?subject=Sithelo%20for%20our%20institution`} className="m-btn-glass w-full sm:w-auto whitespace-nowrap !min-h-[52px]">
+                    Talk to us
+                  </a>
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      </section>
+            <DirectorySearchExample />
+          </div>
+        </section>
 
-      <section className="bg-ivory py-16">
-        <div className="container-editorial">
-          <h2 className="text-2xl font-display font-medium text-navy mb-3">Nationwide coverage</h2>
-          <p className="text-ink-600 text-[15px] max-w-lg">
-            Businesses on Sithelo are organised by South Africa&apos;s nine provinces and their
-            municipalities, so you can search at the level of granularity procurement and enterprise
-            development programmes actually need.
-          </p>
-        </div>
-      </section>
+        {/* ================= DUE DILIGENCE: the Passport, read by an institution ================= */}
+        <section aria-labelledby="diligence-heading" className="bg-midnight text-paper">
+          <div className="m-container m-section grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] gap-14 lg:gap-24 items-center">
+            <div className="max-w-[420px] w-full mx-auto lg:mx-0 order-2 lg:order-1">
+              <PassportCredential />
+            </div>
+            <div className="order-1 lg:order-2">
+              <h2 id="diligence-heading" className="font-display font-medium text-m-section max-w-[14ch]">
+                Verified, not just claimed.
+              </h2>
+              <p className="text-m-lead text-paper/80 mt-6 max-w-md">
+                Every record shows whether Sithelo has verified it, is reviewing it, or when it expires.
+              </p>
+              <ul className="mt-10 flex flex-wrap gap-x-6 gap-y-3 font-display text-m-title text-paper/90" aria-label="Verification types">
+                {VERIFICATIONS.map((v) => <li key={v}>{v}</li>)}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= SHORTLIST AND PUBLISH ================= */}
+        <section aria-labelledby="work-heading" className="bg-linen">
+          <div className="m-container m-section">
+            <h2 id="work-heading" className="m-heading max-w-[18ch]">From a shortlist to an award.</h2>
+            <div className="mt-14 grid md:grid-cols-2 gap-x-16 gap-y-12">
+              <div className="border-t-2 border-copper pt-6">
+                <h3 className="font-display text-m-title text-midnight">Shortlist with confidence</h3>
+                <p className="text-[1.0625rem] text-ink-700 mt-3 leading-relaxed max-w-md">
+                  Keep the businesses you want to follow in one list, chosen on what was verified.
+                </p>
+              </div>
+              <div className="border-t-2 border-copper pt-6">
+                <h3 className="font-display text-m-title text-midnight">Publish opportunities</h3>
+                <p className="text-[1.0625rem] text-ink-700 mt-3 leading-relaxed max-w-md">
+                  Once Sithelo approves your institution, post funding, procurement or enterprise
+                  development work, then shortlist, reject or award applications.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= COVERAGE: the nine provinces ================= */}
+        <section aria-labelledby="coverage-heading" className="relative isolate overflow-hidden bg-linen-deep">
+          <SouthAfricaMap className="pointer-events-none absolute -z-10 text-copper/[0.12] w-[680px] -right-24 top-1/2 -translate-y-1/2 hidden md:block" />
+          <div className="m-container m-section">
+            <h2 id="coverage-heading" className="m-heading max-w-[16ch]">Search by province.</h2>
+            <ul className="mt-12 grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 gap-x-10 gap-y-5 max-w-3xl font-display text-m-title text-midnight min-w-0">
+              {PROVINCES.map((p) => <li key={p} className="border-t border-midnight/15 pt-4">{p}</li>)}
+            </ul>
+          </div>
+        </section>
+
+        {/* ================= CLOSE ================= */}
+        <section aria-labelledby="final-heading" className="bg-midnight text-paper">
+          <div className="m-container py-20 md:py-28 grid md:grid-cols-[minmax(0,1fr)_auto] gap-8 md:gap-16 items-end">
+            <h2 id="final-heading" className="font-display font-medium text-m-section max-w-[16ch]">
+              Start with businesses you can check.
+            </h2>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <Link href="/register?role=institution" className="m-btn-on-dark w-full sm:w-auto whitespace-nowrap !min-h-[52px] !px-7 !text-base">
+                Register your institution
+              </Link>
+              {contact && (
+                <a href={`mailto:${contact}?subject=Sithelo%20for%20our%20institution`} className="m-btn-glass-dark w-full sm:w-auto whitespace-nowrap !min-h-[52px]">
+                  Talk to us
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
       </main>
       <SiteFooter />
     </>
